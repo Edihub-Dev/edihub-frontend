@@ -1,17 +1,166 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { FiLogOut, FiPieChart, FiBox, FiLayers, FiMessageSquare, FiUsers, FiSettings } from 'react-icons/fi';
+import { useNavigate, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  FiLogOut, 
+  FiPieChart, 
+  FiBox, 
+  FiLayers, 
+  FiMessageSquare, 
+  FiUsers, 
+  FiSettings,
+  FiPlus,
+  FiEdit2,
+  FiTrash2,
+  FiExternalLink,
+  FiX,
+  FiCheck,
+  FiAlertCircle,
+  FiFolder,
+  FiSearch,
+  FiArrowRight,
+  FiBriefcase,
+  FiUploadCloud
+} from 'react-icons/fi';
 import { getApiUrl } from '../utils/api';
+
+import pexels1 from '../assets/projects/pexels-1.jpg';
+import pexels2 from '../assets/projects/pexels-2.jpg';
+import pexels3 from '../assets/projects/pexels-3.jpg';
+import pexels4 from '../assets/projects/pexels-4.jpg';
+import pexels5 from '../assets/projects/pexels-5.jpg';
+
+import arrowsImg from '../assets/projects/arrows.png';
+import chantalleImg from '../assets/projects/chantalle.png';
+import papyrusImg from '../assets/projects/papyrus.png';
+import londonMuseumImg from '../assets/projects/london-museum.png';
+import bullseyeImg from '../assets/projects/bullseye.png';
+import interferenceImg from '../assets/projects/interference.png';
+
+const customImageMap: Record<string, string> = {
+  "arrows": arrowsImg,
+  "chantalle": chantalleImg,
+  "papyrus": papyrusImg,
+  "london-museum": londonMuseumImg,
+  "bullseye": bullseyeImg,
+  "interference": interferenceImg,
+};
+
+const imageMap: Record<string, string> = {
+  "pexels-1.jpg": pexels1,
+  "pexels-2.jpg": pexels2,
+  "pexels-3.jpg": pexels3,
+  "pexels-4.jpg": pexels4,
+  "pexels-5.jpg": pexels5,
+};
+
+const getProjectImage = (imageName: string) => {
+  if (!imageName) return pexels1;
+  if (imageName.startsWith('data:image/') || imageName.startsWith('http://') || imageName.startsWith('https://')) {
+    return imageName;
+  }
+  return imageMap[imageName] || pexels1;
+};
+
+const imageOptions = [
+  { value: 'pexels-1.jpg', label: 'Dark Tech Sphere (Pexels 1)' },
+  { value: 'pexels-2.jpg', label: 'Minimalist Workspace (Pexels 2)' },
+  { value: 'pexels-3.jpg', label: 'Creative Layout (Pexels 3)' },
+  { value: 'pexels-4.jpg', label: 'Modern Architectural Detail (Pexels 4)' },
+  { value: 'pexels-5.jpg', label: 'Premium Branding Texture (Pexels 5)' }
+];
 
 export function AdminDashboard() {
   const [admin, setAdmin] = useState<any>(null);
+  const [activeSection, setActiveSection] = useState<'overview' | 'projects' | 'services' | 'testimonials' | 'team' | 'settings'>('overview');
+  
+  // Data lists
+  const [projects, setProjects] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
+  
+  // Dashboard stats
   const [stats, setStats] = useState({
     projects: 0,
     services: 0,
     testimonials: 0
   });
+
+  // UI state
+  const [loading, setLoading] = useState(true);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<any | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  
+  // Project Search & Filter
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Notification states
+  const [successMsg, setSuccessMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+
+  // Form fields
+  const [projectForm, setProjectForm] = useState({
+    title: '',
+    category: '',
+    client: '',
+    year: new Date().getFullYear().toString(),
+    tags: '',
+    description: '',
+    image: 'pexels-1.jpg'
+  });
+
+  const [imageSource, setImageSource] = useState<'template' | 'upload' | 'url'>('template');
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image is a bit large! Please try to upload an image under 2MB for faster loading.");
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        setProjectForm(prev => ({ ...prev, image: reader.result }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const navigate = useNavigate();
+  const apiUrl = getApiUrl();
+
+  const fetchAllData = async () => {
+    try {
+      setLoading(true);
+      const [projectsRes, servicesRes, testimonialsRes] = await Promise.all([
+        fetch(`${apiUrl}/projects`),
+        fetch(`${apiUrl}/services`),
+        fetch(`${apiUrl}/testimonials`)
+      ]);
+
+      const projectsData = await projectsRes.json();
+      const servicesData = await servicesRes.json();
+      const testimonialsData = await testimonialsRes.json();
+
+      setProjects(projectsData);
+      setServices(servicesData);
+      setTestimonials(testimonialsData);
+      
+      setStats({
+        projects: projectsData.length,
+        services: servicesData.length,
+        testimonials: testimonialsData.length
+      });
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setErrorMsg('Failed to sync dashboard data with server.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -23,32 +172,7 @@ export function AdminDashboard() {
     }
 
     setAdmin(JSON.parse(user));
-
-    // Fetch stats
-    const fetchStats = async () => {
-      try {
-        const apiUrl = getApiUrl();
-        const [projectsRes, servicesRes, testimonialsRes] = await Promise.all([
-          fetch(`${apiUrl}/projects`),
-          fetch(`${apiUrl}/services`),
-          fetch(`${apiUrl}/testimonials`)
-        ]);
-
-        const projects = await projectsRes.json();
-        const services = await servicesRes.json();
-        const testimonials = await testimonialsRes.json();
-
-        setStats({
-          projects: projects.length,
-          services: services.length,
-          testimonials: testimonials.length
-        });
-      } catch (err) {
-        console.error('Error fetching stats:', err);
-      }
-    };
-
-    fetchStats();
+    fetchAllData();
   }, [navigate]);
 
   const handleLogout = () => {
@@ -57,69 +181,261 @@ export function AdminDashboard() {
     navigate('/admin-login');
   };
 
+  // CRUD Actions
+  const handleAddNewClick = () => {
+    setProjectForm({
+      title: '',
+      category: '',
+      client: '',
+      year: new Date().getFullYear().toString(),
+      tags: '',
+      description: '',
+      image: 'pexels-1.jpg'
+    });
+    setEditingProject(null);
+    setImageSource('template');
+    setErrorMsg('');
+    setIsFormOpen(true);
+  };
+
+  const handleEditClick = (project: any) => {
+    setProjectForm({
+      title: project.title,
+      category: project.category,
+      client: project.client,
+      year: project.year,
+      tags: Array.isArray(project.tags) ? project.tags.join(', ') : project.tags || '',
+      description: project.description,
+      image: project.image || 'pexels-1.jpg'
+    });
+
+    // Determine image mode dynamically
+    const img = project.image || '';
+    if (img.startsWith('data:image/')) {
+      setImageSource('upload');
+    } else if (img.startsWith('http://') || img.startsWith('https://')) {
+      setImageSource('url');
+    } else {
+      setImageSource('template');
+    }
+
+    setEditingProject(project);
+    setErrorMsg('');
+    setIsFormOpen(true);
+  };
+
+  const handleDeleteClick = async (slug: string) => {
+    if (!window.confirm('Are you sure you want to permanently delete this project?')) return;
+    
+    try {
+      const res = await fetch(`${apiUrl}/projects/${slug}`, {
+        method: 'DELETE'
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to delete project.');
+      }
+
+      showNotification('success', 'Project successfully deleted!');
+      fetchAllData();
+    } catch (err: any) {
+      showNotification('error', err.message || 'Error occurred during deletion.');
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg('');
+
+    // Secondary frontend validation safeguard
+    if (
+      !projectForm.title.trim() || 
+      !projectForm.category.trim() || 
+      !projectForm.client.trim() || 
+      !projectForm.year.trim() || 
+      !projectForm.description.trim()
+    ) {
+      showNotification('error', 'Please fill out all required fields first (Title, Category, Client, Year, Description).');
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const isEditing = !!editingProject;
+      const url = isEditing 
+        ? `${apiUrl}/projects/${editingProject.slug}`
+        : `${apiUrl}/projects`;
+
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const tagsArray = projectForm.tags
+        .split(',')
+        .map(t => t.trim())
+        .filter(Boolean);
+
+      const payload = {
+        ...projectForm,
+        tags: tagsArray
+      };
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to save project metadata.');
+      }
+
+      showNotification('success', isEditing ? 'Project details updated successfully!' : 'New project published successfully!');
+      setIsFormOpen(false);
+      fetchAllData();
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Something went wrong while publishing.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const showNotification = (type: 'success' | 'error', msg: string) => {
+    if (type === 'success') {
+      setSuccessMsg(msg);
+      setTimeout(() => setSuccessMsg(''), 4000);
+    } else {
+      setErrorMsg(msg);
+      setTimeout(() => setErrorMsg(''), 5000);
+    }
+  };
+
+  const filteredProjects = projects.filter(p => 
+    p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.client.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (!admin) return null;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-[#1E293B] text-white hidden lg:flex flex-col h-screen sticky top-0">
-        <div className="p-6 border-b border-white/10">
-          <h2 className="text-2xl font-bold tracking-tight">EDI<span className="text-blue-500">HUB</span></h2>
-          <p className="text-xs text-zinc-400 mt-1 uppercase tracking-widest">Admin Control</p>
+    <div className="w-full h-screen overflow-hidden bg-[#F8FAFC] flex font-sans selection:bg-blue-600/10 selection:text-blue-600">
+      
+      {/* Notifications Popups */}
+      <div className="fixed top-6 right-6 z-50 flex flex-col gap-3 max-w-md w-full pointer-events-none">
+        <AnimatePresence>
+          {successMsg && (
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl shadow-xl flex items-center gap-3 pointer-events-auto"
+            >
+              <div className="p-1.5 bg-emerald-500 rounded-full text-white">
+                <FiCheck className="w-4 h-4" />
+              </div>
+              <p className="text-sm font-semibold flex-1">{successMsg}</p>
+            </motion.div>
+          )}
+
+          {errorMsg && (
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              className="bg-rose-50 border border-rose-200 text-rose-800 px-5 py-4 rounded-2xl shadow-xl flex items-center gap-3 pointer-events-auto"
+            >
+              <div className="p-1.5 bg-rose-500 rounded-full text-white">
+                <FiAlertCircle className="w-4 h-4" />
+              </div>
+              <p className="text-sm font-semibold flex-1">{errorMsg}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Sidebar navigation */}
+      <aside className="w-64 bg-[#0F172A] text-white hidden lg:flex flex-col h-screen sticky top-0 border-r border-slate-800">
+        <div className="p-6 border-b border-slate-800/80">
+          <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+            EDI<span className="text-blue-500">HUB</span>
+            <span className="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-full font-normal">v1.1</span>
+          </h2>
+          <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest font-semibold">Admin Panel</p>
         </div>
         
-        <nav className="flex-1 p-4 space-y-2 mt-4 overflow-y-auto">
-          <div className="p-3 bg-blue-600 rounded-xl flex items-center gap-3 cursor-pointer">
+        <nav className="flex-1 p-4 space-y-1.5 mt-4 overflow-y-auto">
+          <div 
+            onClick={() => setActiveSection('overview')}
+            className={`p-3 rounded-xl flex items-center gap-3 cursor-pointer transition-all ${
+              activeSection === 'overview' 
+                ? 'bg-blue-600 text-white font-semibold shadow-lg shadow-blue-500/20' 
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+            }`}
+          >
             <FiPieChart className="w-5 h-5" />
-            <span className="font-medium text-sm">Dashboard Overview</span>
+            <span className="text-sm font-medium">Dashboard Overview</span>
           </div>
+
           {[
-            { name: 'Projects', icon: <FiBox /> },
-            { name: 'Services', icon: <FiLayers /> },
-            { name: 'Testimonials', icon: <FiMessageSquare /> },
-            { name: 'Team', icon: <FiUsers /> },
-            { name: 'Settings', icon: <FiSettings /> },
+            { id: 'projects', name: 'Projects', icon: <FiBox /> },
+            { id: 'services', name: 'Services', icon: <FiLayers /> },
+            { id: 'testimonials', name: 'Testimonials', icon: <FiMessageSquare /> },
+            { id: 'team', name: 'Team', icon: <FiUsers /> },
+            { id: 'settings', name: 'Settings', icon: <FiSettings /> },
           ].map(item => (
-            <div key={item.name} className="p-3 hover:bg-white/5 rounded-xl flex items-center gap-3 cursor-pointer transition-colors text-zinc-400 hover:text-white">
-              <div className="text-lg opacity-70">{item.icon}</div>
+            <div 
+              key={item.id} 
+              onClick={() => setActiveSection(item.id as any)}
+              className={`p-3 rounded-xl flex items-center gap-3 cursor-pointer transition-all ${
+                activeSection === item.id 
+                  ? 'bg-blue-600 text-white font-semibold shadow-lg shadow-blue-500/20' 
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+              }`}
+            >
+              <div className="text-lg opacity-85">{item.icon}</div>
               <span className="text-sm font-medium">{item.name}</span>
             </div>
           ))}
         </nav>
 
-        <div className="p-4 border-t border-white/10">
+        <div className="p-4 border-t border-slate-800/80">
           <button 
             onClick={handleLogout}
-            className="w-full p-3 flex items-center gap-3 text-red-400 hover:bg-red-400/10 rounded-xl transition-all group"
+            className="w-full p-3 flex items-center gap-3 text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all group font-medium"
           >
             <FiLogOut className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
-            <span className="text-sm font-bold">Logout</span>
+            <span className="text-sm font-semibold">Logout</span>
           </button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
-        <header className="h-20 bg-white border-b border-zinc-200 flex items-center justify-between px-8">
+      <main className="flex-1 overflow-y-auto h-screen flex flex-col">
+        <header className="h-20 bg-white border-b border-slate-200/80 flex items-center justify-between px-8 shrink-0">
           <div>
-            <h1 className="text-xl font-bold text-zinc-800">Welcome back, {admin.name}</h1>
-            <p className="text-xs text-zinc-500">System status: <span className="text-green-500 font-medium">Online</span></p>
+            <h1 className="text-lg font-bold text-slate-800">Welcome back, {admin.name}</h1>
+            <p className="text-xs text-slate-500">System status: <span className="text-emerald-500 font-semibold flex items-center gap-1 inline-flex"><span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Online</span></p>
           </div>
           
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-4 border-r border-zinc-200 pr-6">
+            <div className="flex items-center gap-3 border-r border-slate-200 pr-6">
               <div className="text-right hidden sm:block">
-                <div className="text-sm font-bold text-zinc-900">{admin.email}</div>
-                <div className="text-xs text-zinc-500 uppercase font-medium">{admin.role}</div>
+                <div className="text-sm font-bold text-slate-900">{admin.email}</div>
+                <div className="text-xs text-slate-400 uppercase font-semibold tracking-wider">{admin.role}</div>
               </div>
-              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-                {admin.name.charAt(0)}
+              <div className="w-10 h-10 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-full flex items-center justify-center text-white font-bold shadow-md shadow-blue-500/10">
+                {admin.name.charAt(0).toUpperCase()}
               </div>
             </div>
 
             <button 
               onClick={handleLogout}
-              className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all flex items-center gap-2 group"
+              className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all flex items-center gap-2 group font-semibold"
               title="Logout"
             >
               <FiLogOut className="w-5 h-5" />
@@ -128,49 +444,644 @@ export function AdminDashboard() {
           </div>
         </header>
 
-        <div className="p-8 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            {[
-              { label: 'Total Projects', value: stats.projects, trend: 'From database' },
-              { label: 'Active Services', value: stats.services, trend: 'Managed live' },
-              { label: 'Testimonials', value: stats.testimonials, trend: 'Verified feedback' },
-            ].map((stat, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-white p-6 rounded-3xl border border-zinc-200 shadow-sm"
-              >
-                <div className="text-sm font-medium text-zinc-500 mb-2 uppercase tracking-wider">{stat.label}</div>
-                <div className="text-4xl font-black text-zinc-900 mb-1">{stat.value}</div>
-                <div className="text-xs text-blue-600 font-bold">{stat.trend}</div>
-              </motion.div>
-            ))}
-          </div>
+        {/* Dashboard Content Container */}
+        <div className="p-8 max-w-7xl mx-auto w-full flex-1">
+          
+          {/* 1. OVERVIEW VIEW */}
+          {activeSection === 'overview' && (
+            <div className="space-y-10">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                  { label: 'Total Portfolio Projects', value: stats.projects, trend: 'Dynamic cloud storage', color: 'from-blue-600 to-blue-400' },
+                  { label: 'Offered Services', value: stats.services, trend: 'Managed frontend items', color: 'from-indigo-600 to-indigo-400' },
+                  { label: 'Testimonials / Feedback', value: stats.testimonials, trend: 'Verified customer reviews', color: 'from-violet-600 to-violet-400' },
+                ].map((stat, i) => (
+                  <motion.div 
+                    key={i}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.08 }}
+                    className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm relative overflow-hidden group hover:shadow-md transition-all duration-300"
+                  >
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform duration-300"></div>
+                    <div className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-widest">{stat.label}</div>
+                    <div className="text-5xl font-black text-slate-900 mb-2 tracking-tight">{stat.value}</div>
+                    <div className="text-xs text-blue-600 font-semibold">{stat.trend}</div>
+                  </motion.div>
+                ))}
+              </div>
 
-          <div className="bg-white rounded-3xl border border-zinc-200 shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-zinc-100 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-zinc-900">Recent Activity</h2>
-              <button className="text-sm font-bold text-blue-600 hover:underline">View all</button>
-            </div>
-            <div className="p-6 space-y-6">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="flex items-center gap-4 group">
-                  <div className="w-10 h-10 bg-blue-600/20 rounded-full flex items-center justify-center text-blue-400 font-bold">
-                    {i}
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-sm font-bold text-zinc-800 group-hover:text-blue-600 transition-colors">Server sync successful</div>
-                    <div className="text-xs text-zinc-500">Database collection refreshed via cloud Atlas</div>
-                  </div>
-                  <div className="text-xs text-zinc-400 font-medium">2 mins ago</div>
+              {/* Quick Navigation Cards */}
+              <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-slate-900">Manage Sections</h2>
+                  <span className="text-xs text-slate-400 font-medium">Quick routing links</span>
                 </div>
-              ))}
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 p-6 gap-4">
+                  {[
+                    { title: 'Project Portfolio', desc: 'Create, update, year, client and services', action: 'projects', count: stats.projects, icon: <FiBox className="w-6 h-6 text-blue-500" /> },
+                    { title: 'Core Services', desc: 'Manage strategic agency operations', action: 'services', count: stats.services, icon: <FiLayers className="w-6 h-6 text-indigo-500" /> },
+                    { title: 'Testimonials', desc: 'Publish verified customer statements', action: 'testimonials', count: stats.testimonials, icon: <FiMessageSquare className="w-6 h-6 text-violet-500" /> },
+                    { title: 'Agency Team', desc: 'Showcase professionals & roles', action: 'team', count: 0, icon: <FiUsers className="w-6 h-6 text-emerald-500" /> },
+                  ].map((card, idx) => (
+                    <div 
+                      key={idx}
+                      onClick={() => setActiveSection(card.action as any)}
+                      className="p-5 border border-slate-150 rounded-2xl cursor-pointer hover:border-blue-500 hover:bg-blue-50/20 transition-all duration-300 flex flex-col justify-between h-40 group"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="p-3 bg-slate-50 rounded-xl group-hover:bg-white transition-colors">{card.icon}</div>
+                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">{card.count} items</span>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors flex items-center gap-1">
+                          {card.title}
+                          <FiArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transform translate-x-0 group-hover:translate-x-1 transition-all" />
+                        </h3>
+                        <p className="text-xs text-slate-400 mt-1 leading-normal">{card.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* 2. PROJECTS MANAGEMENT VIEW */}
+          {activeSection === 'projects' && (
+            <div className="space-y-6">
+              
+              {/* Header Action Bar */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">Project Portfolio</h2>
+                  <p className="text-sm text-slate-500 mt-0.5">Add, modify and showcase your work. Syncs instantly with the live frontend.</p>
+                </div>
+                
+                <button
+                  onClick={handleAddNewClick}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-5 py-3.5 rounded-2xl shadow-lg shadow-blue-600/10 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                >
+                  <FiPlus className="w-4 h-4 stroke-[3]" />
+                  Add Portfolio Project
+                </button>
+              </div>
+
+              {/* Filtering and search */}
+              <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row gap-4 items-center">
+                <div className="relative flex-1 w-full">
+                  <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search projects by title, category, services or client..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800"
+                  />
+                </div>
+                
+                <div className="text-xs font-semibold text-slate-400 sm:pr-2">
+                  Showing {filteredProjects.length} of {projects.length} projects
+                </div>
+              </div>
+
+              {/* Projects Grid List */}
+              {loading ? (
+                <div className="h-64 bg-white rounded-3xl border border-slate-200/80 flex items-center justify-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-8 h-8 rounded-full border-4 border-blue-600 border-t-transparent animate-spin"></div>
+                    <span className="text-sm font-semibold text-slate-500">Loading catalog...</span>
+                  </div>
+                </div>
+              ) : filteredProjects.length === 0 ? (
+                <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center flex flex-col items-center justify-center">
+                  <div className="p-4 bg-slate-50 rounded-2xl text-slate-400 mb-4">
+                    <FiFolder className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-base font-bold text-slate-800">No projects found</h3>
+                  <p className="text-sm text-slate-400 mt-1 max-w-sm">No items matched your search query or database is empty. Click 'Add Portfolio Project' to get started.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {filteredProjects.map((project, idx) => (
+                    <motion.div
+                      key={project.slug}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between group"
+                    >
+                      {/* Image Preview & category */}
+                      <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+                        <img
+                          src={customImageMap[project.slug] || getProjectImage(project.image)}
+                          alt={project.title}
+                          className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent"></div>
+                        <span className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-md text-[10px] font-black uppercase text-slate-800 tracking-wider px-3 py-1 rounded-full border border-white/20">
+                          {project.category}
+                        </span>
+                      </div>
+
+                      {/* Content block */}
+                      <div className="p-6 flex-1 flex flex-col justify-between">
+                        <div className="space-y-3">
+                          <h3 className="text-lg font-bold text-slate-900 tracking-tight group-hover:text-blue-600 transition-colors">
+                            {project.title}
+                          </h3>
+
+                          {/* Metadata row */}
+                          <div className="grid grid-cols-2 gap-4 border-y border-slate-100 py-3 text-xs">
+                            <div>
+                              <span className="text-slate-400 block font-semibold mb-0.5">Client</span>
+                              <span className="text-slate-700 font-bold">{project.client}</span>
+                            </div>
+                            <div>
+                              <span className="text-slate-400 block font-semibold mb-0.5">Year</span>
+                              <span className="text-slate-700 font-bold">{project.year}</span>
+                            </div>
+                          </div>
+
+                          {/* Services / tags list */}
+                          <div>
+                            <span className="text-slate-400 text-[10px] uppercase font-bold tracking-widest block mb-2">Services</span>
+                            <div className="flex flex-wrap gap-1.5">
+                              {project.tags.map((tag: string) => (
+                                <span 
+                                  key={tag}
+                                  className="text-[11px] font-semibold text-slate-600 bg-slate-100 border border-slate-200/50 px-2 py-0.5 rounded-md"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Challenge description short */}
+                          <div>
+                            <span className="text-slate-400 text-[10px] uppercase font-bold tracking-widest block mb-1">Challenge & Solution</span>
+                            <p className="text-xs text-slate-500 leading-relaxed line-clamp-3">
+                              {project.description}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Action buttons panel */}
+                        <div className="flex items-center gap-2 border-t border-slate-100 pt-4 mt-6">
+                          <button
+                            onClick={() => handleEditClick(project)}
+                            className="flex-1 py-2.5 px-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors"
+                          >
+                            <FiEdit2 className="w-3.5 h-3.5" />
+                            Edit details
+                          </button>
+                          
+                          <button
+                            onClick={() => handleDeleteClick(project.slug)}
+                            className="p-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200/60 rounded-xl transition-colors"
+                            title="Delete project"
+                          >
+                            <FiTrash2 className="w-4 h-4" />
+                          </button>
+
+                          <Link
+                            to={`/projects/${project.slug}`}
+                            target="_blank"
+                            className="p-2.5 bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200/60 rounded-xl transition-colors"
+                            title="View live page"
+                          >
+                            <FiExternalLink className="w-4 h-4" />
+                          </Link>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 3. CORE SERVICES PLACEHOLDER */}
+          {activeSection === 'services' && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight">Core Agency Services</h2>
+                <p className="text-sm text-slate-500 mt-0.5">Manage strategic service capabilities visible on the client portfolio site.</p>
+              </div>
+
+              <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm">
+                <div className="flex flex-col items-center justify-center p-8 text-center max-w-lg mx-auto">
+                  <div className="p-4 bg-indigo-50 text-indigo-500 rounded-3xl mb-4">
+                    <FiLayers className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-800">Services Live View</h3>
+                  <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+                    The agency website is currently drawing <span className="font-bold text-slate-700">{services.length} core services</span> directly from the central database.
+                  </p>
+                  
+                  <div className="w-full mt-6 space-y-3 text-left">
+                    {services.map((srv, idx) => (
+                      <div key={idx} className="p-3 border border-slate-100 rounded-xl flex items-center justify-between">
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-800">{srv.title || srv.name}</h4>
+                          <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{srv.description}</p>
+                        </div>
+                        <span className="text-[10px] bg-indigo-50 text-indigo-600 font-bold px-2 py-0.5 rounded-full uppercase">Active</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 4. TESTIMONIALS PLACEHOLDER */}
+          {activeSection === 'testimonials' && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight">Client Testimonials</h2>
+                <p className="text-sm text-slate-500 mt-0.5">Manage validated customer quotes, reviews, and client ratings.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {testimonials.map((t, idx) => (
+                  <div key={idx} className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex text-amber-400 gap-0.5">
+                        {Array.from({ length: t.rating || 5 }).map((_, i) => (
+                          <span key={i} className="text-lg">★</span>
+                        ))}
+                      </div>
+                      <p className="text-sm text-slate-650 italic leading-relaxed">
+                        "{t.text || t.quote || t.content}"
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 border-t border-slate-100 pt-4">
+                      <div className="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 font-bold text-xs uppercase">
+                        {(t.author || t.name || 'C').charAt(0)}
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-800">{t.author || t.name}</h4>
+                        <p className="text-xs text-slate-400">{t.company || t.role || 'Client'}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 5. TEAM PLACEHOLDER */}
+          {activeSection === 'team' && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight">Agency Team Directory</h2>
+                <p className="text-sm text-slate-500 mt-0.5">Manage details of designers, developers, and professional team profiles.</p>
+              </div>
+
+              <div className="bg-white p-12 rounded-3xl border border-slate-200/80 shadow-sm text-center">
+                <div className="max-w-md mx-auto flex flex-col items-center">
+                  <div className="p-4 bg-emerald-50 text-emerald-500 rounded-3xl mb-4">
+                    <FiUsers className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-800">Team Directory Portal</h3>
+                  <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+                    Team directory customization module is pending database migration. The public layout currently renders static agency profiles with premium animations.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 6. SETTINGS VIEW */}
+          {activeSection === 'settings' && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight">System Settings</h2>
+                <p className="text-sm text-slate-500 mt-0.5">Configure operational values, e-mail variables, and database sync status.</p>
+              </div>
+
+              <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm divide-y divide-slate-100">
+                <div className="p-6 space-y-4">
+                  <h3 className="text-sm font-bold text-slate-800 uppercase tracking-widest">Admin Authorization</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
+                    <div>
+                      <span className="text-slate-400 block font-semibold">Active Login Email</span>
+                      <span className="text-slate-800 font-bold mt-1 block">{admin.email}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block font-semibold">Security Role</span>
+                      <span className="text-emerald-600 bg-emerald-50 border border-emerald-200/50 px-3 py-0.5 rounded-full font-bold text-xs inline-block mt-1 uppercase">
+                        {admin.role}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  <h3 className="text-sm font-bold text-slate-800 uppercase tracking-widest">Connection Config</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
+                    <div>
+                      <span className="text-slate-400 block font-semibold">Target API URL</span>
+                      <code className="text-xs bg-slate-50 p-2 rounded-lg border border-slate-150 font-mono mt-1 block select-all">
+                        {apiUrl}
+                      </code>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block font-semibold">Database Driver</span>
+                      <span className="text-slate-800 font-bold mt-1 block flex items-center gap-1">
+                        JSON Persistence / Atlas Ready
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
       </main>
+
+      {/* Elegant Add/Edit Drawer Modal Overlay */}
+      <AnimatePresence>
+        {isFormOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-end">
+            
+            {/* Dark Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsFormOpen(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-[3px]"
+            />
+
+            {/* Slide-out Sidebar Drawer */}
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="relative w-full max-w-2xl bg-white h-screen shadow-2xl flex flex-col justify-between border-l border-slate-200"
+            >
+              
+              {/* Drawer Header */}
+              <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-950 flex items-center gap-2">
+                    <FiBriefcase className="text-blue-500" />
+                    {editingProject ? 'Edit Portfolio Project' : 'Publish New Project'}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">Fill out project metadata below to sync with frontend pages.</p>
+                </div>
+                <button
+                  onClick={() => setIsFormOpen(false)}
+                  className="p-2 hover:bg-slate-200/80 rounded-xl transition-colors text-slate-500"
+                  title="Close form"
+                >
+                  <FiX className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Drawer Body Scroll */}
+              <form id="project-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-8 space-y-6">
+                
+                {/* Title */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Project Title *</label>
+                  <input
+                    type="text"
+                    required
+                    value={projectForm.title}
+                    onChange={(e) => setProjectForm({ ...projectForm, title: e.target.value })}
+                    placeholder="e.g. Arrows, Chantalle, Papyrus"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium"
+                  />
+                </div>
+
+                {/* Sub Metadata Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  
+                  {/* Category */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Category *</label>
+                    <input
+                      type="text"
+                      required
+                      value={projectForm.category}
+                      onChange={(e) => setProjectForm({ ...projectForm, category: e.target.value })}
+                      placeholder="e.g. Visual Identity"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium"
+                    />
+                  </div>
+
+                  {/* Client */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Client *</label>
+                    <input
+                      type="text"
+                      required
+                      value={projectForm.client}
+                      onChange={(e) => setProjectForm({ ...projectForm, client: e.target.value })}
+                      placeholder="e.g. Arrows Global"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium"
+                    />
+                  </div>
+
+                  {/* Year */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Year *</label>
+                    <input
+                      type="number"
+                      required
+                      value={projectForm.year}
+                      onChange={(e) => setProjectForm({ ...projectForm, year: e.target.value })}
+                      placeholder="e.g. 2024"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium"
+                    />
+                  </div>
+
+                </div>
+
+                {/* Services / Tags */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex justify-between">
+                    <span>Services / Tags *</span>
+                    <span className="text-[10px] text-slate-400 normal-case font-medium">Separate with commas</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={projectForm.tags}
+                    onChange={(e) => setProjectForm({ ...projectForm, tags: e.target.value })}
+                    placeholder="e.g. Branding, Web Design, Motion, Development"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium"
+                  />
+                </div>
+
+                {/* Visual Media Picker */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Portfolio Hero Image *</label>
+                  
+                  {/* Premium Tab Switcher */}
+                  <div className="grid grid-cols-3 gap-2 bg-slate-100 p-1 rounded-xl mb-4 text-xs font-semibold text-slate-600">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImageSource('template');
+                        setProjectForm(prev => ({ ...prev, image: 'pexels-1.jpg' }));
+                      }}
+                      className={`py-2 px-3 rounded-lg text-center transition-all ${imageSource === 'template' ? 'bg-white text-blue-600 shadow-sm' : 'hover:text-slate-800'}`}
+                    >
+                      Presets Templates
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImageSource('upload');
+                        setProjectForm(prev => ({ ...prev, image: '' }));
+                      }}
+                      className={`py-2 px-3 rounded-lg text-center transition-all ${imageSource === 'upload' ? 'bg-white text-blue-600 shadow-sm' : 'hover:text-slate-800'}`}
+                    >
+                      Upload Picture
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImageSource('url');
+                        setProjectForm(prev => ({ ...prev, image: '' }));
+                      }}
+                      className={`py-2 px-3 rounded-lg text-center transition-all ${imageSource === 'url' ? 'bg-white text-blue-600 shadow-sm' : 'hover:text-slate-800'}`}
+                    >
+                      Paste Image Link
+                    </button>
+                  </div>
+
+                  {/* Mode A: Preset Template Select Dropdown */}
+                  {imageSource === 'template' && (
+                    <select
+                      value={projectForm.image.startsWith('data:image/') || projectForm.image.startsWith('http') ? 'pexels-1.jpg' : projectForm.image}
+                      onChange={(e) => setProjectForm({ ...projectForm, image: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-bold mb-4"
+                    >
+                      {imageOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+
+                  {/* Mode B: Upload Local Image file */}
+                  {imageSource === 'upload' && (
+                    <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 bg-slate-50 hover:bg-slate-100/50 transition-colors text-center mb-4">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        id="custom-file-upload"
+                        className="hidden"
+                        onChange={handleImageUpload}
+                      />
+                      <label htmlFor="custom-file-upload" className="cursor-pointer block">
+                        <div className="flex flex-col items-center justify-center gap-2 text-slate-500">
+                          <FiUploadCloud className="w-8 h-8 text-blue-500 mb-1 mx-auto" />
+                          <span className="text-sm font-bold text-slate-700 block">Choose Image File</span>
+                          <span className="text-xs text-slate-400 block">Supports JPG, PNG, WEBP (under 2MB)</span>
+                        </div>
+                      </label>
+                      {projectForm.image && projectForm.image.startsWith('data:image/') && (
+                        <div className="mt-3 text-xs text-emerald-600 font-semibold bg-emerald-50 py-1.5 px-3 rounded-lg inline-flex items-center gap-1.5 border border-emerald-100 mx-auto">
+                          <FiCheck className="w-3.5 h-3.5" /> File loaded successfully!
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Mode C: Paste Image Link */}
+                  {imageSource === 'url' && (
+                    <div className="mb-4">
+                      <input
+                        type="url"
+                        placeholder="Paste image link here (e.g. https://images.unsplash.com/...)"
+                        value={projectForm.image.startsWith('data:image/') ? '' : projectForm.image}
+                        onChange={(e) => setProjectForm({ ...projectForm, image: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium"
+                      />
+                      <span className="text-[10px] text-slate-400 mt-1 block">Paste any visual URL from Unsplash, Pexels, or your custom asset server.</span>
+                    </div>
+                  )}
+
+                  {/* Dynamic Image Preview */}
+                  <div className="relative aspect-[21/9] w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+                    {projectForm.image ? (
+                      <img
+                        src={
+                          editingProject && customImageMap[editingProject.slug] && projectForm.image === editingProject.image
+                            ? customImageMap[editingProject.slug]
+                            : getProjectImage(projectForm.image)
+                        }
+                        alt="Thumbnail preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center text-slate-400 text-xs font-semibold">
+                        No image selected yet
+                      </div>
+                    )}
+                    {projectForm.image && (
+                      <div className="absolute inset-0 bg-black/10 flex items-end p-3 pointer-events-none">
+                        <span className="text-[10px] font-bold text-white bg-slate-900/60 px-2 py-0.5 rounded backdrop-blur">
+                          Live Preview Selected
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Challenge & Solution (description) */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">The Challenge & Solution *</label>
+                  <textarea
+                    required
+                    rows={6}
+                    value={projectForm.description}
+                    onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
+                    placeholder="Provide a descriptive overview explaining the project scope, client issues, and your strategic design approach..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 leading-relaxed font-medium"
+                  ></textarea>
+                </div>
+
+              </form>
+
+              {/* Drawer Footer Actions */}
+              <div className="p-6 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsFormOpen(false)}
+                  className="px-5 py-3 hover:bg-slate-200 rounded-xl text-slate-655 text-sm font-bold transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  form="project-form"
+                  disabled={submitting}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold text-sm rounded-xl flex items-center gap-2 shadow-lg shadow-blue-600/10 transition-all active:scale-[0.98]"
+                >
+                  {submitting && (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  )}
+                  {editingProject ? 'Save Changes' : 'Publish Project'}
+                </button>
+              </div>
+
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }

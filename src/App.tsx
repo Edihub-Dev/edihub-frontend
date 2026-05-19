@@ -30,22 +30,24 @@ function App() {
 
   return (
     <>
-      <SmoothScrollProvider />
-      <GradualBlur
-        target="page"
-        position="bottom"
-        height="8rem"
-        strength={2}
-        divCount={3}
-        curve="bezier"
-        exponential
-        opacity={1}
-        zIndex={2000}
-        style={{ pointerEvents: "none" }}
-      />
-      <div className="relative min-h-screen">
+      {!isAdminPage && <SmoothScrollProvider />}
+      {!isAdminPage && (
+        <GradualBlur
+          target="page"
+          position="bottom"
+          height="8rem"
+          strength={2}
+          divCount={3}
+          curve="bezier"
+          exponential
+          opacity={1}
+          zIndex={2000}
+          style={{ pointerEvents: "none" }}
+        />
+      )}
+      <div className={isAdminPage ? "relative h-screen overflow-hidden" : "relative min-h-screen"}>
         {!isAdminPage && <Navbar />}
-        <main>
+        <main className={isAdminPage ? "h-full" : ""}>
           <Routes>
             <Route
               path="/"

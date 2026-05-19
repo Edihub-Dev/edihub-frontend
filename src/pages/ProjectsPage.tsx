@@ -7,12 +7,26 @@ import { Footer } from "@/components/layout/Footer";
 import { CtaSection } from "@/components/sections/CtaSection";
 import { getApiUrl } from "@/utils/api";
 
+import pexels1 from "@/assets/projects/pexels-1.jpg";
+import pexels2 from "@/assets/projects/pexels-2.jpg";
+import pexels3 from "@/assets/projects/pexels-3.jpg";
+import pexels4 from "@/assets/projects/pexels-4.jpg";
+import pexels5 from "@/assets/projects/pexels-5.jpg";
+
 import arrowsImg from "@/assets/projects/arrows.png";
 import chantalleImg from "@/assets/projects/chantalle.png";
 import papyrusImg from "@/assets/projects/papyrus.png";
 import londonMuseumImg from "@/assets/projects/london-museum.png";
 import bullseyeImg from "@/assets/projects/bullseye.png";
 import interferenceImg from "@/assets/projects/interference.png";
+
+const imageMap: Record<string, string> = {
+  "pexels-1.jpg": pexels1,
+  "pexels-2.jpg": pexels2,
+  "pexels-3.jpg": pexels3,
+  "pexels-4.jpg": pexels4,
+  "pexels-5.jpg": pexels5,
+};
 
 type Project = {
   title: string;
@@ -63,9 +77,11 @@ export function ProjectsPage() {
     fetch(`${apiUrl}/projects`)
       .then((res) => res.json())
       .then((data: Project[]) => {
-        // Sort projects to match the exact OPUS template order
+        // Sort projects to match the exact OPUS template order, placing custom ones at the end
         const sorted = [...data].sort((a, b) => {
-          return slugOrder.indexOf(a.slug) - slugOrder.indexOf(b.slug);
+          const idxA = slugOrder.indexOf(a.slug) === -1 ? 9999 : slugOrder.indexOf(a.slug);
+          const idxB = slugOrder.indexOf(b.slug) === -1 ? 9999 : slugOrder.indexOf(b.slug);
+          return idxA - idxB;
         });
         setProjects(sorted);
         setLoading(false);
@@ -133,7 +149,7 @@ export function ProjectsPage() {
               className="grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:gap-x-12 lg:gap-y-24"
             >
               {projects.map((project) => {
-                const projectImage = customImageMap[project.slug] || project.image;
+                const projectImage = customImageMap[project.slug] || imageMap[project.image] || project.image;
                 return (
                   <motion.div
                     key={project.slug}

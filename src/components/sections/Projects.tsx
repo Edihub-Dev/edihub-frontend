@@ -131,7 +131,12 @@ export function Projects() {
     const apiUrl = getApiUrl();
     fetch(`${apiUrl}/projects`)
       .then((res) => res.json())
-      .then((data) => setProjects(data))
+      .then((data: Project[]) => {
+        // Only show default template projects on the home page showcase
+        const defaultSlugs = ["arrows", "chantalle", "papyrus", "london-museum", "bullseye", "interference"];
+        const filtered = data.filter((p) => defaultSlugs.includes(p.slug));
+        setProjects(filtered);
+      })
       .catch((err) => console.error("Error fetching projects:", err));
   }, []);
 
