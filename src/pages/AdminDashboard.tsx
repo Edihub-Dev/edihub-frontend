@@ -20,7 +20,12 @@ import {
   FiSearch,
   FiArrowRight,
   FiBriefcase,
-  FiUploadCloud
+  FiUploadCloud,
+  FiUserCheck,
+  FiUser,
+  FiEdit3,
+  FiLock,
+  FiKey
 } from 'react-icons/fi';
 import { getApiUrl } from '../utils/api';
 
@@ -72,12 +77,13 @@ const imageOptions = [
 
 export function AdminDashboard() {
   const [admin, setAdmin] = useState<any>(null);
-  const [activeSection, setActiveSection] = useState<'overview' | 'projects' | 'services' | 'testimonials' | 'team' | 'settings'>('overview');
+  const [activeSection, setActiveSection] = useState<'overview' | 'projects' | 'services' | 'testimonials' | 'team' | 'settings' | 'requests'>('overview');
   
   // Data lists
   const [projects, setProjects] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [accessRequests, setAccessRequests] = useState<any[]>([]);
   
   // Dashboard stats
   const [stats, setStats] = useState({
@@ -91,6 +97,13 @@ export function AdminDashboard() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<any | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  
+  // Profile Modal state
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [profileName, setProfileName] = useState('');
+  const [profilePic, setProfilePic] = useState('');
+  const [profilePassword, setProfilePassword] = useState('');
+  const [profileSubmitting, setProfileSubmitting] = useState(false);
   
   // Project Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
@@ -132,6 +145,121 @@ export function AdminDashboard() {
   const navigate = useNavigate();
   const apiUrl = getApiUrl();
 
+  const fetchAccessRequests = async () => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${apiUrl}/auth/requests`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAccessRequests(data);
+      }
+    } catch (err) {
+      console.error('Error fetching access requests:', err);
+    }
+  };
+
+  const handleApproveRequest = async (id: string) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${apiUrl}/auth/requests/${id}/approve`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        setSuccessMsg('Access request approved successfully!');
+        fetchAccessRequests();
+        setTimeout(() => setSuccessMsg(''), 4000);
+      } else {
+        setErrorMsg('Failed to approve request.');
+        setTimeout(() => setErrorMsg(''), 4000);
+      }
+    } catch (err) {
+      console.error('Error approving request:', err);
+    }
+  };
+
+  const handleRejectRequest = async (id: string) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${apiUrl}/auth/requests/${id}/reject`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        setSuccessMsg('Access request rejected successfully.');
+        fetchAccessRequests();
+        setTimeout(() => setSuccessMsg(''), 4000);
+      } else {
+        setErrorMsg('Failed to reject request.');
+        setTimeout(() => setErrorMsg(''), 4000);
+      }
+    } catch (err) {
+      console.error('Error rejecting request:', err);
+    }
+  };
+
+  const handleProfileSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileSubmitting(true);
+    setErrorMsg('');
+    setSuccessMsg('');
+
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${apiUrl}/auth/profile`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: profileName,
+          profilePic: profilePic,
+          password: profilePassword || undefined
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setSuccessMsg('Profile updated successfully!');
+        setAdmin(data.user);
+        localStorage.setItem('adminUser', JSON.stringify(data.user));
+        setIsProfileOpen(false);
+        setProfilePassword('');
+        setTimeout(() => setSuccessMsg(''), 4000);
+      } else {
+        setErrorMsg(data.message || 'Failed to update profile.');
+        setTimeout(() => setErrorMsg(''), 4000);
+      }
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      setErrorMsg('Failed to connect to server.');
+      setTimeout(() => setErrorMsg(''), 4000);
+    } finally {
+      setProfileSubmitting(false);
+    }
+  };
+
+  const handleProfilePicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 1 * 1024 * 1024) {
+      alert("Image is too large! Please upload a profile picture under 1MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        setProfilePic(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const fetchAllData = async () => {
     try {
       setLoading(true);
@@ -154,6 +282,8 @@ export function AdminDashboard() {
         services: servicesData.length,
         testimonials: testimonialsData.length
       });
+      
+      fetchAccessRequests();
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
       setErrorMsg('Failed to sync dashboard data with server.');
@@ -171,9 +301,18 @@ export function AdminDashboard() {
       return;
     }
 
-    setAdmin(JSON.parse(user));
+    const adminObj = JSON.parse(user);
+    setAdmin(adminObj);
+    setProfileName(adminObj.name || '');
+    setProfilePic(adminObj.profilePic || '');
     fetchAllData();
   }, [navigate]);
+
+  useEffect(() => {
+    if (activeSection === 'requests') {
+      fetchAccessRequests();
+    }
+  }, [activeSection]);
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
@@ -386,19 +525,27 @@ export function AdminDashboard() {
             { id: 'services', name: 'Services', icon: <FiLayers /> },
             { id: 'testimonials', name: 'Testimonials', icon: <FiMessageSquare /> },
             { id: 'team', name: 'Team', icon: <FiUsers /> },
+            { id: 'requests', name: 'Access Requests', icon: <FiUserCheck />, badge: accessRequests.filter(r => r.status === 'pending').length },
             { id: 'settings', name: 'Settings', icon: <FiSettings /> },
           ].map(item => (
             <div 
               key={item.id} 
               onClick={() => setActiveSection(item.id as any)}
-              className={`p-3 rounded-xl flex items-center gap-3 cursor-pointer transition-all ${
+              className={`p-3 rounded-xl flex items-center justify-between cursor-pointer transition-all ${
                 activeSection === item.id 
                   ? 'bg-blue-600 text-white font-semibold shadow-lg shadow-blue-500/20' 
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
               }`}
             >
-              <div className="text-lg opacity-85">{item.icon}</div>
-              <span className="text-sm font-medium">{item.name}</span>
+              <div className="flex items-center gap-3">
+                <div className="text-lg opacity-85">{item.icon}</div>
+                <span className="text-sm font-medium">{item.name}</span>
+              </div>
+              {item.badge !== undefined && item.badge > 0 && (
+                <span className="bg-amber-500 text-[#0F172A] text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">
+                  {item.badge}
+                </span>
+              )}
             </div>
           ))}
         </nav>
@@ -418,18 +565,33 @@ export function AdminDashboard() {
       <main className="flex-1 overflow-y-auto h-screen flex flex-col">
         <header className="h-20 bg-white border-b border-slate-200/80 flex items-center justify-between px-8 shrink-0">
           <div>
-            <h1 className="text-lg font-bold text-slate-800">Welcome back, {admin.name}</h1>
+            <h1 className="text-lg font-bold text-slate-800">
+              Welcome back,{' '}
+              <span 
+                onClick={() => setIsProfileOpen(true)} 
+                className="text-blue-600 hover:text-blue-700 cursor-pointer underline decoration-dotted transition-all"
+              >
+                {admin?.name}
+              </span>
+            </h1>
             <p className="text-xs text-slate-500">System status: <span className="text-emerald-500 font-semibold flex items-center gap-1 inline-flex"><span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Online</span></p>
           </div>
           
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-3 border-r border-slate-200 pr-6">
+            <div 
+              onClick={() => setIsProfileOpen(true)}
+              className="flex items-center gap-3 border-r border-slate-200 pr-6 cursor-pointer group"
+            >
               <div className="text-right hidden sm:block">
-                <div className="text-sm font-bold text-slate-900">{admin.email}</div>
-                <div className="text-xs text-slate-400 uppercase font-semibold tracking-wider">{admin.role}</div>
+                <div className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{admin?.email}</div>
+                <div className="text-xs text-slate-400 uppercase font-semibold tracking-wider">{admin?.role}</div>
               </div>
-              <div className="w-10 h-10 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-full flex items-center justify-center text-white font-bold shadow-md shadow-blue-500/10">
-                {admin.name.charAt(0).toUpperCase()}
+              <div className="w-10 h-10 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-full flex items-center justify-center text-white font-bold shadow-md shadow-blue-500/10 overflow-hidden border-2 border-transparent group-hover:border-blue-500 transition-all">
+                {admin?.profilePic ? (
+                  <img src={admin.profilePic} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  admin?.name?.charAt(0).toUpperCase()
+                )}
               </div>
             </div>
 
@@ -800,6 +962,108 @@ export function AdminDashboard() {
               </div>
             </div>
           )}
+          {/* 7. ACCESS REQUESTS VIEW */}
+          {activeSection === 'requests' && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                  Access Requests
+                  <span className="text-xs bg-amber-500/10 text-amber-600 border border-amber-500/25 px-2.5 py-1 rounded-full font-bold">
+                    {accessRequests.filter(r => r.status === 'pending').length} Pending
+                  </span>
+                </h2>
+                <p className="text-sm text-slate-500 mt-0.5">Approve or reject platform access requests from team members and other individuals.</p>
+              </div>
+
+              {accessRequests.length === 0 ? (
+                <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center shadow-sm">
+                  <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto text-slate-400 mb-4">
+                    <FiUserCheck className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-base font-bold text-slate-800">No requests found</h3>
+                  <p className="text-sm text-slate-400 mt-1">There are currently no access requests in the queue.</p>
+                </div>
+              ) : (
+                <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-slate-100 bg-slate-50/50">
+                          <th className="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Name</th>
+                          <th className="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Email Address</th>
+                          <th className="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Status</th>
+                          <th className="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Request Date</th>
+                          <th className="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {accessRequests.map((reqItem) => (
+                          <tr key={reqItem._id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors">
+                            <td className="p-5">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center font-bold text-slate-700 uppercase">
+                                  {reqItem.name.charAt(0)}
+                                </div>
+                                <div className="text-sm font-bold text-slate-800">{reqItem.name}</div>
+                              </div>
+                            </td>
+                            <td className="p-5 text-sm font-medium text-slate-600">{reqItem.email}</td>
+                            <td className="p-5">
+                              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${
+                                reqItem.status === 'pending'
+                                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                  : reqItem.status === 'approved'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : 'bg-rose-50 text-rose-700 border border-rose-200'
+                              }`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${
+                                  reqItem.status === 'pending'
+                                    ? 'bg-amber-500 animate-pulse'
+                                    : reqItem.status === 'approved'
+                                    ? 'bg-emerald-500'
+                                    : 'bg-rose-500'
+                                }`}></span>
+                                {reqItem.status.charAt(0).toUpperCase() + reqItem.status.slice(1)}
+                              </span>
+                            </td>
+                            <td className="p-5 text-xs font-semibold text-slate-400">
+                              {new Date(reqItem.createdAt).toLocaleDateString(undefined, {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </td>
+                            <td className="p-5 text-right">
+                              {reqItem.status === 'pending' ? (
+                                <div className="flex items-center justify-end gap-2">
+                                  <button
+                                    onClick={() => handleApproveRequest(reqItem._id)}
+                                    className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-md shadow-emerald-600/10 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                  >
+                                    <FiCheck className="w-3.5 h-3.5" /> Approve
+                                  </button>
+                                  <button
+                                    onClick={() => handleRejectRequest(reqItem._id)}
+                                    className="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-md shadow-rose-600/10 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                  >
+                                    <FiX className="w-3.5 h-3.5" /> Reject
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="text-xs font-semibold text-slate-400">Processed</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
         </div>
       </main>
@@ -1077,6 +1341,128 @@ export function AdminDashboard() {
                 </button>
               </div>
 
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Profile Edit Modal */}
+      <AnimatePresence>
+        {isProfileOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsProfileOpen(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-3xl w-full max-w-md shadow-2xl border border-slate-200 overflow-hidden relative z-10"
+            >
+              {/* Modal Header */}
+              <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 tracking-tight">Edit Admin Profile</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">Manage your details, avatar, and security credentials.</p>
+                </div>
+                <button 
+                  onClick={() => setIsProfileOpen(false)}
+                  className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-400 hover:text-slate-700"
+                >
+                  <FiX className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Form body */}
+              <form onSubmit={handleProfileSubmit} className="p-6 space-y-5">
+                
+                {/* Profile Picture Uploader */}
+                <div className="flex flex-col items-center justify-center gap-2">
+                  <div className="relative group cursor-pointer">
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-blue-600 to-blue-400 border-4 border-slate-100 shadow-lg overflow-hidden flex items-center justify-center text-white text-2xl font-black relative">
+                      {profilePic ? (
+                        <img src={profilePic} alt="Profile preview" className="w-full h-full object-cover" />
+                      ) : (
+                        admin?.name?.charAt(0).toUpperCase() || 'L'
+                      )}
+                    </div>
+                    <label htmlFor="profile-avatar-upload" className="absolute bottom-0 right-0 p-1.5 bg-blue-600 text-white rounded-full border border-white hover:bg-blue-500 transition-colors shadow-md cursor-pointer">
+                      <FiUploadCloud className="w-3.5 h-3.5" />
+                      <input 
+                        type="file" 
+                        id="profile-avatar-upload" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={handleProfilePicUpload}
+                      />
+                    </label>
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Upload Profile Avatar</span>
+                </div>
+
+                {/* Full Name */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Full Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={profileName}
+                    onChange={(e) => setProfileName(e.target.value)}
+                    placeholder="Lokesh Kumawat"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-bold"
+                  />
+                </div>
+
+                {/* Email Address (View only) */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Registered Email (Locked)</label>
+                  <input
+                    type="email"
+                    disabled
+                    value={admin?.email || ''}
+                    className="w-full bg-slate-100 border border-slate-200 rounded-xl py-2.5 px-4 text-sm text-slate-450 font-semibold cursor-not-allowed"
+                  />
+                </div>
+
+                {/* Password (Change option) */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Update Password (Optional)</label>
+                  <input
+                    type="password"
+                    value={profilePassword}
+                    onChange={(e) => setProfilePassword(e.target.value)}
+                    placeholder="Enter new password to change"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium"
+                  />
+                </div>
+
+                {/* Modal actions */}
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsProfileOpen(false)}
+                    className="px-4 py-2 hover:bg-slate-100 rounded-xl text-slate-500 text-sm font-bold transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={profileSubmitting}
+                    className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold text-sm rounded-xl flex items-center gap-2 shadow-lg shadow-blue-600/10 transition-all active:scale-[0.98]"
+                  >
+                    {profileSubmitting && (
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    )}
+                    Save Profile
+                  </button>
+                </div>
+                
+              </form>
             </motion.div>
           </div>
         )}

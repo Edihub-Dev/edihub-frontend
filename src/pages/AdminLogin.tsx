@@ -8,6 +8,7 @@ export function AdminLogin() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
+  const [infoMsg, setInfoMsg] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -15,6 +16,7 @@ export function AdminLogin() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setInfoMsg('');
 
     try {
       const apiUrl = getApiUrl();
@@ -26,7 +28,9 @@ export function AdminLogin() {
 
       const data = await response.json();
 
-      if (response.ok) {
+      if (response.status === 202) {
+        setInfoMsg(data.message);
+      } else if (response.ok) {
         localStorage.setItem('adminToken', data.token);
         localStorage.setItem('adminUser', JSON.stringify(data.user));
         navigate('/admin');
@@ -93,6 +97,16 @@ export function AdminLogin() {
                 placeholder="••••••••"
               />
             </div>
+
+            {infoMsg && (
+              <motion.div 
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm rounded-xl text-center leading-relaxed font-semibold"
+              >
+                {infoMsg}
+              </motion.div>
+            )}
 
             {error && (
               <motion.p 
