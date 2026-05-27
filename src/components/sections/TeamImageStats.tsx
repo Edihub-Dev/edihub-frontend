@@ -26,6 +26,8 @@ const item = {
 
 export function TeamImageStats() {
   const mediaRef = useRef<HTMLDivElement | null>(null);
+  const headingRef = useRef(null);
+  const headingInView = useInView(headingRef, { once: true, margin: "-60px" });
   const inView = useInView(mediaRef, { once: true, margin: "-80px" });
   const { scrollYProgress } = useScroll({
     target: mediaRef,
@@ -37,6 +39,18 @@ export function TeamImageStats() {
 
   return (
     <Section id="team" className="bg-white py-0">
+      <Container className="pb-10 pt-4 md:pb-14 lg:pb-16">
+        <motion.h2
+          ref={headingRef}
+          initial={{ opacity: 0, y: 14 }}
+          animate={headingInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
+          transition={{ duration: 0.55, ease: "easeOut" }}
+          className="text-center text-[36px] font-semibold leading-[1.02] tracking-[-0.06em] text-[#1A1A1A] sm:text-[44px] md:text-[52px] lg:text-[64px]"
+        >
+          or get to know us first!
+        </motion.h2>
+      </Container>
+
       <div className="relative w-full">
         <div
           ref={mediaRef}
@@ -63,23 +77,23 @@ export function TeamImageStats() {
             >
               <motion.div variants={item} className="flex items-end gap-4">
                 <div className="text-[64px] font-semibold leading-none tracking-[-0.06em] sm:text-[76px] lg:text-[92px]">
-                  11
+                  19
                 </div>
                 <div className="pb-2 text-[20px] font-medium leading-[1.1] text-white/90 sm:text-[22px] lg:text-[24px]">
-                  core
+                  talented
                   <br />
-                  specialists
+                  individuals
                 </div>
               </motion.div>
 
               <motion.div variants={item} className="flex items-end gap-4">
                 <div className="text-[64px] font-semibold leading-none tracking-[-0.06em] sm:text-[76px] lg:text-[92px]">
-                  1000<span className="text-[#0066FF]">+</span>
+                  134<span className="text-[#0066FF]">+</span>
                 </div>
                 <div className="pb-2 text-[20px] font-medium leading-[1.1] text-white/90 sm:text-[22px] lg:text-[24px]">
-                  assets
+                  projects
                   <br />
-                  created
+                  later
                 </div>
               </motion.div>
 
@@ -88,9 +102,9 @@ export function TeamImageStats() {
                   {infinity}
                 </div>
                 <div className="pb-2 text-[20px] font-medium leading-[1.1] text-white/90 sm:text-[22px] lg:text-[24px]">
-                  ideas.
+                  combined
                   <br />
-                  one team.
+                  experience
                 </div>
               </motion.div>
             </motion.div>

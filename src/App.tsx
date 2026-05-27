@@ -5,6 +5,8 @@ import { ClientMarquee } from "@/components/sections/ClientMarquee";
 import { Services } from "@/components/sections/Services";
 import { Process } from "@/components/sections/Process";
 import { Projects } from "@/components/sections/Projects";
+import { BuildBetter } from "@/components/sections/BuildBetter";
+import { AboutStats } from "@/components/sections/AboutStats";
 import { CtaSection } from "@/components/sections/CtaSection";
 import { Pricing } from "@/components/sections/Pricing";
 import { Testimonials } from "@/components/sections/Testimonials";
@@ -13,9 +15,12 @@ import { Contact } from "@/components/sections/Contact";
 import { Footer } from "@/components/layout/Footer";
 import { AboutPage } from "@/pages/AboutPage";
 import { ServicesPage } from "@/pages/ServicesPage";
+import { ServiceDetailPage } from "@/pages/ServiceDetailPage";
 import { TeamDetailPage } from "@/pages/TeamDetailPage";
 import { ProjectDetailPage } from "@/pages/ProjectDetailPage";
 import { ProjectsPage } from "@/pages/ProjectsPage";
+import { BlogPage } from "@/pages/BlogPage";
+import { BlogDetailPage } from "@/pages/BlogDetailPage";
 import { AdminLogin } from "@/pages/AdminLogin";
 import { AdminDashboard } from "@/pages/AdminDashboard";
 import { Route, Routes, useLocation } from "react-router-dom";
@@ -27,11 +32,12 @@ import { SmoothScrollProvider } from "@/components/layout/SmoothScrollProvider";
 function App() {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith('/admin');
+  const hideNavbar = location.pathname.startsWith('/services');
 
   return (
     <>
       {!isAdminPage && <SmoothScrollProvider />}
-      {!isAdminPage && (
+      {!isAdminPage && !location.pathname.startsWith('/services') && (
         <GradualBlur
           target="page"
           position="bottom"
@@ -46,7 +52,7 @@ function App() {
         />
       )}
       <div className={isAdminPage ? "relative h-screen overflow-hidden" : "relative min-h-screen"}>
-        {!isAdminPage && <Navbar />}
+        {!isAdminPage && !hideNavbar && <Navbar />}
         <main className={isAdminPage ? "h-full" : ""}>
           <Routes>
             <Route
@@ -59,6 +65,8 @@ function App() {
                   <Services />
                   <Process />
                   <Projects />
+                  <BuildBetter />
+                  <AboutStats />
                   <Pricing />
                   <Testimonials />
                   <Faq />
@@ -77,10 +85,8 @@ function App() {
               element={<TeamDetailPage />}
             />
 
-            <Route
-              path="/services"
-              element={<ServicesPage />}
-            />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/services/:slug" element={<ServiceDetailPage />} />
 
             <Route
               path="/projects"
@@ -90,6 +96,16 @@ function App() {
             <Route
               path="/projects/:slug"
               element={<ProjectDetailPage />}
+            />
+
+            <Route
+              path="/blog"
+              element={<BlogPage />}
+            />
+
+            <Route
+              path="/blog/:slug"
+              element={<BlogDetailPage />}
             />
 
             <Route

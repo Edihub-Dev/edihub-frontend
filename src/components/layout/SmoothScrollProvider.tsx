@@ -25,11 +25,20 @@ export function SmoothScrollProvider() {
 
     rafId = requestAnimationFrame(raf);
 
+    // Automatically resize Lenis whenever the page content height changes
+    const resizeObserver = new ResizeObserver(() => {
+      lenis.resize();
+    });
+    if (document.body) {
+      resizeObserver.observe(document.body);
+    }
+
     // Expose lenis globally for Framer Motion integration
     (window as unknown as { lenis: Lenis }).lenis = lenis;
 
     return () => {
       cancelAnimationFrame(rafId);
+      resizeObserver.disconnect();
       lenis.destroy();
     };
   }, []);

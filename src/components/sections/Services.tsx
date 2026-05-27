@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { getApiUrl } from "@/utils/api";
@@ -57,13 +58,14 @@ export function Services() {
               This is how we help ambitious companies succeed.
             </motion.p>
 
-            <motion.button
-              type="button"
-              variants={item}
-              className="inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-[#0066FF] px-6 text-[14px] font-bold tracking-[-0.2px] text-white transition-colors hover:bg-[#0057D6] md:h-14 md:px-8"
-            >
-              View all services
-            </motion.button>
+            <motion.div variants={item}>
+              <Link
+                to="/services"
+                className="inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-[#0066FF] px-6 text-[14px] font-bold tracking-[-0.2px] text-white transition-colors hover:bg-[#0057D6] md:h-14 md:px-8"
+              >
+                View all services
+              </Link>
+            </motion.div>
           </div>
 
           <div className="mt-10 space-y-0 md:mt-12">

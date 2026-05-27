@@ -111,7 +111,7 @@ export function Navbar() {
             <motion.aside
               role="dialog"
               aria-modal="true"
-              className="absolute right-0 top-0 h-full w-[78vw] max-w-[720px] bg-[#0052FF] text-white"
+              className="absolute right-0 top-0 h-full w-[78vw] max-w-[720px] bg-[#0052FF] text-white overflow-y-auto"
               variants={{
                 open: {
                   x: 0,
@@ -126,8 +126,8 @@ export function Navbar() {
               animate="open"
               exit="closed"
             >
-              <div className="flex h-full flex-col px-12 pb-12 pt-12">
-                <div className="flex items-start justify-between">
+              <div className="flex min-h-full flex-col px-12 pb-12 pt-12 justify-between">
+                <div className="flex items-start justify-between shrink-0">
                   <div className="h-10 w-10" />
                   <button
                     type="button"
@@ -141,8 +141,8 @@ export function Navbar() {
                   </button>
                 </div>
 
-                <nav className="mt-20 flex-1">
-                  <ul className="space-y-4 text-[40px] sm:text-[48px] md:text-[52px] lg:text-[56px] font-semibold leading-[1.02] tracking-[-0.05em]">
+                <nav className="mt-8 sm:mt-14 mb-10 shrink-0">
+                  <ul className="space-y-2 sm:space-y-4 text-[34px] sm:text-[48px] md:text-[52px] lg:text-[56px] font-semibold leading-[1.02] tracking-[-0.05em]">
                     <li>
                       <Link
                         to="/"
@@ -181,6 +181,15 @@ export function Navbar() {
                     </li>
                     <li>
                       <Link
+                        to="/blog"
+                        className="block pl-0 transition-all duration-200 ease-out hover:pl-6 hover:opacity-80"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Blog
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
                         to="/contact"
                         className="block pl-0 transition-all duration-200 ease-out hover:pl-6 hover:opacity-80"
                         onClick={() => setMenuOpen(false)}
@@ -200,7 +209,7 @@ export function Navbar() {
                   </ul>
                 </nav>
 
-                <div className="grid grid-cols-2 gap-x-10 gap-y-4 text-white/90">
+                <div className="grid grid-cols-2 gap-x-10 gap-y-4 text-white/90 mt-auto pt-8 border-t border-white/10 shrink-0">
                   <div className="flex flex-col gap-1">
                     <a href="#" className="text-[16px] sm:text-[20px] md:text-[24px] transition-opacity hover:opacity-80" onClick={() => setMenuOpen(false)}>
                       Facebook

@@ -21,11 +21,7 @@ import {
   FiArrowRight,
   FiBriefcase,
   FiUploadCloud,
-  FiUserCheck,
-  FiUser,
-  FiEdit3,
-  FiLock,
-  FiKey
+  FiUserCheck
 } from 'react-icons/fi';
 import { getApiUrl } from '../utils/api';
 
@@ -77,19 +73,21 @@ const imageOptions = [
 
 export function AdminDashboard() {
   const [admin, setAdmin] = useState<any>(null);
-  const [activeSection, setActiveSection] = useState<'overview' | 'projects' | 'services' | 'testimonials' | 'team' | 'settings' | 'requests'>('overview');
+  const [activeSection, setActiveSection] = useState<'overview' | 'projects' | 'services' | 'testimonials' | 'team' | 'settings' | 'requests' | 'blogs'>('overview');
   
   // Data lists
   const [projects, setProjects] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [blogs, setBlogs] = useState<any[]>([]);
   const [accessRequests, setAccessRequests] = useState<any[]>([]);
   
   // Dashboard stats
   const [stats, setStats] = useState({
     projects: 0,
     services: 0,
-    testimonials: 0
+    testimonials: 0,
+    blogs: 0
   });
 
   // UI state
@@ -125,6 +123,24 @@ export function AdminDashboard() {
 
   const [imageSource, setImageSource] = useState<'template' | 'upload' | 'url'>('template');
 
+  const [isServiceFormOpen, setIsServiceFormOpen] = useState(false);
+  const [editingService, setEditingService] = useState<any | null>(null);
+  const [serviceSubmitting, setServiceSubmitting] = useState(false);
+  const [serviceForm, setServiceForm] = useState({
+    title: '',
+    description: '',
+    icon: 'web',
+  });
+
+  const serviceIconOptions = [
+    { value: 'brand', label: 'Brand Identity' },
+    { value: 'web', label: 'Web Design' },
+    { value: 'ui', label: 'UI/UX Design' },
+    { value: 'code', label: 'Development' },
+    { value: 'motion', label: 'Motion Design' },
+    { value: 'strategy', label: 'Digital Strategy' },
+  ];
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -135,8 +151,9 @@ export function AdminDashboard() {
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      if (typeof reader.result === 'string') {
-        setProjectForm(prev => ({ ...prev, image: reader.result }));
+      const result = reader.result;
+      if (typeof result === 'string') {
+        setProjectForm(prev => ({ ...prev, image: result }));
       }
     };
     reader.readAsDataURL(file);
@@ -197,6 +214,31 @@ export function AdminDashboard() {
       }
     } catch (err) {
       console.error('Error rejecting request:', err);
+    }
+  };
+
+  const handleDeleteRequest = async (id: string) => {
+    if (!window.confirm('Are you sure you want to permanently delete this access request and revoke their admin access?')) return;
+
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${apiUrl}/auth/requests/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        setSuccessMsg('Access request and admin account deleted successfully.');
+        fetchAccessRequests();
+        setTimeout(() => setSuccessMsg(''), 4000);
+      } else {
+        const errorData = await response.json();
+        setErrorMsg(errorData.message || 'Failed to delete request.');
+        setTimeout(() => setErrorMsg(''), 4000);
+      }
+    } catch (err) {
+      console.error('Error deleting request:', err);
+      setErrorMsg('Failed to connect to server.');
+      setTimeout(() => setErrorMsg(''), 4000);
     }
   };
 
@@ -263,24 +305,28 @@ export function AdminDashboard() {
   const fetchAllData = async () => {
     try {
       setLoading(true);
-      const [projectsRes, servicesRes, testimonialsRes] = await Promise.all([
+      const [projectsRes, servicesRes, testimonialsRes, blogsRes] = await Promise.all([
         fetch(`${apiUrl}/projects`),
         fetch(`${apiUrl}/services`),
-        fetch(`${apiUrl}/testimonials`)
+        fetch(`${apiUrl}/testimonials`),
+        fetch(`${apiUrl}/blogs`)
       ]);
 
       const projectsData = await projectsRes.json();
       const servicesData = await servicesRes.json();
       const testimonialsData = await testimonialsRes.json();
+      const blogsData = await blogsRes.json();
 
       setProjects(projectsData);
       setServices(servicesData);
       setTestimonials(testimonialsData);
+      setBlogs(blogsData);
       
       setStats({
         projects: projectsData.length,
         services: servicesData.length,
-        testimonials: testimonialsData.length
+        testimonials: testimonialsData.length,
+        blogs: blogsData.length
       });
       
       fetchAccessRequests();
@@ -443,6 +489,78 @@ export function AdminDashboard() {
     }
   };
 
+  const handleAddServiceClick = () => {
+    setServiceForm({ title: '', description: '', icon: 'web' });
+    setEditingService(null);
+    setErrorMsg('');
+    setIsServiceFormOpen(true);
+  };
+
+  const handleEditServiceClick = (srv: any) => {
+    setServiceForm({
+      title: srv.title || '',
+      description: srv.description || '',
+      icon: srv.icon || 'web',
+    });
+    setEditingService(srv);
+    setErrorMsg('');
+    setIsServiceFormOpen(true);
+  };
+
+  const handleDeleteServiceClick = async (slug: string) => {
+    if (!window.confirm('Delete this service card? It will be removed from the public services page.')) return;
+
+    try {
+      const res = await fetch(`${apiUrl}/services/${slug}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to delete service.');
+      }
+      showNotification('success', 'Service deleted successfully!');
+      fetchAllData();
+    } catch (err: any) {
+      showNotification('error', err.message || 'Error deleting service.');
+    }
+  };
+
+  const handleServiceSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg('');
+
+    if (!serviceForm.title.trim() || !serviceForm.description.trim()) {
+      showNotification('error', 'Please enter a title and description.');
+      return;
+    }
+
+    setServiceSubmitting(true);
+    try {
+      const isEditing = !!editingService;
+      const url = isEditing
+        ? `${apiUrl}/services/${editingService.slug}`
+        : `${apiUrl}/services`;
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(serviceForm),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to save service.');
+      }
+
+      showNotification('success', isEditing ? 'Service updated!' : 'New service added!');
+      setIsServiceFormOpen(false);
+      fetchAllData();
+    } catch (err: any) {
+      showNotification('error', err.message || 'Error saving service.');
+    } finally {
+      setServiceSubmitting(false);
+    }
+  };
+
   const showNotification = (type: 'success' | 'error', msg: string) => {
     if (type === 'success') {
       setSuccessMsg(msg);
@@ -524,6 +642,7 @@ export function AdminDashboard() {
             { id: 'projects', name: 'Projects', icon: <FiBox /> },
             { id: 'services', name: 'Services', icon: <FiLayers /> },
             { id: 'testimonials', name: 'Testimonials', icon: <FiMessageSquare /> },
+            { id: 'blogs', name: 'Blogs', icon: <FiFolder /> },
             { id: 'team', name: 'Team', icon: <FiUsers /> },
             { id: 'requests', name: 'Access Requests', icon: <FiUserCheck />, badge: accessRequests.filter(r => r.status === 'pending').length },
             { id: 'settings', name: 'Settings', icon: <FiSettings /> },
@@ -645,7 +764,7 @@ export function AdminDashboard() {
                     { title: 'Project Portfolio', desc: 'Create, update, year, client and services', action: 'projects', count: stats.projects, icon: <FiBox className="w-6 h-6 text-blue-500" /> },
                     { title: 'Core Services', desc: 'Manage strategic agency operations', action: 'services', count: stats.services, icon: <FiLayers className="w-6 h-6 text-indigo-500" /> },
                     { title: 'Testimonials', desc: 'Publish verified customer statements', action: 'testimonials', count: stats.testimonials, icon: <FiMessageSquare className="w-6 h-6 text-violet-500" /> },
-                    { title: 'Agency Team', desc: 'Showcase professionals & roles', action: 'team', count: 0, icon: <FiUsers className="w-6 h-6 text-emerald-500" /> },
+                    { title: 'Articles & Blogs', desc: 'Insights and thoughts publication', action: 'blogs', count: stats.blogs, icon: <FiFolder className="w-6 h-6 text-amber-500" /> },
                   ].map((card, idx) => (
                     <div 
                       key={idx}
@@ -825,37 +944,92 @@ export function AdminDashboard() {
             </div>
           )}
 
-          {/* 3. CORE SERVICES PLACEHOLDER */}
+          {/* 3. CORE SERVICES MANAGEMENT */}
           {activeSection === 'services' && (
             <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-black text-slate-900 tracking-tight">Core Agency Services</h2>
-                <p className="text-sm text-slate-500 mt-0.5">Manage strategic service capabilities visible on the client portfolio site.</p>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">Core Agency Services</h2>
+                  <p className="text-sm text-slate-500 mt-0.5">
+                    Add, edit, or delete service cards. Changes sync instantly to the public <Link to="/services" target="_blank" className="text-blue-600 hover:underline">/services</Link> page.
+                  </p>
+                </div>
+                <button
+                  onClick={handleAddServiceClick}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm px-5 py-3.5 rounded-2xl shadow-lg shadow-indigo-600/10 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                >
+                  <FiPlus className="w-4 h-4 stroke-[3]" />
+                  Add Service Card
+                </button>
               </div>
 
-              <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm">
-                <div className="flex flex-col items-center justify-center p-8 text-center max-w-lg mx-auto">
-                  <div className="p-4 bg-indigo-50 text-indigo-500 rounded-3xl mb-4">
+              {loading ? (
+                <div className="h-48 bg-white rounded-3xl border border-slate-200/80 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" />
+                </div>
+              ) : services.length === 0 ? (
+                <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center">
+                  <div className="p-4 bg-indigo-50 text-indigo-500 rounded-3xl inline-flex mb-4">
                     <FiLayers className="w-8 h-8" />
                   </div>
-                  <h3 className="text-lg font-bold text-slate-800">Services Live View</h3>
-                  <p className="text-sm text-slate-500 mt-2 leading-relaxed">
-                    The agency website is currently drawing <span className="font-bold text-slate-700">{services.length} core services</span> directly from the central database.
-                  </p>
-                  
-                  <div className="w-full mt-6 space-y-3 text-left">
-                    {services.map((srv, idx) => (
-                      <div key={idx} className="p-3 border border-slate-100 rounded-xl flex items-center justify-between">
-                        <div>
-                          <h4 className="text-sm font-bold text-slate-800">{srv.title || srv.name}</h4>
-                          <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{srv.description}</p>
-                        </div>
-                        <span className="text-[10px] bg-indigo-50 text-indigo-600 font-bold px-2 py-0.5 rounded-full uppercase">Active</span>
-                      </div>
-                    ))}
-                  </div>
+                  <h3 className="text-base font-bold text-slate-800">No services yet</h3>
+                  <p className="text-sm text-slate-400 mt-1">Click &quot;Add Service Card&quot; to create your first service.</p>
                 </div>
-              </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {services.map((srv: any, idx: number) => (
+                    <motion.div
+                      key={srv.slug || idx}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.04 }}
+                      className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="flex items-start justify-between gap-3">
+                          <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+                            #{srv.number || String(idx + 1).padStart(2, '0')}
+                          </span>
+                          <span className="text-[10px] bg-emerald-50 text-emerald-600 font-bold px-2 py-0.5 rounded-full uppercase">
+                            Active
+                          </span>
+                        </div>
+                        <h3 className="mt-4 text-lg font-bold text-slate-900">{srv.title}</h3>
+                        <p className="mt-2 text-xs text-slate-500 leading-relaxed line-clamp-3">{srv.description}</p>
+                        <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                          Icon: <span className="text-indigo-600">{srv.icon || 'web'}</span>
+                        </p>
+                        <p className="mt-1 text-[10px] text-slate-400 font-mono">/services/{srv.slug}</p>
+                      </div>
+
+                      <div className="flex items-center gap-2 border-t border-slate-100 pt-4 mt-6">
+                        <button
+                          onClick={() => handleEditServiceClick(srv)}
+                          className="flex-1 py-2.5 px-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5"
+                        >
+                          <FiEdit2 className="w-3.5 h-3.5" />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteServiceClick(srv.slug)}
+                          className="p-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200/60 rounded-xl"
+                          title="Delete service"
+                        >
+                          <FiTrash2 className="w-4 h-4" />
+                        </button>
+                        <Link
+                          to={`/services/${srv.slug}`}
+                          target="_blank"
+                          className="p-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200/60 rounded-xl"
+                          title="View on site"
+                        >
+                          <FiExternalLink className="w-4 h-4" />
+                        </Link>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -913,6 +1087,90 @@ export function AdminDashboard() {
                     Team directory customization module is pending database migration. The public layout currently renders static agency profiles with premium animations.
                   </p>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* BLOGS VIEW */}
+          {activeSection === 'blogs' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">Articles & Blogs</h2>
+                  <p className="text-sm text-slate-500 mt-0.5">Publish articles, updates, and thoughts. Syncs instantly with the live frontend.</p>
+                </div>
+                
+                <button
+                  onClick={() => {
+                    const title = window.prompt("Enter Blog Title:");
+                    if (!title) return;
+                    const category = window.prompt("Enter Category (Design, Development, Strategy):", "Design");
+                    if (!category) return;
+                    const author = window.prompt("Enter Author Name:", admin?.name || "Lokesh Kumawat");
+                    if (!author) return;
+                    const excerpt = window.prompt("Enter Short Excerpt:");
+                    if (!excerpt) return;
+                    const content = window.prompt("Enter Content paragraphs:");
+                    if (!content) return;
+                    
+                    fetch(`${apiUrl}/blogs`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ title, category, author, excerpt, content })
+                    })
+                    .then(res => {
+                      if (res.ok) {
+                        showNotification('success', 'Blog post published successfully!');
+                        fetchAllData();
+                      } else {
+                        showNotification('error', 'Failed to publish blog.');
+                      }
+                    });
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-5 py-3.5 rounded-2xl shadow-lg shadow-blue-600/10 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                >
+                  <FiPlus className="w-4 h-4 stroke-[3]" />
+                  <span>Publish New Post</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {blogs.map((b, idx) => (
+                  <div key={idx} className="bg-white rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between overflow-hidden group hover:shadow-md transition-all duration-300">
+                    <div className="aspect-video w-full overflow-hidden bg-slate-100 relative">
+                      <img src={b.image} alt={b.title} className="w-full h-full object-cover" />
+                      <span className="absolute top-3 left-3 bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded-full">{b.category}</span>
+                    </div>
+                    <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                      <div className="space-y-2">
+                        <h4 className="font-bold text-slate-800 text-lg group-hover:text-blue-600 transition-colors line-clamp-1">{b.title}</h4>
+                        <p className="text-xs text-slate-400 font-medium">{b.date} • {b.readTime}</p>
+                        <p className="text-sm text-slate-500 line-clamp-2">{b.excerpt}</p>
+                      </div>
+                      <div className="flex items-center justify-between border-t border-slate-150 pt-4">
+                        <span className="text-xs font-bold text-slate-400">By {b.author}</span>
+                        <button
+                          onClick={() => {
+                            if (!window.confirm("Are you sure you want to delete this blog post?")) return;
+                            fetch(`${apiUrl}/blogs/${b.slug}`, { method: 'DELETE' })
+                              .then(res => {
+                                if (res.ok) {
+                                  showNotification('success', 'Blog post deleted successfully!');
+                                  fetchAllData();
+                                } else {
+                                  showNotification('error', 'Failed to delete blog.');
+                                }
+                              });
+                          }}
+                          className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
+                          title="Delete Post"
+                        >
+                          <FiTrash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -1052,7 +1310,18 @@ export function AdminDashboard() {
                                   </button>
                                 </div>
                               ) : (
-                                <span className="text-xs font-semibold text-slate-400">Processed</span>
+                                <div className="flex items-center justify-end gap-3">
+                                  <span className="text-xs font-semibold text-slate-400">Processed</span>
+                                  {admin?.email?.toLowerCase().trim() === 'lk.dansroli@gmail.com' && (
+                                    <button
+                                      onClick={() => handleDeleteRequest(reqItem._id)}
+                                      className="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-md shadow-rose-600/10 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                      title="Delete Access Request & Admin Account"
+                                    >
+                                      <FiTrash2 className="w-3.5 h-3.5" /> Remove
+                                    </button>
+                                  )}
+                                </div>
                               )}
                             </td>
                           </tr>
@@ -1341,6 +1610,110 @@ export function AdminDashboard() {
                 </button>
               </div>
 
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Add/Edit Service Drawer */}
+      <AnimatePresence>
+        {isServiceFormOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-end">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsServiceFormOpen(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-[3px]"
+            />
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="relative w-full max-w-lg bg-white h-screen shadow-2xl flex flex-col border-l border-slate-200"
+            >
+              <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-950 flex items-center gap-2">
+                    <FiLayers className="text-indigo-500" />
+                    {editingService ? 'Edit Service Card' : 'Add Service Card'}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">Synced to the public services page grid.</p>
+                </div>
+                <button
+                  onClick={() => setIsServiceFormOpen(false)}
+                  className="p-2 hover:bg-slate-200/80 rounded-xl text-slate-500"
+                >
+                  <FiX className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form id="service-form" onSubmit={handleServiceSubmit} className="flex-1 overflow-y-auto p-8 space-y-6">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Service Title *</label>
+                  <input
+                    type="text"
+                    required
+                    value={serviceForm.title}
+                    onChange={(e) => setServiceForm({ ...serviceForm, title: e.target.value })}
+                    placeholder="e.g. Web Design"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-800 font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Card Description *</label>
+                  <textarea
+                    required
+                    rows={5}
+                    value={serviceForm.description}
+                    onChange={(e) => setServiceForm({ ...serviceForm, description: e.target.value })}
+                    placeholder="Short text shown on the service card..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-800 leading-relaxed"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Card Icon</label>
+                  <select
+                    value={serviceForm.icon}
+                    onChange={(e) => setServiceForm({ ...serviceForm, icon: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-800 font-medium"
+                  >
+                    {serviceIconOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {editingService?.slug && (
+                  <p className="text-xs text-slate-400">
+                    Live URL: <span className="font-mono text-indigo-600">/services/{editingService.slug}</span>
+                  </p>
+                )}
+              </form>
+
+              <div className="p-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsServiceFormOpen(false)}
+                  className="px-5 py-3 hover:bg-slate-200 rounded-xl text-sm font-bold text-slate-600"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  form="service-form"
+                  disabled={serviceSubmitting}
+                  className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold text-sm rounded-xl flex items-center gap-2"
+                >
+                  {serviceSubmitting && (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  )}
+                  {editingService ? 'Save Service' : 'Add Service'}
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

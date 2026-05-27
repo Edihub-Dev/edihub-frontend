@@ -1,5 +1,6 @@
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import { Link } from "react-router-dom";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { TeamImageStats } from "./TeamImageStats";
@@ -53,7 +54,7 @@ export function AboutStats() {
                 variants={item}
                 className="text-[34px] font-semibold leading-[1.02] tracking-[-2.4px] text-[#1A1A1A] sm:text-[40px] md:text-[44px] lg:text-[44px]"
               >
-                Clear communication, structured processes, and real-time updates keep you involved at every stage.
+                We are a group of positive thinkers, dedicated to making a difference in the digital world.
               </motion.h3>
               <motion.p
                 variants={item}
@@ -63,22 +64,23 @@ export function AboutStats() {
               </motion.p>
 
               <div className="mt-12 lg:mt-auto">
-                <motion.a
-                  variants={item}
-                  href="#about"
-                  className="group inline-flex items-center gap-2 text-[18px] font-semibold text-[#1A1A1A] underline decoration-[#1A1A1A]/60 underline-offset-4 hover:decoration-[#1A1A1A] lg:text-[24px]"
-                >
-                  Explore our work
-                  <svg
-                    className="h-5 w-5 shrink-0 text-[#0066FF] transition-transform group-hover:translate-x-1 group-hover:-translate-y-0.5 lg:h-6 lg:w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
+                <motion.div variants={item}>
+                  <Link
+                    to="/about#team"
+                    className="group inline-flex items-center gap-2 text-[18px] font-semibold text-[#1A1A1A] underline decoration-[#1A1A1A]/60 underline-offset-4 hover:decoration-[#1A1A1A] lg:text-[24px]"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
-                  </svg>
-                </motion.a>
+                    Meet the team
+                    <svg
+                      className="h-5 w-5 shrink-0 text-[#0066FF] transition-transform group-hover:translate-x-1 group-hover:-translate-y-0.5 lg:h-6 lg:w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
+                    </svg>
+                  </Link>
+                </motion.div>
               </div>
             </motion.div>
 

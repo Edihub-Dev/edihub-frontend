@@ -79,10 +79,10 @@ export function Contact() {
                     E-mail
                   </h4>
                   <a
-                    href="mailto:contact@opushq.com"
+                    href="mailto:contact@edihub.com"
                     className="mt-3 block text-[18px] font-medium text-[#111827] hover:text-[#0066FF] transition-colors"
                   >
-                    contact@opushq.com
+                    contact@edihub.com
                   </a>
                 </div>
 

@@ -10,7 +10,7 @@ export function Footer() {
           {/* Left Side: Brand & Description */}
           <div className="max-w-md lg:max-w-xl">
             <h2 className="text-[48px] font-bold tracking-tight text-white lg:text-[64px]">
-              OPUS
+              EDIHUB
             </h2>
             <p className="mt-8 text-[18px] leading-relaxed text-[#9CA3AF] lg:text-[22px]">
               We help businesses succeed in the digital space by creating thoughtful solutions that combine smart design, reliable technology, and a deep understanding of what your users really need.
@@ -23,10 +23,10 @@ export function Footer() {
               You can also email us at:
             </p>
             <a 
-              href="mailto:contact@opushq.com" 
+              href="mailto:contact@edihub.com" 
               className="mt-4 text-[28px] font-medium text-white transition-opacity hover:opacity-80 sm:text-[36px] lg:text-[48px]"
             >
-              contact@opushq.com
+              contact@edihub.com
             </a>
           </div>
         </div>
@@ -69,7 +69,7 @@ export function Footer() {
 
         {/* Copyright */}
         <div className="mt-16 text-[12px] font-medium text-[#4B5563]">
-          @2025 Opus, All Rights Reserved
+          @2025 EDIHUB, All Rights Reserved
         </div>
       </Container>
     </footer>

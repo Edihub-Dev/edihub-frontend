@@ -77,7 +77,7 @@ export function ProjectsPage() {
     fetch(`${apiUrl}/projects`)
       .then((res) => res.json())
       .then((data: Project[]) => {
-        // Sort projects to match the exact OPUS template order, placing custom ones at the end
+        // Sort projects to match the exact EDIHUB template order, placing custom ones at the end
         const sorted = [...data].sort((a, b) => {
           const idxA = slugOrder.indexOf(a.slug) === -1 ? 9999 : slugOrder.indexOf(a.slug);
           const idxB = slugOrder.indexOf(b.slug) === -1 ? 9999 : slugOrder.indexOf(b.slug);

@@ -1,6 +1,6 @@
-# Opus Clone
+# EDIHUB
 
-A pixel-accurate clone of [Opus – Framer template](https://opus-template.framer.website) built with React, Vite, TypeScript, Tailwind CSS, and Framer Motion.
+An innovative digital solutions platform built with React, Vite, TypeScript, Tailwind CSS, and Framer Motion.
 
 ## Tech stack
 
