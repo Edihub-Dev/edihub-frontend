@@ -1,11 +1,11 @@
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { getApiUrl } from "@/utils/api";
+import { getApiUrl, getYouTubeId } from "@/utils/api";
 
 type Blog = {
   title: string;
@@ -18,6 +18,8 @@ type Blog = {
   excerpt: string;
   content: string;
   image: string;
+  gallery?: string[];
+  videos?: { type: 'youtube' | 'upload'; url: string }[];
 };
 
 export function BlogDetailPage() {
@@ -26,6 +28,38 @@ export function BlogDetailPage() {
   const [blog, setBlog] = useState<Blog | null>(null);
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Lightbox state: null = closed, number = index of open image
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  // Video lightbox state
+  const [videoLightboxIndex, setVideoLightboxIndex] = useState<number | null>(null);
+
+  // All images including the cover image
+  const allImages = useMemo(() => (blog ? [blog.image, ...(blog.gallery || [])] : []), [blog]);
+
+  // Keyboard navigation for image lightbox
+  useEffect(() => {
+    if (lightboxIndex === null || allImages.length === 0) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightboxIndex(null);
+      if (e.key === 'ArrowRight') setLightboxIndex(i => i !== null ? (i + 1) % allImages.length : null);
+      if (e.key === 'ArrowLeft') setLightboxIndex(i => i !== null ? (i - 1 + allImages.length) % allImages.length : null);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [lightboxIndex, allImages]);
+
+  // Keyboard navigation for video lightbox
+  useEffect(() => {
+    if (videoLightboxIndex === null || !blog?.videos) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setVideoLightboxIndex(null);
+      if (e.key === 'ArrowRight') setVideoLightboxIndex(i => i !== null ? (i + 1) % blog.videos!.length : null);
+      if (e.key === 'ArrowLeft') setVideoLightboxIndex(i => i !== null ? (i - 1 + blog.videos!.length) % blog.videos!.length : null);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [videoLightboxIndex, blog]);
 
   useEffect(() => {
     const apiUrl = getApiUrl();
@@ -104,13 +138,22 @@ export function BlogDetailPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
-          className="w-full overflow-hidden bg-zinc-50 border-b border-zinc-150"
+          className="w-full overflow-hidden bg-zinc-50 border-b border-zinc-150 relative group cursor-zoom-in"
+          onClick={() => setLightboxIndex(0)}
         >
           <img
             src={blog.image}
             alt={blog.title}
-            className="w-full h-[50vh] sm:h-[60vh] lg:h-[70vh] xl:h-[80vh] object-cover"
+            className="w-full h-[50vh] sm:h-[60vh] lg:h-[70vh] xl:h-[80vh] object-cover transition-transform duration-700 group-hover:scale-[1.02]"
           />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full px-5 py-3 shadow-lg flex items-center gap-2">
+              <svg className="w-5 h-5 text-[#111827]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0zm-6-3v6m-3-3h6"/>
+              </svg>
+              <span className="text-[13px] font-bold text-[#111827]">View Full Screen</span>
+            </div>
+          </div>
         </motion.div>
 
         {/* Blog Header (Category, Title, Author) - rendered elegantly below the image */}
@@ -199,6 +242,116 @@ export function BlogDetailPage() {
                   {renderContent(blog.content)}
                 </div>
 
+                {/* Blog Gallery */}
+                {blog.gallery && blog.gallery.length > 0 && (
+                  <div className="mt-16 border-t border-black/10 pt-12 space-y-6">
+                    <h3 className="text-[22px] font-bold tracking-tight text-[#111827] sm:text-[28px] text-left">
+                      Article Gallery
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      {blog.gallery.map((imgUrl, idx) => (
+                        <motion.button
+                          key={idx}
+                          type="button"
+                          onClick={() => setLightboxIndex(idx + 1)}
+                          className="aspect-[16/10] w-full overflow-hidden rounded-[20px] bg-zinc-50 border border-zinc-150 shadow-sm transition-all duration-300 hover:shadow-md hover:scale-[1.01] cursor-zoom-in group relative"
+                        >
+                          <img
+                            src={imgUrl}
+                            alt={`Gallery ${idx + 1}`}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-2.5 shadow-lg">
+                              <svg className="w-5 h-5 text-[#111827]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0zm-6-3v6m-3-3h6"/>
+                              </svg>
+                            </div>
+                          </div>
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Blog Videos */}
+                {blog.videos && blog.videos.length > 0 && (
+                  <div className="mt-16 border-t border-black/10 pt-12 space-y-8">
+                    <h3 className="text-[22px] font-bold tracking-tight text-[#111827] sm:text-[28px] text-left">
+                      Featured Videos
+                    </h3>
+                    <div className="grid gap-6 sm:grid-cols-2">
+                      {blog.videos.map((vid, idx) => {
+                        const ytId = vid.type === 'youtube' ? getYouTubeId(vid.url) : null;
+                        const thumbSrc = ytId
+                          ? `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`
+                          : null;
+
+                        return (
+                          <motion.button
+                            key={idx}
+                            type="button"
+                            onClick={() => setVideoLightboxIndex(idx)}
+                            className="group relative overflow-hidden rounded-[20px] border border-zinc-150 shadow-sm aspect-video cursor-pointer bg-[#111827] w-full text-left"
+                            aria-label="Play video"
+                          >
+                            {/* Thumbnail */}
+                            {thumbSrc ? (
+                              <img
+                                src={thumbSrc}
+                                alt={`Video thumbnail ${idx + 1}`}
+                                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 brightness-75 group-hover:brightness-90"
+                              />
+                            ) : vid.type === 'upload' ? (
+                              <div className="h-full w-full relative overflow-hidden bg-black">
+                                <video
+                                  src={vid.url}
+                                  className="h-full w-full object-cover opacity-60"
+                                  muted
+                                />
+                              </div>
+                            ) : (
+                              <div className="h-full w-full bg-gradient-to-br from-[#1e293b] to-[#0f172a]" />
+                            )}
+
+                            {/* Play Button Overlay */}
+                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                              <div className="w-16 h-16 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-2xl transition-transform duration-300 group-hover:scale-110 group-hover:bg-white">
+                                <svg className="w-7 h-7 text-[#111827] ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                  <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                                </svg>
+                              </div>
+                              <span className="text-white text-[12px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm">
+                                Play Video
+                              </span>
+                            </div>
+
+                            {/* Badges */}
+                            <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                              {vid.type === 'youtube' ? (
+                                <>
+                                  <svg className="w-3.5 h-3.5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                  </svg>
+                                  <span className="text-white text-[10px] font-bold">YouTube</span>
+                                </>
+                              ) : (
+                                <>
+                                  <svg className="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/>
+                                  </svg>
+                                  <span className="text-white text-[10px] font-bold">Upload</span>
+                                </>
+                              )}
+                            </div>
+                          </motion.button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 {/* Tag Chips */}
                 <div className="mt-16 flex flex-wrap gap-2 border-t border-black/10 pt-10">
                   {blog.tags.map((tag) => (
@@ -270,6 +423,173 @@ export function BlogDetailPage() {
       </main>
 
       <Footer />
+
+      {/* ── Image Lightbox Modal ── */}
+      <AnimatePresence>
+        {lightboxIndex !== null && allImages.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-sm p-4"
+            onClick={() => setLightboxIndex(null)}
+          >
+            {/* Image container */}
+            <motion.div
+              initial={{ scale: 0.92, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.92, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="relative max-w-6xl w-full max-h-[90vh] flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={allImages[lightboxIndex]}
+                alt={`Gallery item ${lightboxIndex + 1}`}
+                className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl"
+              />
+
+              {/* Counter */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-sm text-white text-xs font-bold px-4 py-1.5 rounded-full">
+                {lightboxIndex + 1} / {allImages.length}
+              </div>
+            </motion.div>
+
+            {/* Close button */}
+            <button
+              onClick={() => setLightboxIndex(null)}
+              className="absolute top-5 right-5 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors backdrop-blur-sm border border-white/20"
+              aria-label="Close lightbox"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+
+            {/* Prev arrow */}
+            {allImages.length > 1 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); setLightboxIndex(i => i !== null ? (i - 1 + allImages.length) % allImages.length : null); }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white transition-colors backdrop-blur-sm border border-white/20"
+                aria-label="Previous image"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
+                </svg>
+              </button>
+            )}
+
+            {/* Next arrow */}
+            {allImages.length > 1 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); setLightboxIndex(i => i !== null ? (i + 1) % allImages.length : null); }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white transition-colors backdrop-blur-sm border border-white/20"
+                aria-label="Next image"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+                </svg>
+              </button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Video Lightbox Modal ── */}
+      <AnimatePresence>
+        {videoLightboxIndex !== null && blog.videos && (() => {
+          const vid = blog.videos[videoLightboxIndex];
+          let ytId: string | null = null;
+          if (vid.type === 'youtube') {
+            ytId = getYouTubeId(vid.url);
+          }
+
+          return (
+            <motion.div
+              key="video-lightbox"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-sm p-4 sm:p-8"
+              onClick={() => setVideoLightboxIndex(null)}
+            >
+              {/* Video container */}
+              <motion.div
+                initial={{ scale: 0.92, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.92, opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="relative w-full max-w-5xl"
+                style={{ aspectRatio: '16/9' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {vid.type === 'youtube' && ytId ? (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`}
+                    title={`Video ${videoLightboxIndex + 1}`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full rounded-2xl border-0 shadow-2xl"
+                  />
+                ) : (
+                  <video
+                    src={vid.url}
+                    controls
+                    autoPlay
+                    className="absolute inset-0 w-full h-full object-contain rounded-2xl shadow-2xl bg-black"
+                  />
+                )}
+
+                {/* Counter */}
+                {blog.videos.length > 1 && (
+                  <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-sm text-white text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap">
+                    {videoLightboxIndex + 1} / {blog.videos.length}
+                  </div>
+                )}
+              </motion.div>
+
+              {/* Close button */}
+              <button
+                onClick={() => setVideoLightboxIndex(null)}
+                className="absolute top-5 right-5 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors backdrop-blur-sm border border-white/20"
+                aria-label="Close video"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+
+              {/* Prev arrow */}
+              {blog.videos.length > 1 && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setVideoLightboxIndex(i => i !== null ? (i - 1 + blog.videos!.length) % blog.videos!.length : null); }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white transition-colors backdrop-blur-sm border border-white/20"
+                  aria-label="Previous video"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
+                  </svg>
+                </button>
+              )}
+
+              {/* Next arrow */}
+              {blog.videos.length > 1 && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setVideoLightboxIndex(i => i !== null ? (i + 1) % blog.videos!.length : null); }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white transition-colors backdrop-blur-sm border border-white/20"
+                  aria-label="Next video"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+                  </svg>
+                </button>
+              )}
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
     </div>
   );
 }

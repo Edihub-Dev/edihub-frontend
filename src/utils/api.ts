@@ -19,5 +19,20 @@ export const getApiUrl = () => {
   return 'https://refinance-marion-elegant-helped.trycloudflare.com/api';
 };
 
-
-
+export function getYouTubeId(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes('youtube.com')) {
+      if (u.pathname.startsWith('/shorts/')) {
+        return u.pathname.split('/')[2] || null;
+      }
+      if (u.pathname.startsWith('/embed/')) {
+        return u.pathname.split('/')[2] || null;
+      }
+      return u.searchParams.get('v') || null;
+    } else if (u.hostname === 'youtu.be') {
+      return u.pathname.split('/')[1] || null;
+    }
+  } catch {}
+  return null;
+}

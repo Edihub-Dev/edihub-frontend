@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState, useCallback } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Container } from "@/components/ui/Container";
 import { resolveServiceDetail, type ApiService } from "@/data/services";
@@ -14,11 +14,202 @@ import {
 } from "@/components/services/ServiceUi";
 import { Footer } from "@/components/layout/Footer";
 
+// ─── helpers ──────────────────────────────────────────────
+function getYouTubeId(url: string): string | null {
+  const m = url.match(/(?:youtu\.be\/|v=|shorts\/)([^&?/]+)/);
+  return m ? m[1] : null;
+}
+
+// ─── Lightbox ─────────────────────────────────────────────
+interface LightboxImage {
+  src: string;
+  alt: string;
+}
+
+function ImageLightbox({
+  images,
+  startIndex,
+  onClose,
+}: {
+  images: LightboxImage[];
+  startIndex: number;
+  onClose: () => void;
+}) {
+  const [idx, setIdx] = useState(startIndex);
+  const prev = useCallback(() => setIdx((i) => (i - 1 + images.length) % images.length), [images.length]);
+  const next = useCallback(() => setIdx((i) => (i + 1) % images.length), [images.length]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") prev();
+      if (e.key === "ArrowRight") next();
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [prev, next, onClose]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <button onClick={onClose} className="absolute top-4 right-4 z-10 p-2 text-white/70 hover:text-white text-3xl leading-none">×</button>
+      {images.length > 1 && (
+        <>
+          <button onClick={(e) => { e.stopPropagation(); prev(); }} className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white text-xl">‹</button>
+          <button onClick={(e) => { e.stopPropagation(); next(); }} className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white text-xl">›</button>
+        </>
+      )}
+      <motion.img
+        key={idx}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.2 }}
+        src={images[idx].src}
+        alt={images[idx].alt}
+        className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      />
+      {images.length > 1 && (
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/50 text-xs">
+          {idx + 1} / {images.length}
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
+function VideoLightbox({
+  vid,
+  onClose,
+}: {
+  vid: { type: "youtube" | "upload"; url: string };
+  onClose: () => void;
+}) {
+  const ytId = vid.type === "youtube" ? getYouTubeId(vid.url) : null;
+
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [onClose]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <button onClick={onClose} className="absolute top-4 right-4 z-10 p-2 text-white/70 hover:text-white text-3xl leading-none">×</button>
+      <div className="w-full max-w-4xl aspect-video rounded-xl overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        {ytId ? (
+          <iframe
+            src={`https://www.youtube.com/embed/${ytId}?autoplay=1`}
+            allow="autoplay; fullscreen"
+            className="w-full h-full"
+          />
+        ) : (
+          <video src={vid.url} controls autoPlay className="w-full h-full bg-black" />
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Gallery Grid ─────────────────────────────────────────
+function GalleryGrid({
+  images,
+  onOpen,
+}: {
+  images: LightboxImage[];
+  onOpen: (i: number) => void;
+}) {
+  if (!images.length) return null;
+  return (
+    <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 gap-3">
+      {images.map((img, i) => (
+        <motion.button
+          key={i}
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: i * 0.05 }}
+          onClick={() => onOpen(i)}
+          className="relative aspect-[4/3] overflow-hidden rounded-xl border border-[#EBEEF2] bg-[#F9FAFB] cursor-zoom-in group"
+        >
+          <img src={img.src} alt={img.alt} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+            <svg className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1116.65 16.65z" />
+            </svg>
+          </div>
+        </motion.button>
+      ))}
+    </div>
+  );
+}
+
+// ─── Video Grid ───────────────────────────────────────────
+function VideoGrid({
+  videos,
+  onOpen,
+}: {
+  videos: { type: "youtube" | "upload"; url: string }[];
+  onOpen: (i: number) => void;
+}) {
+  if (!videos.length) return null;
+  return (
+    <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {videos.map((vid, i) => {
+        const ytId = vid.type === "youtube" ? getYouTubeId(vid.url) : null;
+        const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null;
+        return (
+          <motion.button
+            key={i}
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.06 }}
+            onClick={() => onOpen(i)}
+            className="relative aspect-video overflow-hidden rounded-xl border border-[#EBEEF2] bg-black cursor-pointer group"
+          >
+            {thumb ? (
+              <img src={thumb} alt={`Video ${i + 1}`} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+            ) : vid.type === "upload" ? (
+              <video src={vid.url} className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity" muted />
+            ) : (
+              <div className="w-full h-full bg-slate-900" />
+            )}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center group-hover:bg-white/30 transition-all">
+                <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                </svg>
+              </div>
+            </div>
+          </motion.button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────
 export function ServiceDetailPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [apiService, setApiService] = useState<ApiService | undefined>();
   const [loading, setLoading] = useState(true);
+
+  // Lightbox state
+  const [imageLightbox, setImageLightbox] = useState<{ images: LightboxImage[]; startIndex: number } | null>(null);
+  const [videoLightbox, setVideoLightbox] = useState<{ videos: { type: "youtube" | "upload"; url: string }[]; index: number } | null>(null);
 
   const service = slug ? resolveServiceDetail(apiService, slug) : undefined;
 
@@ -51,158 +242,274 @@ export function ServiceDetailPage() {
     );
   }
 
+  // Build gallery arrays from apiService
+  const overviewGallery: LightboxImage[] = (apiService?.overviewGallery || []).map((src, i) => ({
+    src,
+    alt: `Overview image ${i + 1}`,
+  }));
+
+  const overviewVideos: { type: "youtube" | "upload"; url: string }[] = apiService?.overviewVideos || [];
+
+  const relatedWorkGallery: LightboxImage[] = (apiService?.relatedWorkGallery || []).map((src, i) => ({
+    src,
+    alt: `Related work image ${i + 1}`,
+  }));
+
+  const relatedWorkVideos: { type: "youtube" | "upload"; url: string }[] = apiService?.relatedWorkVideos || [];
+
   return (
     <div className="bg-white">
+      <AnimatePresence>
+        {imageLightbox && (
+          <ImageLightbox
+            images={imageLightbox.images}
+            startIndex={imageLightbox.startIndex}
+            onClose={() => setImageLightbox(null)}
+          />
+        )}
+        {videoLightbox && (
+          <VideoLightbox
+            vid={videoLightbox.videos[videoLightbox.index]}
+            onClose={() => setVideoLightbox(null)}
+          />
+        )}
+      </AnimatePresence>
+
       <main className="pt-20 md:pt-28 lg:pt-32">
         <ServicePageHero
-        label={
-          <Link
-            to="/services"
-            className="inline-flex items-center gap-2 text-[14px] font-bold text-[#0066FF] hover:text-[#0052CC] transition-colors"
-          >
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-              <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Back to Services
-          </Link>
-        }
-        title={service.title}
-        description={service.heroDescription}
-        heroImage={service.heroImage}
-      />
+          label={
+            <Link
+              to="/services"
+              className="inline-flex items-center gap-2 text-[14px] font-bold text-[#0066FF] hover:text-[#0052CC] transition-colors"
+            >
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Back to Services
+            </Link>
+          }
+          title={service.title}
+          description={service.heroDescription}
+          heroImage={service.heroImage}
+        />
 
-      {/* Key features — 4 columns with icon boxes */}
-      <section className="border-b border-[#F3F4F6] py-16 md:py-20">
-        <Container className="px-5 sm:px-6 lg:px-10 xl:px-16">
-          <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-            {service.features.map((f, i) => (
-              <motion.div
-                key={f.title}
-                initial={{ opacity: 0, y: 14 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.07 }}
-              >
-                <FeatureIcon type={f.icon} />
-                <h3 className="mt-5 text-[16px] font-bold text-[#111827]">{f.title}</h3>
-                <p className="mt-2 text-[14px] leading-[1.65] text-[#6B7280]">{f.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      {/* Overview — image left, text + checklist right */}
-      <section className="py-20 md:py-28">
-        <Container className="px-5 sm:px-6 lg:px-10 xl:px-16">
-          <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
-            <div className="overflow-hidden rounded-2xl border border-[#EBEEF2] bg-[#F9FAFB] shadow-sm">
-              <img
-                src={service.overviewImage}
-                alt=""
-                className="aspect-[4/3] w-full object-cover lg:aspect-auto lg:min-h-[440px]"
-              />
+        {/* Key features */}
+        <section className="border-b border-[#F3F4F6] py-16 md:py-20">
+          <Container className="px-5 sm:px-6 lg:px-10 xl:px-16">
+            <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+              {service.features.map((f, i) => (
+                <motion.div
+                  key={f.title}
+                  initial={{ opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.07 }}
+                >
+                  <FeatureIcon type={f.icon} />
+                  <h3 className="mt-5 text-[16px] font-bold text-[#111827]">{f.title}</h3>
+                  <p className="mt-2 text-[14px] leading-[1.65] text-[#6B7280]">{f.description}</p>
+                </motion.div>
+              ))}
             </div>
-            <div>
-              <ServiceLabel>Overview</ServiceLabel>
-              <h2 className="mt-4 text-[32px] font-semibold leading-[1.1] tracking-[-0.05em] text-[#111827] sm:text-[40px]">
-                {service.overviewHeading}
-              </h2>
-              <p className="mt-6 text-[15px] leading-[1.7] text-[#6B7280]">{service.overviewBody}</p>
-              <ul className="mt-10 space-y-5">
-                {service.overviewPoints.map((point) => (
-                  <li key={point} className="flex items-start gap-3">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#0066FF]">
-                      <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </Container>
+        </section>
+
+        {/* Overview */}
+        <section className="py-20 md:py-28">
+          <Container className="px-5 sm:px-6 lg:px-10 xl:px-16">
+            <div className="grid items-start gap-14 lg:grid-cols-2 lg:gap-20">
+              {/* Left: main image + gallery */}
+              <div>
+                {/* Main overview image */}
+                <motion.button
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  onClick={() =>
+                    setImageLightbox({
+                      images: [
+                        { src: typeof service.overviewImage === "string" ? service.overviewImage : "", alt: "Overview" },
+                        ...overviewGallery,
+                      ].filter((img) => img.src),
+                      startIndex: 0,
+                    })
+                  }
+                  className="relative w-full overflow-hidden rounded-2xl border border-[#EBEEF2] bg-[#F9FAFB] shadow-sm cursor-zoom-in group"
+                >
+                  <img
+                    src={service.overviewImage as string}
+                    alt=""
+                    className="aspect-[4/3] w-full object-cover lg:aspect-auto lg:min-h-[440px] transition-transform duration-500 group-hover:scale-[1.02]"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-end justify-end p-4">
+                    <div className="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow opacity-0 group-hover:opacity-100 transition-opacity">
+                      <svg className="w-4 h-4 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1116.65 16.65z" />
                       </svg>
-                    </span>
-                    <span className="text-[14px] leading-[1.6] text-[#374151]">{point}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      {/* Process — heading left, steps right (EDIHUB layout) */}
-      <section className="border-t border-[#F3F4F6] bg-[#FAFAFA] py-20 md:py-28">
-        <Container className="px-5 sm:px-6 lg:px-10 xl:px-16">
-          <div className="grid gap-14 lg:grid-cols-12 lg:gap-16">
-            <div className="lg:col-span-4">
-              <ServiceLabel>Our process</ServiceLabel>
-              <h2 className="mt-4 text-[32px] font-semibold leading-[1.1] tracking-[-0.06em] text-[#111827] sm:text-[40px]">
-                A simple process for powerful {service.shortTitle.toLowerCase()}.
-              </h2>
-            </div>
-            <div className="lg:col-span-8">
-              <div className="relative">
-                <div className="absolute left-0 right-0 top-[6px] hidden h-px bg-[#D1D5DB] md:block" />
-                <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4 md:gap-4">
-                  {service.processSteps.map((step) => (
-                    <div key={step.number} className="relative bg-[#FAFAFA] md:bg-transparent">
-                      <div className="mb-6 h-3 w-3 rounded-full bg-[#0066FF] ring-4 ring-[#FAFAFA] md:ring-white" />
-                      <p className="text-[11px] font-bold text-[#0066FF]">{step.number}</p>
-                      <h3 className="mt-2 text-[16px] font-bold text-[#111827]">{step.title}</h3>
-                      <p className="mt-2 text-[13px] leading-[1.6] text-[#6B7280]">{step.description}</p>
                     </div>
+                  </div>
+                </motion.button>
+
+                {/* Overview Gallery */}
+                {overviewGallery.length > 0 && (
+                  <GalleryGrid
+                    images={overviewGallery}
+                    onOpen={(i) =>
+                      setImageLightbox({
+                        images: overviewGallery,
+                        startIndex: i,
+                      })
+                    }
+                  />
+                )}
+
+                {/* Overview Videos */}
+                {overviewVideos.length > 0 && (
+                  <>
+                    <p className="mt-8 text-xs font-bold text-[#6B7280] uppercase tracking-widest">Videos</p>
+                    <VideoGrid
+                      videos={overviewVideos}
+                      onOpen={(i) => setVideoLightbox({ videos: overviewVideos, index: i })}
+                    />
+                  </>
+                )}
+              </div>
+
+              {/* Right: text + checklist */}
+              <div className="lg:sticky lg:top-32">
+                <ServiceLabel>Overview</ServiceLabel>
+                <h2 className="mt-4 text-[32px] font-semibold leading-[1.1] tracking-[-0.05em] text-[#111827] sm:text-[40px]">
+                  {service.overviewHeading}
+                </h2>
+                <p className="mt-6 text-[15px] leading-[1.7] text-[#6B7280]">{service.overviewBody}</p>
+                <ul className="mt-10 space-y-5">
+                  {service.overviewPoints.map((point) => (
+                    <li key={point} className="flex items-start gap-3">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#0066FF]">
+                        <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </span>
+                      <span className="text-[14px] leading-[1.6] text-[#374151]">{point}</span>
+                    </li>
                   ))}
+                </ul>
+              </div>
+            </div>
+          </Container>
+        </section>
+
+        {/* Process */}
+        <section className="border-t border-[#F3F4F6] bg-[#FAFAFA] py-20 md:py-28">
+          <Container className="px-5 sm:px-6 lg:px-10 xl:px-16">
+            <div className="grid gap-14 lg:grid-cols-12 lg:gap-16">
+              <div className="lg:col-span-4">
+                <ServiceLabel>Our process</ServiceLabel>
+                <h2 className="mt-4 text-[32px] font-semibold leading-[1.1] tracking-[-0.06em] text-[#111827] sm:text-[40px]">
+                  A simple process for powerful {service.shortTitle.toLowerCase()}.
+                </h2>
+              </div>
+              <div className="lg:col-span-8">
+                <div className="relative">
+                  <div className="absolute left-0 right-0 top-[6px] hidden h-px bg-[#D1D5DB] md:block" />
+                  <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4 md:gap-4">
+                    {service.processSteps.map((step) => (
+                      <div key={step.number} className="relative bg-[#FAFAFA] md:bg-transparent">
+                        <div className="mb-6 h-3 w-3 rounded-full bg-[#0066FF] ring-4 ring-[#FAFAFA] md:ring-white" />
+                        <p className="text-[11px] font-bold text-[#0066FF]">{step.number}</p>
+                        <h3 className="mt-2 text-[16px] font-bold text-[#111827]">{step.title}</h3>
+                        <p className="mt-2 text-[13px] leading-[1.6] text-[#6B7280]">{step.description}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </Container>
-      </section>
+          </Container>
+        </section>
 
-      {/* Related work — text left, large card right */}
-      <section className="py-20 md:py-28">
-        <Container className="px-5 sm:px-6 lg:px-10 xl:px-16">
-          <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
-            <div>
-              <ServiceLabel>Related work</ServiceLabel>
-              <h2 className="mt-4 text-[32px] font-semibold tracking-[-0.06em] text-[#111827] sm:text-[40px]">
-                {service.relatedWork.title}
-              </h2>
-              <p className="mt-6 text-[15px] leading-[1.7] text-[#6B7280]">{service.relatedWork.description}</p>
-              <Link
-                to={`/projects/${service.relatedWork.slug}`}
-                className="group mt-8 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[#111827] hover:text-[#0066FF]"
-              >
-                View project
-                <ArrowIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </Link>
+        {/* Related work */}
+        <section className="py-20 md:py-28">
+          <Container className="px-5 sm:px-6 lg:px-10 xl:px-16">
+            <div className="grid items-start gap-14 lg:grid-cols-2 lg:gap-20">
+              <div>
+                <ServiceLabel>Related work</ServiceLabel>
+                <h2 className="mt-4 text-[32px] font-semibold tracking-[-0.06em] text-[#111827] sm:text-[40px]">
+                  {service.relatedWork.title}
+                </h2>
+                <p className="mt-6 text-[15px] leading-[1.7] text-[#6B7280]">{service.relatedWork.description}</p>
+                <Link
+                  to={`/projects/${service.relatedWork.slug}`}
+                  className="group mt-8 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[#111827] hover:text-[#0066FF]"
+                >
+                  View project
+                  <ArrowIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </Link>
+              </div>
+
+              <div>
+                {/* Related work main image */}
+                <motion.button
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  onClick={() =>
+                    setImageLightbox({
+                      images: [
+                        { src: typeof service.relatedWork.image === "string" ? service.relatedWork.image : "", alt: "Related Work" },
+                        ...relatedWorkGallery,
+                      ].filter((img) => img.src),
+                      startIndex: 0,
+                    })
+                  }
+                  className="group w-full overflow-hidden rounded-2xl border border-[#EBEEF2] bg-[#F5F6F8] p-4 shadow-sm hover:shadow-md transition-shadow cursor-zoom-in"
+                >
+                  <img
+                    src={service.relatedWork.image as string}
+                    alt=""
+                    className="w-full rounded-xl object-cover transition-transform duration-500 group-hover:scale-[1.01]"
+                  />
+                </motion.button>
+
+                {/* Related Work Gallery */}
+                {relatedWorkGallery.length > 0 && (
+                  <GalleryGrid
+                    images={relatedWorkGallery}
+                    onOpen={(i) => setImageLightbox({ images: relatedWorkGallery, startIndex: i })}
+                  />
+                )}
+
+                {/* Related Work Videos */}
+                {relatedWorkVideos.length > 0 && (
+                  <>
+                    <p className="mt-8 text-xs font-bold text-[#6B7280] uppercase tracking-widest">Videos</p>
+                    <VideoGrid
+                      videos={relatedWorkVideos}
+                      onOpen={(i) => setVideoLightbox({ videos: relatedWorkVideos, index: i })}
+                    />
+                  </>
+                )}
+              </div>
             </div>
-            <Link
-              to={`/projects/${service.relatedWork.slug}`}
-              className="group overflow-hidden rounded-2xl border border-[#EBEEF2] bg-[#F5F6F8] p-4 shadow-sm transition-shadow hover:shadow-md"
-            >
-              <img
-                src={service.relatedWork.image}
-                alt=""
-                className="w-full rounded-xl object-cover transition-transform duration-500 group-hover:scale-[1.01]"
-              />
-            </Link>
-          </div>
-        </Container>
-      </section>
+          </Container>
+        </section>
 
-      {/* Technologies */}
-      <section className="border-t border-[#F3F4F6] py-14 md:py-16">
-        <Container className="px-5 sm:px-6 lg:px-10 xl:px-16">
-          <div className="flex flex-col gap-10 md:flex-row md:items-center md:justify-between">
-            <ServiceLabel>Technologies we use</ServiceLabel>
-            <div className="flex flex-wrap gap-8 md:gap-10">
-              {service.technologies.map((tech) => (
-                <TechLogo key={tech} name={tech} />
-              ))}
+        {/* Technologies */}
+        <section className="border-t border-[#F3F4F6] py-14 md:py-16">
+          <Container className="px-5 sm:px-6 lg:px-10 xl:px-16">
+            <div className="flex flex-col gap-10 md:flex-row md:items-center md:justify-between">
+              <ServiceLabel>Technologies we use</ServiceLabel>
+              <div className="flex flex-wrap gap-8 md:gap-10">
+                {service.technologies.map((tech) => (
+                  <TechLogo key={tech} name={tech} />
+                ))}
+              </div>
             </div>
-          </div>
-        </Container>
-      </section>
+          </Container>
+        </section>
 
-      <ServiceCtaBanner heading={service.ctaHeading} />
-      <Footer />
+        <ServiceCtaBanner heading={service.ctaHeading} />
+        <Footer />
       </main>
     </div>
   );

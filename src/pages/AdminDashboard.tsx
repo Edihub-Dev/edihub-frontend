@@ -23,7 +23,7 @@ import {
   FiUploadCloud,
   FiUserCheck
 } from 'react-icons/fi';
-import { getApiUrl } from '../utils/api';
+import { getApiUrl, getYouTubeId } from '../utils/api';
 
 import pexels1 from '../assets/projects/pexels-1.jpg';
 import pexels2 from '../assets/projects/pexels-2.jpg';
@@ -39,6 +39,17 @@ import bullseyeImg from '../assets/projects/bullseye.png';
 import interferenceImg from '../assets/projects/interference.png';
 import servicesHeroRender from '../assets/services-hero-render.png';
 import { resolveServiceDetail } from '../data/services';
+
+import bgCanvasStudio from '../assets/pexels-canvastudio-3153198.jpg';
+import bgMikhailNilov from '../assets/pexels-mikhail-nilov-6930549.jpg';
+import heroImage from '../assets/hero-image.jpg';
+
+const testimonialImageMap: Record<string, string> = {
+  "hero-image.jpg": heroImage,
+  "pexels-mikhail-nilov-6930549.jpg": bgMikhailNilov,
+  "pexels-canvastudio-3153198.jpg": bgCanvasStudio,
+};
+
 
 const customImageMap: Record<string, string> = {
   "arrows": arrowsImg,
@@ -131,6 +142,14 @@ export function AdminDashboard() {
   const [blogImageSource, setBlogImageSource] = useState<'upload' | 'url'>('url');
   const [serviceHeroImageSource, setServiceHeroImageSource] = useState<'upload' | 'url'>('url');
 
+  const [serviceOverviewGalleryUrlInput, setServiceOverviewGalleryUrlInput] = useState('');
+  const [serviceOverviewYoutubeUrlInput, setServiceOverviewYoutubeUrlInput] = useState('');
+  const [serviceOverviewVideoSource, setServiceOverviewVideoSource] = useState<'youtube' | 'upload'>('youtube');
+
+  const [serviceRelatedWorkGalleryUrlInput, setServiceRelatedWorkGalleryUrlInput] = useState('');
+  const [serviceRelatedWorkYoutubeUrlInput, setServiceRelatedWorkYoutubeUrlInput] = useState('');
+  const [serviceRelatedWorkVideoSource, setServiceRelatedWorkVideoSource] = useState<'youtube' | 'upload'>('youtube');
+
   const [isServiceFormOpen, setIsServiceFormOpen] = useState(false);
   const [editingService, setEditingService] = useState<any | null>(null);
   const [serviceSubmitting, setServiceSubmitting] = useState(false);
@@ -141,10 +160,14 @@ export function AdminDashboard() {
     overviewHeading: '',
     overviewBody: '',
     overviewImage: '',
+    overviewGallery: [] as string[],
+    overviewVideos: [] as { type: 'youtube' | 'upload'; url: string }[],
     relatedWorkTitle: '',
     relatedWorkDescription: '',
     relatedWorkSlug: '',
     relatedWorkImage: '',
+    relatedWorkGallery: [] as string[],
+    relatedWorkVideos: [] as { type: 'youtube' | 'upload'; url: string }[],
     heroImage: '',
   });
 
@@ -158,18 +181,29 @@ export function AdminDashboard() {
     readTime: '5 min read',
     excerpt: '',
     content: '',
-    image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop'
+    image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop',
+    gallery: [] as string[],
+    videos: [] as { type: 'youtube' | 'upload'; url: string }[]
   });
 
+  const [blogGalleryUrlInput, setBlogGalleryUrlInput] = useState('');
+  const [blogYoutubeUrlInput, setBlogYoutubeUrlInput] = useState('');
+  const [blogVideoSource, setBlogVideoSource] = useState<'youtube' | 'upload'>('youtube');
+
   // Testimonials Form State
-  const [isAddingTestimonial, setIsAddingTestimonial] = useState(false);
-  const [newTestimonial, setNewTestimonial] = useState({
+  const [isTestimonialFormOpen, setIsTestimonialFormOpen] = useState(false);
+  const [editingTestimonial, setEditingTestimonial] = useState<any | null>(null);
+  const [testimonialForm, setTestimonialForm] = useState({
     name: '',
     company: '',
+    role: '',
     text: '',
     rating: 5,
-    role: ''
+    avatar: 'hero-image.jpg',
+    bgImage: 'hero-image.jpg'
   });
+  const [avatarSource, setAvatarSource] = useState<'template' | 'upload' | 'url'>('template');
+  const [bgImageSource, setBgImageSource] = useState<'template' | 'upload' | 'url'>('template');
 
   const serviceIconOptions = [
     { value: 'brand', label: 'Brand Identity' },
@@ -278,6 +312,104 @@ export function AdminDashboard() {
     reader.readAsDataURL(file);
   };
 
+  // ── Overview Gallery ──────────────────────────────────────────────
+  const handleServiceOverviewGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    Array.from(files).forEach(file => {
+      if (file.size > 2 * 1024 * 1024) { alert(`"${file.name}" is too large! Max 2MB.`); return; }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string')
+          setServiceForm(prev => ({ ...prev, overviewGallery: [...(prev.overviewGallery || []), reader.result as string] }));
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+  };
+
+  const handleServiceOverviewAddGalleryUrl = () => {
+    if (!serviceOverviewGalleryUrlInput.trim()) return;
+    setServiceForm(prev => ({ ...prev, overviewGallery: [...(prev.overviewGallery || []), serviceOverviewGalleryUrlInput.trim()] }));
+    setServiceOverviewGalleryUrlInput('');
+  };
+
+  const handleServiceOverviewRemoveGalleryImage = (i: number) => {
+    setServiceForm(prev => ({ ...prev, overviewGallery: (prev.overviewGallery || []).filter((_, idx) => idx !== i) }));
+  };
+
+  // ── Overview Videos ───────────────────────────────────────────────
+  const handleServiceOverviewVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return;
+    if (file.size > 15 * 1024 * 1024) { alert("Video too large! Max 15MB."); return; }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string')
+        setServiceForm(prev => ({ ...prev, overviewVideos: [...(prev.overviewVideos || []), { type: 'upload', url: reader.result as string }] }));
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleServiceOverviewAddYoutubeUrl = () => {
+    if (!serviceOverviewYoutubeUrlInput.trim()) return;
+    setServiceForm(prev => ({ ...prev, overviewVideos: [...(prev.overviewVideos || []), { type: 'youtube', url: serviceOverviewYoutubeUrlInput.trim() }] }));
+    setServiceOverviewYoutubeUrlInput('');
+  };
+
+  const handleServiceOverviewRemoveVideo = (i: number) => {
+    setServiceForm(prev => ({ ...prev, overviewVideos: (prev.overviewVideos || []).filter((_, idx) => idx !== i) }));
+  };
+
+  // ── Related Work Gallery ──────────────────────────────────────────
+  const handleServiceRelatedWorkGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    Array.from(files).forEach(file => {
+      if (file.size > 2 * 1024 * 1024) { alert(`"${file.name}" is too large! Max 2MB.`); return; }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string')
+          setServiceForm(prev => ({ ...prev, relatedWorkGallery: [...(prev.relatedWorkGallery || []), reader.result as string] }));
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+  };
+
+  const handleServiceRelatedWorkAddGalleryUrl = () => {
+    if (!serviceRelatedWorkGalleryUrlInput.trim()) return;
+    setServiceForm(prev => ({ ...prev, relatedWorkGallery: [...(prev.relatedWorkGallery || []), serviceRelatedWorkGalleryUrlInput.trim()] }));
+    setServiceRelatedWorkGalleryUrlInput('');
+  };
+
+  const handleServiceRelatedWorkRemoveGalleryImage = (i: number) => {
+    setServiceForm(prev => ({ ...prev, relatedWorkGallery: (prev.relatedWorkGallery || []).filter((_, idx) => idx !== i) }));
+  };
+
+  // ── Related Work Videos ───────────────────────────────────────────
+  const handleServiceRelatedWorkVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return;
+    if (file.size > 15 * 1024 * 1024) { alert("Video too large! Max 15MB."); return; }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string')
+        setServiceForm(prev => ({ ...prev, relatedWorkVideos: [...(prev.relatedWorkVideos || []), { type: 'upload', url: reader.result as string }] }));
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleServiceRelatedWorkAddYoutubeUrl = () => {
+    if (!serviceRelatedWorkYoutubeUrlInput.trim()) return;
+    setServiceForm(prev => ({ ...prev, relatedWorkVideos: [...(prev.relatedWorkVideos || []), { type: 'youtube', url: serviceRelatedWorkYoutubeUrlInput.trim() }] }));
+    setServiceRelatedWorkYoutubeUrlInput('');
+  };
+
+  const handleServiceRelatedWorkRemoveVideo = (i: number) => {
+    setServiceForm(prev => ({ ...prev, relatedWorkVideos: (prev.relatedWorkVideos || []).filter((_, idx) => idx !== i) }));
+  };
+
   const handleServiceHeroImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -314,6 +446,124 @@ export function AdminDashboard() {
     };
     reader.readAsDataURL(file);
   };
+
+  const handleTestimonialAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image is too large! Please upload a file under 2MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        setTestimonialForm(prev => ({ ...prev, avatar: reader.result as string }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleTestimonialBgImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image is too large! Please upload a file under 2MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        setTestimonialForm(prev => ({ ...prev, bgImage: reader.result as string }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleBlogGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach(file => {
+      if (file.size > 2 * 1024 * 1024) {
+        alert(`Image "${file.name}" is too large! Please upload images under 2MB.`);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result;
+        if (typeof result === 'string') {
+          setBlogForm(prev => ({
+            ...prev,
+            gallery: [...(prev.gallery || []), result]
+          }));
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    e.target.value = '';
+  };
+
+  const handleBlogAddGalleryUrl = () => {
+    if (!blogGalleryUrlInput.trim()) return;
+    setBlogForm(prev => ({
+      ...prev,
+      gallery: [...(prev.gallery || []), blogGalleryUrlInput.trim()]
+    }));
+    setBlogGalleryUrlInput('');
+  };
+
+  const handleBlogRemoveGalleryImage = (indexToRemove: number) => {
+    setBlogForm(prev => ({
+      ...prev,
+      gallery: (prev.gallery || []).filter((_, idx) => idx !== indexToRemove)
+    }));
+  };
+
+  const handleBlogVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 15 * 1024 * 1024) {
+      alert("Video file is too large! Please try to upload a video file under 15MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        setBlogForm(prev => ({
+          ...prev,
+          videos: [...(prev.videos || []), { type: 'upload', url: reader.result as string }]
+        }));
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleBlogAddYoutubeUrl = () => {
+    if (!blogYoutubeUrlInput.trim()) return;
+    setBlogForm(prev => ({
+      ...prev,
+      videos: [...(prev.videos || []), { type: 'youtube', url: blogYoutubeUrlInput.trim() }]
+    }));
+    setBlogYoutubeUrlInput('');
+  };
+
+  const handleBlogRemoveVideo = (indexToRemove: number) => {
+    setBlogForm(prev => ({
+      ...prev,
+      videos: (prev.videos || []).filter((_, idx) => idx !== indexToRemove)
+    }));
+  };
+
+
 
   const navigate = useNavigate();
   const apiUrl = getApiUrl();
@@ -659,13 +909,23 @@ export function AdminDashboard() {
       overviewHeading: '',
       overviewBody: '',
       overviewImage: '',
+      overviewGallery: [],
+      overviewVideos: [],
       relatedWorkTitle: '',
       relatedWorkDescription: '',
       relatedWorkSlug: '',
       relatedWorkImage: '',
+      relatedWorkGallery: [],
+      relatedWorkVideos: [],
       heroImage: '',
     });
     setServiceHeroImageSource('url');
+    setServiceOverviewGalleryUrlInput('');
+    setServiceOverviewYoutubeUrlInput('');
+    setServiceOverviewVideoSource('youtube');
+    setServiceRelatedWorkGalleryUrlInput('');
+    setServiceRelatedWorkYoutubeUrlInput('');
+    setServiceRelatedWorkVideoSource('youtube');
     setEditingService(null);
     setErrorMsg('');
     setIsServiceFormOpen(true);
@@ -680,20 +940,31 @@ export function AdminDashboard() {
       overviewHeading: srv.overviewHeading || (fallback ? fallback.overviewHeading : ''),
       overviewBody: srv.overviewBody || (fallback ? fallback.overviewBody : ''),
       overviewImage: srv.overviewImage || (fallback ? fallback.overviewImage : ''),
+      overviewGallery: Array.isArray(srv.overviewGallery) ? srv.overviewGallery : [],
+      overviewVideos: Array.isArray(srv.overviewVideos) ? srv.overviewVideos : [],
       relatedWorkTitle: srv.relatedWorkTitle || (fallback ? fallback.relatedWork.title : ''),
       relatedWorkDescription: srv.relatedWorkDescription || (fallback ? fallback.relatedWork.description : ''),
       relatedWorkSlug: srv.relatedWorkSlug || (fallback ? fallback.relatedWork.slug : ''),
       relatedWorkImage: srv.relatedWorkImage || (fallback ? fallback.relatedWork.image : ''),
+      relatedWorkGallery: Array.isArray(srv.relatedWorkGallery) ? srv.relatedWorkGallery : [],
+      relatedWorkVideos: Array.isArray(srv.relatedWorkVideos) ? srv.relatedWorkVideos : [],
       heroImage: srv.heroImage || '',
     });
-    
+
     const img = srv.heroImage || '';
     if (img.startsWith('data:image/')) {
       setServiceHeroImageSource('upload');
     } else {
       setServiceHeroImageSource('url');
     }
-    
+
+    setServiceOverviewGalleryUrlInput('');
+    setServiceOverviewYoutubeUrlInput('');
+    setServiceOverviewVideoSource('youtube');
+    setServiceRelatedWorkGalleryUrlInput('');
+    setServiceRelatedWorkYoutubeUrlInput('');
+    setServiceRelatedWorkVideoSource('youtube');
+
     setEditingService(srv);
     setErrorMsg('');
     setIsServiceFormOpen(true);
@@ -761,9 +1032,14 @@ export function AdminDashboard() {
       readTime: '5 min read',
       excerpt: '',
       content: '',
-      image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop'
+      image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop',
+      gallery: [],
+      videos: []
     });
     setBlogImageSource('url');
+    setBlogGalleryUrlInput('');
+    setBlogYoutubeUrlInput('');
+    setBlogVideoSource('youtube');
     setEditingBlog(null);
     setErrorMsg('');
     setIsBlogFormOpen(true);
@@ -777,7 +1053,9 @@ export function AdminDashboard() {
       readTime: b.readTime || '5 min read',
       excerpt: b.excerpt || '',
       content: b.content || '',
-      image: b.image || 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop'
+      image: b.image || 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop',
+      gallery: Array.isArray(b.gallery) ? b.gallery : [],
+      videos: Array.isArray(b.videos) ? b.videos : []
     });
     const img = b.image || '';
     if (img.startsWith('data:image/')) {
@@ -785,6 +1063,9 @@ export function AdminDashboard() {
     } else {
       setBlogImageSource('url');
     }
+    setBlogGalleryUrlInput('');
+    setBlogYoutubeUrlInput('');
+    setBlogVideoSource('youtube');
     setEditingBlog(b);
     setErrorMsg('');
     setIsBlogFormOpen(true);
@@ -860,46 +1141,106 @@ export function AdminDashboard() {
   };
 
   // Testimonials Handlers
-  const handleAddTestimonial = async () => {
-    if (!newTestimonial.name.trim() || !newTestimonial.text.trim()) {
+  const handleAddNewTestimonialClick = () => {
+    setTestimonialForm({
+      name: '',
+      company: '',
+      role: '',
+      text: '',
+      rating: 5,
+      avatar: 'hero-image.jpg',
+      bgImage: 'hero-image.jpg'
+    });
+    setAvatarSource('template');
+    setBgImageSource('template');
+    setEditingTestimonial(null);
+    setIsTestimonialFormOpen(true);
+  };
+
+  const handleEditTestimonialClick = (t: any) => {
+    setTestimonialForm({
+      name: t.name || t.author || '',
+      company: t.company || '',
+      role: t.role || '',
+      text: t.text || t.quote || t.content || '',
+      rating: t.rating || 5,
+      avatar: t.avatar || 'hero-image.jpg',
+      bgImage: t.bgImage || 'hero-image.jpg'
+    });
+
+    const av = t.avatar || '';
+    if (av.startsWith('data:image/')) {
+      setAvatarSource('upload');
+    } else if (av.startsWith('http://') || av.startsWith('https://')) {
+      setAvatarSource('url');
+    } else {
+      setAvatarSource('template');
+    }
+
+    const bg = t.bgImage || '';
+    if (bg.startsWith('data:image/')) {
+      setBgImageSource('upload');
+    } else if (bg.startsWith('http://') || bg.startsWith('https://')) {
+      setBgImageSource('url');
+    } else {
+      setBgImageSource('template');
+    }
+
+    setEditingTestimonial(t);
+    setIsTestimonialFormOpen(true);
+  };
+
+  const handleTestimonialSubmit = async (e: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!testimonialForm.name.trim() || !testimonialForm.text.trim()) {
       showNotification('error', 'Please fill in Name and Testimonial Text.');
       return;
     }
 
     try {
-      const res = await fetch(`${apiUrl}/testimonials`, {
-        method: 'POST',
+      const isEditing = !!editingTestimonial;
+      const url = isEditing
+        ? `${apiUrl}/testimonials/${editingTestimonial.id}`
+        : `${apiUrl}/testimonials`;
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const payload = {
+        name: testimonialForm.name,
+        company: testimonialForm.company,
+        role: testimonialForm.role || 'Client',
+        text: testimonialForm.text,
+        quote: testimonialForm.text,
+        rating: testimonialForm.rating,
+        avatar: testimonialForm.avatar,
+        bgImage: testimonialForm.bgImage
+      };
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: newTestimonial.name,
-          company: newTestimonial.company,
-          text: newTestimonial.text,
-          quote: newTestimonial.text,
-          rating: newTestimonial.rating,
-          role: newTestimonial.role || 'Client'
-        })
+        body: JSON.stringify(payload)
       });
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.message || 'Failed to add testimonial');
+        throw new Error(error.message || `Failed to ${isEditing ? 'update' : 'add'} testimonial`);
       }
 
-      showNotification('success', 'Testimonial added successfully!');
-      setIsAddingTestimonial(false);
-      setNewTestimonial({ name: '', company: '', text: '', rating: 5, role: '' });
+      showNotification('success', `Testimonial ${isEditing ? 'updated' : 'added'} successfully!`);
+      setIsTestimonialFormOpen(false);
+      setTestimonialForm({ name: '', company: '', role: '', text: '', rating: 5, avatar: 'hero-image.jpg', bgImage: 'hero-image.jpg' });
+      setEditingTestimonial(null);
       fetchAllData();
     } catch (err: any) {
-      showNotification('error', err.message || 'Error adding testimonial');
+      showNotification('error', err.message || 'Error saving testimonial');
     }
   };
 
-  const handleDeleteTestimonial = async (idx: number) => {
+  const handleDeleteTestimonial = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this testimonial?')) return;
 
     try {
-      const testimonial = testimonials[idx];
-      const res = await fetch(`${apiUrl}/testimonials/${testimonial.id || idx}`, {
+      const res = await fetch(`${apiUrl}/testimonials/${id}`, {
         method: 'DELETE'
       });
 
@@ -1304,7 +1645,7 @@ export function AdminDashboard() {
                 className="inline-flex items-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-700 transition-colors mb-2"
               >
                 <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-                  <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 Back to Services
               </Link>
@@ -1403,7 +1744,7 @@ export function AdminDashboard() {
                   <p className="text-sm text-slate-500 mt-0.5">Manage validated customer quotes, reviews, and client ratings.</p>
                 </div>
                 <button
-                  onClick={() => setIsAddingTestimonial(!isAddingTestimonial)}
+                  onClick={handleAddNewTestimonialClick}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-5 py-3.5 rounded-2xl shadow-lg shadow-blue-600/10 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
                 >
                   <FiPlus className="w-4 h-4 stroke-[3]" />
@@ -1412,14 +1753,16 @@ export function AdminDashboard() {
               </div>
 
               {/* Add/Edit Form */}
-              {isAddingTestimonial && (
+              {isTestimonialFormOpen && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="bg-gradient-to-br from-slate-50 to-slate-100 p-8 rounded-3xl border border-slate-200/80 shadow-sm space-y-5"
                 >
-                  <h3 className="text-lg font-bold text-slate-900">New Testimonial</h3>
-                  
+                  <h3 className="text-lg font-bold text-slate-900">
+                    {editingTestimonial ? 'Edit Testimonial' : 'New Testimonial'}
+                  </h3>
+
                   <div className="space-y-4">
                     {/* Rating */}
                     <div>
@@ -1430,12 +1773,11 @@ export function AdminDashboard() {
                         {[1, 2, 3, 4, 5].map((star) => (
                           <button
                             key={star}
-                            onClick={() => setNewTestimonial({ ...newTestimonial, rating: star })}
-                            className={`text-3xl transition-all ${
-                              newTestimonial.rating >= star
+                            onClick={() => setTestimonialForm({ ...testimonialForm, rating: star })}
+                            className={`text-3xl transition-all ${testimonialForm.rating >= star
                                 ? 'text-amber-400 scale-110'
                                 : 'text-slate-200 hover:text-amber-200'
-                            }`}
+                              }`}
                           >
                             ★
                           </button>
@@ -1450,8 +1792,8 @@ export function AdminDashboard() {
                       </label>
                       <input
                         type="text"
-                        value={newTestimonial.name}
-                        onChange={(e) => setNewTestimonial({ ...newTestimonial, name: e.target.value })}
+                        value={testimonialForm.name}
+                        onChange={(e) => setTestimonialForm({ ...testimonialForm, name: e.target.value })}
                         placeholder="e.g. Sarah Mitchell"
                         className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all"
                       />
@@ -1460,28 +1802,14 @@ export function AdminDashboard() {
                     {/* Product/Company Name */}
                     <div>
                       <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
-                        Company / Product Name
+                        Company Name
                       </label>
                       <input
                         type="text"
-                        value={newTestimonial.company}
-                        onChange={(e) => setNewTestimonial({ ...newTestimonial, company: e.target.value })}
+                        value={testimonialForm.company}
+                        onChange={(e) => setTestimonialForm({ ...testimonialForm, company: e.target.value })}
                         placeholder="e.g. Nexora Inc"
                         className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all"
-                      />
-                    </div>
-
-                    {/* Testimonial Text */}
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
-                        Testimonial Text
-                      </label>
-                      <textarea
-                        value={newTestimonial.text}
-                        onChange={(e) => setNewTestimonial({ ...newTestimonial, text: e.target.value })}
-                        placeholder="Enter the client's feedback or testimonial..."
-                        rows={4}
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all resize-none"
                       />
                     </div>
 
@@ -1492,10 +1820,154 @@ export function AdminDashboard() {
                       </label>
                       <input
                         type="text"
-                        value={newTestimonial.role || ''}
-                        onChange={(e) => setNewTestimonial({ ...newTestimonial, role: e.target.value })}
+                        value={testimonialForm.role}
+                        onChange={(e) => setTestimonialForm({ ...testimonialForm, role: e.target.value })}
                         placeholder="e.g. Marketing Director"
                         className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all"
+                      />
+                    </div>
+
+                    {/* Avatar Image Selection */}
+                    <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-4">
+                      <span className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Avatar Picture</span>
+                      <div className="flex gap-4 text-xs font-semibold">
+                        {[
+                          { id: 'template', label: 'Choose Template' },
+                          { id: 'upload', label: 'Upload File' },
+                          { id: 'url', label: 'Image URL' }
+                        ].map(opt => (
+                          <label key={opt.id} className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="avatarSource"
+                              checked={avatarSource === opt.id}
+                              onChange={() => setAvatarSource(opt.id as any)}
+                              className="text-blue-600 focus:ring-blue-500"
+                            />
+                            {opt.label}
+                          </label>
+                        ))}
+                      </div>
+
+                      {avatarSource === 'template' && (
+                        <select
+                          value={testimonialForm.avatar}
+                          onChange={(e) => setTestimonialForm({ ...testimonialForm, avatar: e.target.value })}
+                          className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-blue-500"
+                        >
+                          <option value="hero-image.jpg">Default Hero Image (hero-image.jpg)</option>
+                          <option value="pexels-mikhail-nilov-6930549.jpg">Mikhail Nilov Office (pexels-mikhail-nilov-6930549.jpg)</option>
+                          <option value="pexels-canvastudio-3153198.jpg">Canvas Studio Team (pexels-canvastudio-3153198.jpg)</option>
+                        </select>
+                      )}
+
+                      {avatarSource === 'upload' && (
+                        <div className="flex items-center gap-4">
+                          <label className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-700 transition-colors">
+                            <FiUploadCloud className="w-4 h-4 text-slate-500" />
+                            Upload Profile Pic
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleTestimonialAvatarUpload}
+                              className="hidden"
+                            />
+                          </label>
+                          {testimonialForm.avatar && testimonialForm.avatar.startsWith('data:image/') && (
+                            <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200">
+                              <img src={testimonialForm.avatar} alt="Preview" className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {avatarSource === 'url' && (
+                        <input
+                          type="text"
+                          value={testimonialForm.avatar}
+                          onChange={(e) => setTestimonialForm({ ...testimonialForm, avatar: e.target.value })}
+                          placeholder="https://example.com/avatar.jpg"
+                          className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                        />
+                      )}
+                    </div>
+
+                    {/* Background Image Selection */}
+                    <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-4">
+                      <span className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Background Picture</span>
+                      <div className="flex gap-4 text-xs font-semibold">
+                        {[
+                          { id: 'template', label: 'Choose Template' },
+                          { id: 'upload', label: 'Upload File' },
+                          { id: 'url', label: 'Image URL' }
+                        ].map(opt => (
+                          <label key={opt.id} className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="bgImageSource"
+                              checked={bgImageSource === opt.id}
+                              onChange={() => setBgImageSource(opt.id as any)}
+                              className="text-blue-600 focus:ring-blue-500"
+                            />
+                            {opt.label}
+                          </label>
+                        ))}
+                      </div>
+
+                      {bgImageSource === 'template' && (
+                        <select
+                          value={testimonialForm.bgImage}
+                          onChange={(e) => setTestimonialForm({ ...testimonialForm, bgImage: e.target.value })}
+                          className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-blue-500"
+                        >
+                          <option value="hero-image.jpg">Default Hero Image (hero-image.jpg)</option>
+                          <option value="pexels-mikhail-nilov-6930549.jpg">Mikhail Nilov Office (pexels-mikhail-nilov-6930549.jpg)</option>
+                          <option value="pexels-canvastudio-3153198.jpg">Canvas Studio Team (pexels-canvastudio-3153198.jpg)</option>
+                        </select>
+                      )}
+
+                      {bgImageSource === 'upload' && (
+                        <div className="flex items-center gap-4">
+                          <label className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-700 transition-colors">
+                            <FiUploadCloud className="w-4 h-4 text-slate-500" />
+                            Upload Background Pic
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleTestimonialBgImageUpload}
+                              className="hidden"
+                            />
+                          </label>
+                          {testimonialForm.bgImage && testimonialForm.bgImage.startsWith('data:image/') && (
+                            <div className="w-16 h-10 rounded overflow-hidden border border-slate-200">
+                              <img src={testimonialForm.bgImage} alt="Preview" className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {bgImageSource === 'url' && (
+                        <input
+                          type="text"
+                          value={testimonialForm.bgImage}
+                          onChange={(e) => setTestimonialForm({ ...testimonialForm, bgImage: e.target.value })}
+                          placeholder="https://example.com/background.jpg"
+                          className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                        />
+                      )}
+                    </div>
+
+                    {/* Testimonial Text */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                        Testimonial Text
+                      </label>
+                      <textarea
+                        value={testimonialForm.text}
+                        onChange={(e) => setTestimonialForm({ ...testimonialForm, text: e.target.value })}
+                        placeholder="Enter the client's feedback or testimonial..."
+                        rows={4}
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all resize-none"
                       />
                     </div>
 
@@ -1503,16 +1975,17 @@ export function AdminDashboard() {
                     <div className="flex gap-3 pt-4 border-t border-slate-200">
                       <button
                         onClick={() => {
-                          setIsAddingTestimonial(false);
-                          setNewTestimonial({ name: '', company: '', text: '', rating: 5, role: '' });
+                          setIsTestimonialFormOpen(false);
+                          setEditingTestimonial(null);
+                          setTestimonialForm({ name: '', company: '', role: '', text: '', rating: 5, avatar: 'hero-image.jpg', bgImage: 'hero-image.jpg' });
                         }}
                         className="flex-1 py-2.5 px-4 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-bold rounded-xl transition-all"
                       >
                         Cancel
                       </button>
                       <button
-                        onClick={handleAddTestimonial}
-                        disabled={!newTestimonial.name || !newTestimonial.text}
+                        onClick={handleTestimonialSubmit}
+                        disabled={!testimonialForm.name || !testimonialForm.text}
                         className="flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all"
                       >
                         Save Testimonial
@@ -1525,7 +1998,7 @@ export function AdminDashboard() {
               {/* Display Testimonials */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {testimonials.map((t, idx) => (
-                  <div key={idx} className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
+                  <div key={t.id || idx} className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
                     <div className="space-y-3">
                       <div className="flex text-amber-400 gap-0.5">
                         {Array.from({ length: t.rating || 5 }).map((_, i) => (
@@ -1535,24 +2008,47 @@ export function AdminDashboard() {
                       <p className="text-sm text-slate-650 italic leading-relaxed">
                         "{t.text || t.quote || t.content}"
                       </p>
+
+                      {/* Background Image Reference / Preview */}
+                      {t.bgImage && (
+                        <div className="mt-2 text-[10px] text-slate-400 flex items-center gap-1.5 bg-slate-50 border border-slate-100 px-2.5 py-1 rounded-lg w-fit">
+                          <span className="font-bold text-slate-500">Bg Image:</span>
+                          <span className="truncate max-w-[200px]" title={t.bgImage}>
+                            {t.bgImage.startsWith('data:image/') ? 'Custom Uploaded Image' : t.bgImage}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
-                      <div className="flex items-center gap-3 flex-1">
-                        <div className="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 font-bold text-xs uppercase">
-                          {(t.author || t.name || 'C').charAt(0)}
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 font-bold text-xs uppercase overflow-hidden shrink-0">
+                          {t.avatar ? (
+                            <img src={testimonialImageMap[t.avatar] || t.avatar} alt={t.name || t.author} className="w-full h-full object-cover" />
+                          ) : (
+                            (t.author || t.name || 'C').charAt(0)
+                          )}
                         </div>
-                        <div>
-                          <h4 className="text-sm font-bold text-slate-800">{t.author || t.name}</h4>
-                          <p className="text-xs text-slate-400">{t.company || t.role || 'Client'}</p>
+                        <div className="min-w-0">
+                          <h4 className="text-sm font-bold text-slate-800 truncate">{t.author || t.name}</h4>
+                          <p className="text-xs text-slate-400 truncate">{t.company || t.role || 'Client'}</p>
                         </div>
                       </div>
-                      <button
-                        onClick={() => handleDeleteTestimonial(idx)}
-                        className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200/60 rounded-xl transition-all"
-                        title="Delete testimonial"
-                      >
-                        <FiTrash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEditTestimonialClick(t)}
+                          className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl transition-all"
+                          title="Edit testimonial"
+                        >
+                          <FiEdit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteTestimonial(t.id || idx)}
+                          className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200/60 rounded-xl transition-all"
+                          title="Delete testimonial"
+                        >
+                          <FiTrash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -2117,7 +2613,7 @@ export function AdminDashboard() {
                     <span>Gallery Images (Challenge & Solution)</span>
                     <span className="text-[10px] text-slate-400 normal-case font-medium">Add additional showcase pictures</span>
                   </label>
-                  
+
                   {/* Upload & Url Input controls */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     {/* Local File Uploader */}
@@ -2239,12 +2735,7 @@ export function AdminDashboard() {
                   {projectForm.videos && projectForm.videos.length > 0 ? (
                     <div className="space-y-3">
                       {projectForm.videos.map((vidUrl, idx) => {
-                        let ytId: string | null = null;
-                        try {
-                          const u = new URL(vidUrl);
-                          if (u.hostname.includes('youtube.com')) ytId = u.searchParams.get('v');
-                          else if (u.hostname === 'youtu.be') ytId = u.pathname.slice(1);
-                        } catch {}
+                        const ytId = getYouTubeId(vidUrl);
 
                         return (
                           <div key={idx} className="relative flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3 group">
@@ -2256,7 +2747,7 @@ export function AdminDashboard() {
                               />
                             ) : (
                               <div className="w-24 h-14 bg-slate-200 rounded-lg flex items-center justify-center shrink-0">
-                                <svg className="w-6 h-6 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
+                                <svg className="w-6 h-6 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" /></svg>
                               </div>
                             )}
                             <div className="flex-1 min-w-0">
@@ -2486,7 +2977,7 @@ export function AdminDashboard() {
                 {/* Service Overview Customizations */}
                 <div className="border-t border-slate-100 pt-6 space-y-4">
                   <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Service Overview Section</h4>
-                  
+
                   <div>
                     <label className="block text-xs font-semibold text-slate-500 mb-1">Overview Heading</label>
                     <input
@@ -2546,10 +3037,107 @@ export function AdminDashboard() {
                   </div>
                 </div>
 
+                {/* Overview Gallery ─────────────────────────── */}
+                <div className="border-t border-slate-100 pt-5 space-y-3">
+                  <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Overview Gallery (More Pics)</h4>
+                  <div className="flex gap-2">
+                    <input type="file" multiple accept="image/*" id="svc-ov-gallery-upload" className="hidden" onChange={handleServiceOverviewGalleryUpload} />
+                    <label htmlFor="svc-ov-gallery-upload" className="cursor-pointer py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-colors shrink-0 flex items-center gap-1.5 border border-slate-200">
+                      <FiUploadCloud className="w-3.5 h-3.5" /> Upload Pics
+                    </label>
+                    <input
+                      type="url"
+                      value={serviceOverviewGalleryUrlInput}
+                      onChange={(e) => setServiceOverviewGalleryUrlInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleServiceOverviewAddGalleryUrl(); } }}
+                      placeholder="Or paste image URL..."
+                      className="flex-1 bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-800"
+                    />
+                    <button type="button" onClick={handleServiceOverviewAddGalleryUrl} className="py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-colors">Add</button>
+                  </div>
+                  {serviceForm.overviewGallery && serviceForm.overviewGallery.length > 0 ? (
+                    <div className="grid grid-cols-4 gap-2">
+                      {serviceForm.overviewGallery.map((img, idx) => (
+                        <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-slate-200 bg-slate-50 group">
+                          <img src={getProjectImage(img)} alt={`OV ${idx + 1}`} className="w-full h-full object-cover" />
+                          <button type="button" onClick={() => handleServiceOverviewRemoveGalleryImage(idx)} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                            <FiTrash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-[10px] text-slate-400 italic">No overview gallery images yet</span>
+                  )}
+                </div>
+
+                {/* Overview Videos ─────────────────────────── */}
+                <div className="border-t border-slate-100 pt-5 space-y-3">
+                  <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Overview Videos</h4>
+                  <div className="grid grid-cols-2 gap-1 bg-slate-100 p-0.5 rounded-lg text-[10px] font-semibold text-slate-600">
+                    <button type="button" onClick={() => setServiceOverviewVideoSource('youtube')} className={`py-1.5 rounded-md text-center transition-all ${serviceOverviewVideoSource === 'youtube' ? 'bg-white text-indigo-600 shadow-sm' : 'hover:text-slate-800'}`}>YouTube Link</button>
+                    <button type="button" onClick={() => setServiceOverviewVideoSource('upload')} className={`py-1.5 rounded-md text-center transition-all ${serviceOverviewVideoSource === 'upload' ? 'bg-white text-indigo-600 shadow-sm' : 'hover:text-slate-800'}`}>Upload Video</button>
+                  </div>
+                  {serviceOverviewVideoSource === 'youtube' ? (
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        value={serviceOverviewYoutubeUrlInput}
+                        onChange={(e) => setServiceOverviewYoutubeUrlInput(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleServiceOverviewAddYoutubeUrl(); } }}
+                        placeholder="Paste YouTube URL..."
+                        className="flex-1 bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-800"
+                      />
+                      <button type="button" onClick={handleServiceOverviewAddYoutubeUrl} className="py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-colors">Add</button>
+                    </div>
+                  ) : (
+                    <div className="border border-dashed border-slate-200 rounded-lg p-3 bg-slate-50 text-center">
+                      <input type="file" accept="video/*" id="svc-ov-video-upload" className="hidden" onChange={handleServiceOverviewVideoUpload} />
+                      <label htmlFor="svc-ov-video-upload" className="cursor-pointer block">
+                        <FiUploadCloud className="w-5 h-5 text-indigo-400 mx-auto mb-1" />
+                        <span className="text-[11px] font-bold text-slate-600 block">Choose Video File</span>
+                        <span className="text-[9px] text-slate-400">(MP4/WebM under 15MB)</span>
+                      </label>
+                    </div>
+                  )}
+                  {serviceForm.overviewVideos && serviceForm.overviewVideos.length > 0 ? (
+                    <div className="space-y-1.5">
+                      {serviceForm.overviewVideos.map((vid, idx) => {
+                        const ytId = vid.type === 'youtube' ? (vid.url.match(/(?:youtu\.be\/|v=)([^&?]+)/)?.[1] || null) : null;
+                        return (
+                          <div key={idx} className="flex items-center gap-2 p-2 bg-slate-50 border border-slate-200 rounded-lg">
+                            {ytId ? (
+                              <img src={`https://img.youtube.com/vi/${ytId}/default.jpg`} alt="yt" className="w-16 h-10 object-cover rounded shrink-0" />
+                            ) : vid.type === 'upload' ? (
+                              <div className="w-16 h-10 bg-black rounded shrink-0 relative overflow-hidden">
+                                <video src={vid.url} className="w-full h-full object-cover opacity-80" muted />
+                              </div>
+                            ) : (
+                              <div className="w-16 h-10 bg-slate-200 rounded shrink-0 flex items-center justify-center">
+                                <svg className="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" /></svg>
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[9px] font-bold text-slate-400 uppercase">{vid.type === 'youtube' ? 'YouTube' : 'Upload'}</p>
+                              <p className="text-[10px] text-slate-600 truncate font-mono">{vid.url.substring(0, 40)}...</p>
+                            </div>
+                            <button type="button" onClick={() => handleServiceOverviewRemoveVideo(idx)} className="p-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg shrink-0">
+                              <FiTrash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <span className="text-[10px] text-slate-400 italic">No overview videos yet</span>
+                  )}
+                </div>
+
                 {/* Related Showcase Work */}
                 <div className="border-t border-slate-100 pt-6 space-y-4">
                   <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Related Case Study (Project)</h4>
-                  
+
+
                   <div>
                     <label className="block text-xs font-semibold text-slate-500 mb-1">Select Portfolio Project</label>
                     <select
@@ -2629,6 +3217,102 @@ export function AdminDashboard() {
                           <FiTrash2 className="w-4 h-4" />
                         </button>
                       </div>
+                    )}
+                  </div>
+
+                  {/* Related Work Gallery ─────────────────── */}
+                  <div className="border-t border-slate-100 pt-4 space-y-3">
+                    <span className="block text-[11px] font-bold text-indigo-500 uppercase tracking-widest">Related Work Gallery (More Pics)</span>
+                    <div className="flex gap-2">
+                      <input type="file" multiple accept="image/*" id="svc-rw-gallery-upload" className="hidden" onChange={handleServiceRelatedWorkGalleryUpload} />
+                      <label htmlFor="svc-rw-gallery-upload" className="cursor-pointer py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-colors shrink-0 flex items-center gap-1.5 border border-slate-200">
+                        <FiUploadCloud className="w-3.5 h-3.5" /> Upload Pics
+                      </label>
+                      <input
+                        type="url"
+                        value={serviceRelatedWorkGalleryUrlInput}
+                        onChange={(e) => setServiceRelatedWorkGalleryUrlInput(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleServiceRelatedWorkAddGalleryUrl(); } }}
+                        placeholder="Or paste image URL..."
+                        className="flex-1 bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-800"
+                      />
+                      <button type="button" onClick={handleServiceRelatedWorkAddGalleryUrl} className="py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-colors">Add</button>
+                    </div>
+                    {serviceForm.relatedWorkGallery && serviceForm.relatedWorkGallery.length > 0 ? (
+                      <div className="grid grid-cols-4 gap-2">
+                        {serviceForm.relatedWorkGallery.map((img, idx) => (
+                          <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-slate-200 bg-slate-50 group">
+                            <img src={getProjectImage(img)} alt={`RW ${idx + 1}`} className="w-full h-full object-cover" />
+                            <button type="button" onClick={() => handleServiceRelatedWorkRemoveGalleryImage(idx)} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                              <FiTrash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-[10px] text-slate-400 italic">No related work gallery images yet</span>
+                    )}
+                  </div>
+
+                  {/* Related Work Videos ─────────────────── */}
+                  <div className="border-t border-slate-100 pt-4 space-y-3">
+                    <span className="block text-[11px] font-bold text-indigo-500 uppercase tracking-widest">Related Work Videos</span>
+                    <div className="grid grid-cols-2 gap-1 bg-slate-100 p-0.5 rounded-lg text-[10px] font-semibold text-slate-600">
+                      <button type="button" onClick={() => setServiceRelatedWorkVideoSource('youtube')} className={`py-1.5 rounded-md text-center transition-all ${serviceRelatedWorkVideoSource === 'youtube' ? 'bg-white text-indigo-600 shadow-sm' : 'hover:text-slate-800'}`}>YouTube Link</button>
+                      <button type="button" onClick={() => setServiceRelatedWorkVideoSource('upload')} className={`py-1.5 rounded-md text-center transition-all ${serviceRelatedWorkVideoSource === 'upload' ? 'bg-white text-indigo-600 shadow-sm' : 'hover:text-slate-800'}`}>Upload Video</button>
+                    </div>
+                    {serviceRelatedWorkVideoSource === 'youtube' ? (
+                      <div className="flex gap-2">
+                        <input
+                          type="url"
+                          value={serviceRelatedWorkYoutubeUrlInput}
+                          onChange={(e) => setServiceRelatedWorkYoutubeUrlInput(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleServiceRelatedWorkAddYoutubeUrl(); } }}
+                          placeholder="Paste YouTube URL..."
+                          className="flex-1 bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-800"
+                        />
+                        <button type="button" onClick={handleServiceRelatedWorkAddYoutubeUrl} className="py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-colors">Add</button>
+                      </div>
+                    ) : (
+                      <div className="border border-dashed border-slate-200 rounded-lg p-3 bg-slate-50 text-center">
+                        <input type="file" accept="video/*" id="svc-rw-video-upload" className="hidden" onChange={handleServiceRelatedWorkVideoUpload} />
+                        <label htmlFor="svc-rw-video-upload" className="cursor-pointer block">
+                          <FiUploadCloud className="w-5 h-5 text-indigo-400 mx-auto mb-1" />
+                          <span className="text-[11px] font-bold text-slate-600 block">Choose Video File</span>
+                          <span className="text-[9px] text-slate-400">(MP4/WebM under 15MB)</span>
+                        </label>
+                      </div>
+                    )}
+                    {serviceForm.relatedWorkVideos && serviceForm.relatedWorkVideos.length > 0 ? (
+                      <div className="space-y-1.5">
+                        {serviceForm.relatedWorkVideos.map((vid, idx) => {
+                          const ytId = vid.type === 'youtube' ? (vid.url.match(/(?:youtu\.be\/|v=)([^&?]+)/)?.[1] || null) : null;
+                          return (
+                            <div key={idx} className="flex items-center gap-2 p-2 bg-slate-50 border border-slate-200 rounded-lg">
+                              {ytId ? (
+                                <img src={`https://img.youtube.com/vi/${ytId}/default.jpg`} alt="yt" className="w-16 h-10 object-cover rounded shrink-0" />
+                              ) : vid.type === 'upload' ? (
+                                <div className="w-16 h-10 bg-black rounded shrink-0 relative overflow-hidden">
+                                  <video src={vid.url} className="w-full h-full object-cover opacity-80" muted />
+                                </div>
+                              ) : (
+                                <div className="w-16 h-10 bg-slate-200 rounded shrink-0 flex items-center justify-center">
+                                  <svg className="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" /></svg>
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[9px] font-bold text-slate-400 uppercase">{vid.type === 'youtube' ? 'YouTube' : 'Upload'}</p>
+                                <p className="text-[10px] text-slate-600 truncate font-mono">{vid.url.substring(0, 40)}...</p>
+                              </div>
+                              <button type="button" onClick={() => handleServiceRelatedWorkRemoveVideo(idx)} className="p-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg shrink-0">
+                                <FiTrash2 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <span className="text-[10px] text-slate-400 italic">No related work videos yet</span>
                     )}
                   </div>
                 </div>
@@ -2882,6 +3566,169 @@ export function AdminDashboard() {
                   ) : (
                     <div className="h-full w-full flex items-center justify-center text-slate-400 text-xs font-semibold">
                       No cover image selected
+                    </div>
+                  )}
+                </div>
+
+                {/* Blog Gallery Section */}
+                <div className="border-t border-slate-100 pt-6 space-y-4">
+                  <span className="block text-xs font-bold text-slate-700 uppercase tracking-widest text-left">Blog Gallery (More Pics)</span>
+
+                  <div className="flex gap-3 items-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      id="blog-gallery-upload"
+                      className="hidden"
+                      onChange={handleBlogGalleryUpload}
+                    />
+                    <label htmlFor="blog-gallery-upload" className="cursor-pointer py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors shrink-0 flex items-center gap-1.5 border border-slate-200">
+                      <FiUploadCloud className="w-4 h-4 text-slate-500" /> Upload Images
+                    </label>
+                    <input
+                      type="url"
+                      value={blogGalleryUrlInput}
+                      onChange={(e) => setBlogGalleryUrlInput(e.target.value)}
+                      placeholder="Or paste image URL..."
+                      className="flex-1 bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleBlogAddGalleryUrl}
+                      className="py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors shadow-md shadow-blue-500/10 shrink-0"
+                    >
+                      Add URL
+                    </button>
+                  </div>
+
+                  {/* Gallery image thumbnails */}
+                  {blogForm.gallery && blogForm.gallery.length > 0 ? (
+                    <div className="grid grid-cols-4 gap-4">
+                      {blogForm.gallery.map((imgUrl, idx) => (
+                        <div key={idx} className="relative aspect-[16/10] overflow-hidden rounded-xl border border-slate-200 bg-slate-50 group">
+                          <img src={imgUrl} alt={`Gallery ${idx + 1}`} className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => handleBlogRemoveGalleryImage(idx)}
+                            className="absolute top-1.5 right-1.5 p-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition-colors opacity-0 group-hover:opacity-100 shadow pointer-events-auto"
+                            title="Remove image"
+                          >
+                            <FiTrash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center p-4 border border-dashed border-slate-200 rounded-xl bg-slate-50/50 text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
+                      No gallery images added yet
+                    </div>
+                  )}
+                </div>
+
+                {/* Blog Videos Section */}
+                <div className="border-t border-slate-100 pt-6 space-y-4">
+                  <span className="block text-xs font-bold text-slate-700 uppercase tracking-widest text-left">Blog Videos</span>
+
+                  {/* Video source tabs */}
+                  <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl text-xs font-semibold text-slate-655 w-fit">
+                    <button
+                      type="button"
+                      onClick={() => setBlogVideoSource('youtube')}
+                      className={`py-1.5 px-3 rounded-lg text-center transition-all ${blogVideoSource === 'youtube' ? 'bg-white text-blue-600 shadow-sm' : 'hover:text-slate-800'}`}
+                    >
+                      YouTube URL
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBlogVideoSource('upload')}
+                      className={`py-1.5 px-3 rounded-lg text-center transition-all ${blogVideoSource === 'upload' ? 'bg-white text-blue-600 shadow-sm' : 'hover:text-slate-800'}`}
+                    >
+                      Upload Video
+                    </button>
+                  </div>
+
+                  {blogVideoSource === 'youtube' ? (
+                    <div className="flex gap-3 items-center">
+                      <input
+                        type="url"
+                        value={blogYoutubeUrlInput}
+                        onChange={(e) => setBlogYoutubeUrlInput(e.target.value)}
+                        placeholder="Paste YouTube Video URL (e.g. https://www.youtube.com/watch?v=...)"
+                        className="flex-1 bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleBlogAddYoutubeUrl}
+                        className="py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors shadow-md shadow-blue-500/10 shrink-0"
+                      >
+                        Add Video
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 bg-slate-50 hover:bg-slate-100/50 transition-colors text-center">
+                      <input
+                        type="file"
+                        accept="video/*"
+                        id="blog-video-upload"
+                        className="hidden"
+                        onChange={handleBlogVideoUpload}
+                      />
+                      <label htmlFor="blog-video-upload" className="cursor-pointer block">
+                        <div className="flex flex-col items-center justify-center gap-2 text-slate-500">
+                          <FiUploadCloud className="w-8 h-8 text-blue-500 mb-1 mx-auto" />
+                          <span className="text-sm font-bold text-slate-700 block">Choose Video File</span>
+                          <span className="text-xs text-slate-400 block">Supports MP4, WEBM (under 15MB)</span>
+                        </div>
+                      </label>
+                    </div>
+                  )}
+
+                  {/* Videos List */}
+                  {blogForm.videos && blogForm.videos.length > 0 ? (
+                    <div className="space-y-3">
+                      {blogForm.videos.map((vid, idx) => {
+                        const ytId = vid.type === 'youtube' ? getYouTubeId(vid.url) : null;
+
+                        return (
+                          <div key={idx} className="relative flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3 group">
+                            {vid.type === 'youtube' && ytId ? (
+                              <img
+                                src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`}
+                                alt={`YouTube Video ${idx + 1}`}
+                                className="w-24 h-14 object-cover rounded-lg border border-slate-200 shrink-0"
+                              />
+                            ) : vid.type === 'upload' ? (
+                              <div className="w-24 h-14 bg-slate-900 rounded-lg flex items-center justify-center shrink-0 overflow-hidden relative">
+                                <video src={vid.url} className="w-full h-full object-cover opacity-80" muted />
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <svg className="w-5 h-5 text-white drop-shadow" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" /></svg>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="w-24 h-14 bg-slate-200 rounded-lg flex items-center justify-center shrink-0">
+                                <svg className="w-6 h-6 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" /></svg>
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0 text-left">
+                              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{vid.type === 'youtube' ? 'YouTube link' : 'Uploaded Video file'}</p>
+                              <p className="text-xs text-slate-600 truncate font-mono mt-0.5">{vid.url}</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleBlogRemoveVideo(idx)}
+                              className="p-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition-colors shadow shrink-0"
+                              title="Remove video"
+                            >
+                              <FiTrash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center p-4 border border-dashed border-slate-200 rounded-xl bg-slate-50/50 text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
+                      No videos added yet
                     </div>
                   )}
                 </div>

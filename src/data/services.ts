@@ -279,10 +279,14 @@ export type ApiService = {
   overviewHeading?: string;
   overviewBody?: string;
   overviewImage?: string;
+  overviewGallery?: string[];
+  overviewVideos?: { type: 'youtube' | 'upload'; url: string }[];
   relatedWorkTitle?: string;
   relatedWorkDescription?: string;
   relatedWorkSlug?: string;
   relatedWorkImage?: string;
+  relatedWorkGallery?: string[];
+  relatedWorkVideos?: { type: 'youtube' | 'upload'; url: string }[];
   heroImage?: string;
 };
 

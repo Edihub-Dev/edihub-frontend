@@ -5,7 +5,7 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { getApiUrl } from "@/utils/api";
+import { getApiUrl, getYouTubeId } from "@/utils/api";
 import pexels1 from "@/assets/projects/pexels-1.jpg";
 import pexels2 from "@/assets/projects/pexels-2.jpg";
 import pexels3 from "@/assets/projects/pexels-3.jpg";
@@ -267,15 +267,7 @@ export function ProjectDetailPage() {
                       <div className="grid gap-6 sm:grid-cols-2">
                         {project.videos.map((vidUrl, idx) => {
                           // Detect YouTube (watch, youtu.be, shorts)
-                          let ytId: string | null = null;
-                          try {
-                            const u = new URL(vidUrl);
-                            if (u.hostname.includes('youtube.com')) {
-                              ytId = u.searchParams.get('v') || u.pathname.split('/').pop() || null;
-                            } else if (u.hostname === 'youtu.be') {
-                              ytId = u.pathname.slice(1);
-                            }
-                          } catch {}
+                          const ytId = getYouTubeId(vidUrl);
 
                           const isFullWidth = project.videos!.length % 2 !== 0 && idx === project.videos!.length - 1;
                           const thumbSrc = ytId
@@ -478,15 +470,7 @@ export function ProjectDetailPage() {
       <AnimatePresence>
         {videoLightboxIndex !== null && project.videos && (() => {
           const vidUrl = project.videos[videoLightboxIndex];
-          let ytId: string | null = null;
-          try {
-            const u = new URL(vidUrl);
-            if (u.hostname.includes('youtube.com')) {
-              ytId = u.searchParams.get('v') || u.pathname.split('/').pop() || null;
-            } else if (u.hostname === 'youtu.be') {
-              ytId = u.pathname.slice(1);
-            }
-          } catch {}
+          const ytId = getYouTubeId(vidUrl);
 
           return (
             <motion.div
