@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FiLogOut, 
-  FiPieChart, 
-  FiBox, 
-  FiLayers, 
-  FiMessageSquare, 
-  FiUsers, 
+import {
+  FiLogOut,
+  FiPieChart,
+  FiBox,
+  FiLayers,
+  FiMessageSquare,
+  FiUsers,
   FiSettings,
   FiPlus,
   FiEdit2,
@@ -37,6 +37,8 @@ import papyrusImg from '../assets/projects/papyrus.png';
 import londonMuseumImg from '../assets/projects/london-museum.png';
 import bullseyeImg from '../assets/projects/bullseye.png';
 import interferenceImg from '../assets/projects/interference.png';
+import servicesHeroRender from '../assets/services-hero-render.png';
+import { resolveServiceDetail } from '../data/services';
 
 const customImageMap: Record<string, string> = {
   "arrows": arrowsImg,
@@ -74,14 +76,14 @@ const imageOptions = [
 export function AdminDashboard() {
   const [admin, setAdmin] = useState<any>(null);
   const [activeSection, setActiveSection] = useState<'overview' | 'projects' | 'services' | 'testimonials' | 'team' | 'settings' | 'requests' | 'blogs'>('overview');
-  
+
   // Data lists
   const [projects, setProjects] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [blogs, setBlogs] = useState<any[]>([]);
   const [accessRequests, setAccessRequests] = useState<any[]>([]);
-  
+
   // Dashboard stats
   const [stats, setStats] = useState({
     projects: 0,
@@ -95,17 +97,17 @@ export function AdminDashboard() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<any | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  
+
   // Profile Modal state
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [profileName, setProfileName] = useState('');
   const [profilePic, setProfilePic] = useState('');
   const [profilePassword, setProfilePassword] = useState('');
   const [profileSubmitting, setProfileSubmitting] = useState(false);
-  
+
   // Project Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // Notification states
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -118,10 +120,16 @@ export function AdminDashboard() {
     year: new Date().getFullYear().toString(),
     tags: '',
     description: '',
-    image: 'pexels-1.jpg'
+    image: 'pexels-1.jpg',
+    gallery: [] as string[],
+    videos: [] as string[]
   });
 
   const [imageSource, setImageSource] = useState<'template' | 'upload' | 'url'>('template');
+  const [galleryUrlInput, setGalleryUrlInput] = useState('');
+  const [videoUrlInput, setVideoUrlInput] = useState('');
+  const [blogImageSource, setBlogImageSource] = useState<'upload' | 'url'>('url');
+  const [serviceHeroImageSource, setServiceHeroImageSource] = useState<'upload' | 'url'>('url');
 
   const [isServiceFormOpen, setIsServiceFormOpen] = useState(false);
   const [editingService, setEditingService] = useState<any | null>(null);
@@ -130,6 +138,37 @@ export function AdminDashboard() {
     title: '',
     description: '',
     icon: 'web',
+    overviewHeading: '',
+    overviewBody: '',
+    overviewImage: '',
+    relatedWorkTitle: '',
+    relatedWorkDescription: '',
+    relatedWorkSlug: '',
+    relatedWorkImage: '',
+    heroImage: '',
+  });
+
+  const [isBlogFormOpen, setIsBlogFormOpen] = useState(false);
+  const [editingBlog, setEditingBlog] = useState<any | null>(null);
+  const [blogSubmitting, setBlogSubmitting] = useState(false);
+  const [blogForm, setBlogForm] = useState({
+    title: '',
+    category: 'Design',
+    author: '',
+    readTime: '5 min read',
+    excerpt: '',
+    content: '',
+    image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop'
+  });
+
+  // Testimonials Form State
+  const [isAddingTestimonial, setIsAddingTestimonial] = useState(false);
+  const [newTestimonial, setNewTestimonial] = useState({
+    name: '',
+    company: '',
+    text: '',
+    rating: 5,
+    role: ''
   });
 
   const serviceIconOptions = [
@@ -154,6 +193,123 @@ export function AdminDashboard() {
       const result = reader.result;
       if (typeof result === 'string') {
         setProjectForm(prev => ({ ...prev, image: result }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach(file => {
+      if (file.size > 2 * 1024 * 1024) {
+        alert(`Image "${file.name}" is too large! Please upload images under 2MB.`);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result;
+        if (typeof result === 'string') {
+          setProjectForm(prev => ({
+            ...prev,
+            gallery: [...(prev.gallery || []), result]
+          }));
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    e.target.value = '';
+  };
+
+  const handleAddGalleryUrl = () => {
+    if (!galleryUrlInput.trim()) return;
+    setProjectForm(prev => ({
+      ...prev,
+      gallery: [...(prev.gallery || []), galleryUrlInput.trim()]
+    }));
+    setGalleryUrlInput('');
+  };
+
+  const handleRemoveGalleryImage = (indexToRemove: number) => {
+    setProjectForm(prev => ({
+      ...prev,
+      gallery: (prev.gallery || []).filter((_, idx) => idx !== indexToRemove)
+    }));
+  };
+
+  const handleServiceOverviewImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image is too large! Please try to upload an image under 2MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        const result = reader.result;
+        setServiceForm(prev => ({ ...prev, overviewImage: result }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleServiceRelatedImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image is too large! Please try to upload an image under 2MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        const result = reader.result;
+        setServiceForm(prev => ({ ...prev, relatedWorkImage: result }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleServiceHeroImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image is too large! Please try to upload an image under 2MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        const result = reader.result;
+        setServiceForm(prev => ({ ...prev, heroImage: result }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleBlogCoverImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image is too large! Please try to upload an image under 2MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        setBlogForm(prev => ({ ...prev, image: reader.result as string }));
       }
     };
     reader.readAsDataURL(file);
@@ -321,14 +477,14 @@ export function AdminDashboard() {
       setServices(servicesData);
       setTestimonials(testimonialsData);
       setBlogs(blogsData);
-      
+
       setStats({
         projects: projectsData.length,
         services: servicesData.length,
         testimonials: testimonialsData.length,
         blogs: blogsData.length
       });
-      
+
       fetchAccessRequests();
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
@@ -375,10 +531,13 @@ export function AdminDashboard() {
       year: new Date().getFullYear().toString(),
       tags: '',
       description: '',
-      image: 'pexels-1.jpg'
+      image: 'pexels-1.jpg',
+      gallery: [],
+      videos: []
     });
     setEditingProject(null);
     setImageSource('template');
+    setVideoUrlInput('');
     setErrorMsg('');
     setIsFormOpen(true);
   };
@@ -391,7 +550,9 @@ export function AdminDashboard() {
       year: project.year,
       tags: Array.isArray(project.tags) ? project.tags.join(', ') : project.tags || '',
       description: project.description,
-      image: project.image || 'pexels-1.jpg'
+      image: project.image || 'pexels-1.jpg',
+      gallery: Array.isArray(project.gallery) ? project.gallery : [],
+      videos: Array.isArray(project.videos) ? project.videos : []
     });
 
     // Determine image mode dynamically
@@ -404,6 +565,7 @@ export function AdminDashboard() {
       setImageSource('template');
     }
 
+    setVideoUrlInput('');
     setEditingProject(project);
     setErrorMsg('');
     setIsFormOpen(true);
@@ -411,7 +573,7 @@ export function AdminDashboard() {
 
   const handleDeleteClick = async (slug: string) => {
     if (!window.confirm('Are you sure you want to permanently delete this project?')) return;
-    
+
     try {
       const res = await fetch(`${apiUrl}/projects/${slug}`, {
         method: 'DELETE'
@@ -435,10 +597,10 @@ export function AdminDashboard() {
 
     // Secondary frontend validation safeguard
     if (
-      !projectForm.title.trim() || 
-      !projectForm.category.trim() || 
-      !projectForm.client.trim() || 
-      !projectForm.year.trim() || 
+      !projectForm.title.trim() ||
+      !projectForm.category.trim() ||
+      !projectForm.client.trim() ||
+      !projectForm.year.trim() ||
       !projectForm.description.trim()
     ) {
       showNotification('error', 'Please fill out all required fields first (Title, Category, Client, Year, Description).');
@@ -449,7 +611,7 @@ export function AdminDashboard() {
 
     try {
       const isEditing = !!editingProject;
-      const url = isEditing 
+      const url = isEditing
         ? `${apiUrl}/projects/${editingProject.slug}`
         : `${apiUrl}/projects`;
 
@@ -490,18 +652,48 @@ export function AdminDashboard() {
   };
 
   const handleAddServiceClick = () => {
-    setServiceForm({ title: '', description: '', icon: 'web' });
+    setServiceForm({
+      title: '',
+      description: '',
+      icon: 'web',
+      overviewHeading: '',
+      overviewBody: '',
+      overviewImage: '',
+      relatedWorkTitle: '',
+      relatedWorkDescription: '',
+      relatedWorkSlug: '',
+      relatedWorkImage: '',
+      heroImage: '',
+    });
+    setServiceHeroImageSource('url');
     setEditingService(null);
     setErrorMsg('');
     setIsServiceFormOpen(true);
   };
 
   const handleEditServiceClick = (srv: any) => {
+    const fallback = resolveServiceDetail(undefined, srv.slug);
     setServiceForm({
-      title: srv.title || '',
-      description: srv.description || '',
-      icon: srv.icon || 'web',
+      title: srv.title || (fallback ? fallback.title : ''),
+      description: srv.description || (fallback ? fallback.heroDescription : ''),
+      icon: srv.icon || (fallback ? fallback.icon : 'web'),
+      overviewHeading: srv.overviewHeading || (fallback ? fallback.overviewHeading : ''),
+      overviewBody: srv.overviewBody || (fallback ? fallback.overviewBody : ''),
+      overviewImage: srv.overviewImage || (fallback ? fallback.overviewImage : ''),
+      relatedWorkTitle: srv.relatedWorkTitle || (fallback ? fallback.relatedWork.title : ''),
+      relatedWorkDescription: srv.relatedWorkDescription || (fallback ? fallback.relatedWork.description : ''),
+      relatedWorkSlug: srv.relatedWorkSlug || (fallback ? fallback.relatedWork.slug : ''),
+      relatedWorkImage: srv.relatedWorkImage || (fallback ? fallback.relatedWork.image : ''),
+      heroImage: srv.heroImage || '',
     });
+    
+    const img = srv.heroImage || '';
+    if (img.startsWith('data:image/')) {
+      setServiceHeroImageSource('upload');
+    } else {
+      setServiceHeroImageSource('url');
+    }
+    
     setEditingService(srv);
     setErrorMsg('');
     setIsServiceFormOpen(true);
@@ -561,6 +753,168 @@ export function AdminDashboard() {
     }
   };
 
+  const handleAddBlogClick = () => {
+    setBlogForm({
+      title: '',
+      category: 'Design',
+      author: admin?.name || 'Lokesh Kumawat',
+      readTime: '5 min read',
+      excerpt: '',
+      content: '',
+      image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop'
+    });
+    setBlogImageSource('url');
+    setEditingBlog(null);
+    setErrorMsg('');
+    setIsBlogFormOpen(true);
+  };
+
+  const handleEditBlogClick = (b: any) => {
+    setBlogForm({
+      title: b.title || '',
+      category: b.category || 'Design',
+      author: b.author || admin?.name || 'Lokesh Kumawat',
+      readTime: b.readTime || '5 min read',
+      excerpt: b.excerpt || '',
+      content: b.content || '',
+      image: b.image || 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop'
+    });
+    const img = b.image || '';
+    if (img.startsWith('data:image/')) {
+      setBlogImageSource('upload');
+    } else {
+      setBlogImageSource('url');
+    }
+    setEditingBlog(b);
+    setErrorMsg('');
+    setIsBlogFormOpen(true);
+  };
+
+  const handleDeleteBlogClick = async (slug: string) => {
+    if (!window.confirm('Are you sure you want to permanently delete this blog post?')) return;
+
+    try {
+      const res = await fetch(`${apiUrl}/blogs/${slug}`, {
+        method: 'DELETE'
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to delete blog.');
+      }
+
+      showNotification('success', 'Blog post successfully deleted!');
+      fetchAllData();
+    } catch (err: any) {
+      showNotification('error', err.message || 'Error occurred during deletion.');
+    }
+  };
+
+  const handleBlogSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg('');
+
+    if (
+      !blogForm.title.trim() ||
+      !blogForm.category.trim() ||
+      !blogForm.author.trim() ||
+      !blogForm.excerpt.trim() ||
+      !blogForm.content.trim()
+    ) {
+      showNotification('error', 'Please fill out all required fields.');
+      return;
+    }
+
+    setBlogSubmitting(true);
+
+    try {
+      const isEditing = !!editingBlog;
+      const url = isEditing
+        ? `${apiUrl}/blogs/${editingBlog.slug}`
+        : `${apiUrl}/blogs`;
+
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(blogForm)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to save blog post.');
+      }
+
+      showNotification('success', isEditing ? 'Blog post updated successfully!' : 'New blog post published successfully!');
+      setIsBlogFormOpen(false);
+      fetchAllData();
+    } catch (err: any) {
+      showNotification('error', err.message || 'Something went wrong while publishing.');
+    } finally {
+      setBlogSubmitting(false);
+    }
+  };
+
+  // Testimonials Handlers
+  const handleAddTestimonial = async () => {
+    if (!newTestimonial.name.trim() || !newTestimonial.text.trim()) {
+      showNotification('error', 'Please fill in Name and Testimonial Text.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${apiUrl}/testimonials`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newTestimonial.name,
+          company: newTestimonial.company,
+          text: newTestimonial.text,
+          quote: newTestimonial.text,
+          rating: newTestimonial.rating,
+          role: newTestimonial.role || 'Client'
+        })
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || 'Failed to add testimonial');
+      }
+
+      showNotification('success', 'Testimonial added successfully!');
+      setIsAddingTestimonial(false);
+      setNewTestimonial({ name: '', company: '', text: '', rating: 5, role: '' });
+      fetchAllData();
+    } catch (err: any) {
+      showNotification('error', err.message || 'Error adding testimonial');
+    }
+  };
+
+  const handleDeleteTestimonial = async (idx: number) => {
+    if (!window.confirm('Are you sure you want to delete this testimonial?')) return;
+
+    try {
+      const testimonial = testimonials[idx];
+      const res = await fetch(`${apiUrl}/testimonials/${testimonial.id || idx}`, {
+        method: 'DELETE'
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || 'Failed to delete testimonial');
+      }
+
+      showNotification('success', 'Testimonial deleted successfully!');
+      fetchAllData();
+    } catch (err: any) {
+      showNotification('error', err.message || 'Error deleting testimonial');
+    }
+  };
+
   const showNotification = (type: 'success' | 'error', msg: string) => {
     if (type === 'success') {
       setSuccessMsg(msg);
@@ -571,8 +925,8 @@ export function AdminDashboard() {
     }
   };
 
-  const filteredProjects = projects.filter(p => 
-    p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filteredProjects = projects.filter(p =>
+    p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.client.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -581,7 +935,7 @@ export function AdminDashboard() {
 
   return (
     <div className="w-full h-screen overflow-hidden bg-[#F8FAFC] flex font-sans selection:bg-blue-600/10 selection:text-blue-600">
-      
+
       {/* Notifications Popups */}
       <div className="fixed top-6 right-6 z-50 flex flex-col gap-3 max-w-md w-full pointer-events-none">
         <AnimatePresence>
@@ -624,15 +978,14 @@ export function AdminDashboard() {
           </h2>
           <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest font-semibold">Admin Panel</p>
         </div>
-        
+
         <nav className="flex-1 p-4 space-y-1.5 mt-4 overflow-y-auto">
-          <div 
+          <div
             onClick={() => setActiveSection('overview')}
-            className={`p-3 rounded-xl flex items-center gap-3 cursor-pointer transition-all ${
-              activeSection === 'overview' 
-                ? 'bg-blue-600 text-white font-semibold shadow-lg shadow-blue-500/20' 
-                : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-            }`}
+            className={`p-3 rounded-xl flex items-center gap-3 cursor-pointer transition-all ${activeSection === 'overview'
+              ? 'bg-blue-600 text-white font-semibold shadow-lg shadow-blue-500/20'
+              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+              }`}
           >
             <FiPieChart className="w-5 h-5" />
             <span className="text-sm font-medium">Dashboard Overview</span>
@@ -647,14 +1000,13 @@ export function AdminDashboard() {
             { id: 'requests', name: 'Access Requests', icon: <FiUserCheck />, badge: accessRequests.filter(r => r.status === 'pending').length },
             { id: 'settings', name: 'Settings', icon: <FiSettings /> },
           ].map(item => (
-            <div 
-              key={item.id} 
+            <div
+              key={item.id}
               onClick={() => setActiveSection(item.id as any)}
-              className={`p-3 rounded-xl flex items-center justify-between cursor-pointer transition-all ${
-                activeSection === item.id 
-                  ? 'bg-blue-600 text-white font-semibold shadow-lg shadow-blue-500/20' 
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-              }`}
+              className={`p-3 rounded-xl flex items-center justify-between cursor-pointer transition-all ${activeSection === item.id
+                ? 'bg-blue-600 text-white font-semibold shadow-lg shadow-blue-500/20'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                }`}
             >
               <div className="flex items-center gap-3">
                 <div className="text-lg opacity-85">{item.icon}</div>
@@ -670,7 +1022,7 @@ export function AdminDashboard() {
         </nav>
 
         <div className="p-4 border-t border-slate-800/80">
-          <button 
+          <button
             onClick={handleLogout}
             className="w-full p-3 flex items-center gap-3 text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all group font-medium"
           >
@@ -686,8 +1038,8 @@ export function AdminDashboard() {
           <div>
             <h1 className="text-lg font-bold text-slate-800">
               Welcome back,{' '}
-              <span 
-                onClick={() => setIsProfileOpen(true)} 
+              <span
+                onClick={() => setIsProfileOpen(true)}
                 className="text-blue-600 hover:text-blue-700 cursor-pointer underline decoration-dotted transition-all"
               >
                 {admin?.name}
@@ -695,9 +1047,9 @@ export function AdminDashboard() {
             </h1>
             <p className="text-xs text-slate-500">System status: <span className="text-emerald-500 font-semibold flex items-center gap-1 inline-flex"><span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Online</span></p>
           </div>
-          
+
           <div className="flex items-center gap-6">
-            <div 
+            <div
               onClick={() => setIsProfileOpen(true)}
               className="flex items-center gap-3 border-r border-slate-200 pr-6 cursor-pointer group"
             >
@@ -714,7 +1066,7 @@ export function AdminDashboard() {
               </div>
             </div>
 
-            <button 
+            <button
               onClick={handleLogout}
               className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all flex items-center gap-2 group font-semibold"
               title="Logout"
@@ -727,7 +1079,7 @@ export function AdminDashboard() {
 
         {/* Dashboard Content Container */}
         <div className="p-8 max-w-7xl mx-auto w-full flex-1">
-          
+
           {/* 1. OVERVIEW VIEW */}
           {activeSection === 'overview' && (
             <div className="space-y-10">
@@ -737,7 +1089,7 @@ export function AdminDashboard() {
                   { label: 'Offered Services', value: stats.services, trend: 'Managed frontend items', color: 'from-indigo-600 to-indigo-400' },
                   { label: 'Testimonials / Feedback', value: stats.testimonials, trend: 'Verified customer reviews', color: 'from-violet-600 to-violet-400' },
                 ].map((stat, i) => (
-                  <motion.div 
+                  <motion.div
                     key={i}
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -758,7 +1110,7 @@ export function AdminDashboard() {
                   <h2 className="text-lg font-bold text-slate-900">Manage Sections</h2>
                   <span className="text-xs text-slate-400 font-medium">Quick routing links</span>
                 </div>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 p-6 gap-4">
                   {[
                     { title: 'Project Portfolio', desc: 'Create, update, year, client and services', action: 'projects', count: stats.projects, icon: <FiBox className="w-6 h-6 text-blue-500" /> },
@@ -766,7 +1118,7 @@ export function AdminDashboard() {
                     { title: 'Testimonials', desc: 'Publish verified customer statements', action: 'testimonials', count: stats.testimonials, icon: <FiMessageSquare className="w-6 h-6 text-violet-500" /> },
                     { title: 'Articles & Blogs', desc: 'Insights and thoughts publication', action: 'blogs', count: stats.blogs, icon: <FiFolder className="w-6 h-6 text-amber-500" /> },
                   ].map((card, idx) => (
-                    <div 
+                    <div
                       key={idx}
                       onClick={() => setActiveSection(card.action as any)}
                       className="p-5 border border-slate-150 rounded-2xl cursor-pointer hover:border-blue-500 hover:bg-blue-50/20 transition-all duration-300 flex flex-col justify-between h-40 group"
@@ -792,14 +1144,14 @@ export function AdminDashboard() {
           {/* 2. PROJECTS MANAGEMENT VIEW */}
           {activeSection === 'projects' && (
             <div className="space-y-6">
-              
+
               {/* Header Action Bar */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <h2 className="text-2xl font-black text-slate-900 tracking-tight">Project Portfolio</h2>
                   <p className="text-sm text-slate-500 mt-0.5">Add, modify and showcase your work. Syncs instantly with the live frontend.</p>
                 </div>
-                
+
                 <button
                   onClick={handleAddNewClick}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-5 py-3.5 rounded-2xl shadow-lg shadow-blue-600/10 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
@@ -821,7 +1173,7 @@ export function AdminDashboard() {
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800"
                   />
                 </div>
-                
+
                 <div className="text-xs font-semibold text-slate-400 sm:pr-2">
                   Showing {filteredProjects.length} of {projects.length} projects
                 </div>
@@ -890,7 +1242,7 @@ export function AdminDashboard() {
                             <span className="text-slate-400 text-[10px] uppercase font-bold tracking-widest block mb-2">Services</span>
                             <div className="flex flex-wrap gap-1.5">
                               {project.tags.map((tag: string) => (
-                                <span 
+                                <span
                                   key={tag}
                                   className="text-[11px] font-semibold text-slate-600 bg-slate-100 border border-slate-200/50 px-2 py-0.5 rounded-md"
                                 >
@@ -918,7 +1270,7 @@ export function AdminDashboard() {
                             <FiEdit2 className="w-3.5 h-3.5" />
                             Edit details
                           </button>
-                          
+
                           <button
                             onClick={() => handleDeleteClick(project.slug)}
                             className="p-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200/60 rounded-xl transition-colors"
@@ -947,6 +1299,15 @@ export function AdminDashboard() {
           {/* 3. CORE SERVICES MANAGEMENT */}
           {activeSection === 'services' && (
             <div className="space-y-6">
+              <Link
+                to="/services"
+                className="inline-flex items-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-700 transition-colors mb-2"
+              >
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                  <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Back to Services
+              </Link>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <h2 className="text-2xl font-black text-slate-900 tracking-tight">Core Agency Services</h2>
@@ -1036,11 +1397,132 @@ export function AdminDashboard() {
           {/* 4. TESTIMONIALS PLACEHOLDER */}
           {activeSection === 'testimonials' && (
             <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-black text-slate-900 tracking-tight">Client Testimonials</h2>
-                <p className="text-sm text-slate-500 mt-0.5">Manage validated customer quotes, reviews, and client ratings.</p>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">Client Testimonials</h2>
+                  <p className="text-sm text-slate-500 mt-0.5">Manage validated customer quotes, reviews, and client ratings.</p>
+                </div>
+                <button
+                  onClick={() => setIsAddingTestimonial(!isAddingTestimonial)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-5 py-3.5 rounded-2xl shadow-lg shadow-blue-600/10 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                >
+                  <FiPlus className="w-4 h-4 stroke-[3]" />
+                  Add Testimonial
+                </button>
               </div>
 
+              {/* Add/Edit Form */}
+              {isAddingTestimonial && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-gradient-to-br from-slate-50 to-slate-100 p-8 rounded-3xl border border-slate-200/80 shadow-sm space-y-5"
+                >
+                  <h3 className="text-lg font-bold text-slate-900">New Testimonial</h3>
+                  
+                  <div className="space-y-4">
+                    {/* Rating */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                        Rating (1-5 stars)
+                      </label>
+                      <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            onClick={() => setNewTestimonial({ ...newTestimonial, rating: star })}
+                            className={`text-3xl transition-all ${
+                              newTestimonial.rating >= star
+                                ? 'text-amber-400 scale-110'
+                                : 'text-slate-200 hover:text-amber-200'
+                            }`}
+                          >
+                            ★
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Client Name */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                        Client Name
+                      </label>
+                      <input
+                        type="text"
+                        value={newTestimonial.name}
+                        onChange={(e) => setNewTestimonial({ ...newTestimonial, name: e.target.value })}
+                        placeholder="e.g. Sarah Mitchell"
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all"
+                      />
+                    </div>
+
+                    {/* Product/Company Name */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                        Company / Product Name
+                      </label>
+                      <input
+                        type="text"
+                        value={newTestimonial.company}
+                        onChange={(e) => setNewTestimonial({ ...newTestimonial, company: e.target.value })}
+                        placeholder="e.g. Nexora Inc"
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all"
+                      />
+                    </div>
+
+                    {/* Testimonial Text */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                        Testimonial Text
+                      </label>
+                      <textarea
+                        value={newTestimonial.text}
+                        onChange={(e) => setNewTestimonial({ ...newTestimonial, text: e.target.value })}
+                        placeholder="Enter the client's feedback or testimonial..."
+                        rows={4}
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all resize-none"
+                      />
+                    </div>
+
+                    {/* Role/Position */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                        Role/Position (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={newTestimonial.role || ''}
+                        onChange={(e) => setNewTestimonial({ ...newTestimonial, role: e.target.value })}
+                        placeholder="e.g. Marketing Director"
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all"
+                      />
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-3 pt-4 border-t border-slate-200">
+                      <button
+                        onClick={() => {
+                          setIsAddingTestimonial(false);
+                          setNewTestimonial({ name: '', company: '', text: '', rating: 5, role: '' });
+                        }}
+                        className="flex-1 py-2.5 px-4 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-bold rounded-xl transition-all"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleAddTestimonial}
+                        disabled={!newTestimonial.name || !newTestimonial.text}
+                        className="flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all"
+                      >
+                        Save Testimonial
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Display Testimonials */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {testimonials.map((t, idx) => (
                   <div key={idx} className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
@@ -1054,14 +1536,23 @@ export function AdminDashboard() {
                         "{t.text || t.quote || t.content}"
                       </p>
                     </div>
-                    <div className="flex items-center gap-3 border-t border-slate-100 pt-4">
-                      <div className="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 font-bold text-xs uppercase">
-                        {(t.author || t.name || 'C').charAt(0)}
+                    <div className="flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 font-bold text-xs uppercase">
+                          {(t.author || t.name || 'C').charAt(0)}
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-800">{t.author || t.name}</h4>
+                          <p className="text-xs text-slate-400">{t.company || t.role || 'Client'}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="text-sm font-bold text-slate-800">{t.author || t.name}</h4>
-                        <p className="text-xs text-slate-400">{t.company || t.role || 'Client'}</p>
-                      </div>
+                      <button
+                        onClick={() => handleDeleteTestimonial(idx)}
+                        className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200/60 rounded-xl transition-all"
+                        title="Delete testimonial"
+                      >
+                        <FiTrash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -1089,9 +1580,7 @@ export function AdminDashboard() {
                 </div>
               </div>
             </div>
-          )}
-
-          {/* BLOGS VIEW */}
+          )}          {/* BLOGS VIEW */}
           {activeSection === 'blogs' && (
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -1099,34 +1588,9 @@ export function AdminDashboard() {
                   <h2 className="text-2xl font-black text-slate-900 tracking-tight">Articles & Blogs</h2>
                   <p className="text-sm text-slate-500 mt-0.5">Publish articles, updates, and thoughts. Syncs instantly with the live frontend.</p>
                 </div>
-                
+
                 <button
-                  onClick={() => {
-                    const title = window.prompt("Enter Blog Title:");
-                    if (!title) return;
-                    const category = window.prompt("Enter Category (Design, Development, Strategy):", "Design");
-                    if (!category) return;
-                    const author = window.prompt("Enter Author Name:", admin?.name || "Lokesh Kumawat");
-                    if (!author) return;
-                    const excerpt = window.prompt("Enter Short Excerpt:");
-                    if (!excerpt) return;
-                    const content = window.prompt("Enter Content paragraphs:");
-                    if (!content) return;
-                    
-                    fetch(`${apiUrl}/blogs`, {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ title, category, author, excerpt, content })
-                    })
-                    .then(res => {
-                      if (res.ok) {
-                        showNotification('success', 'Blog post published successfully!');
-                        fetchAllData();
-                      } else {
-                        showNotification('error', 'Failed to publish blog.');
-                      }
-                    });
-                  }}
+                  onClick={handleAddBlogClick}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-5 py-3.5 rounded-2xl shadow-lg shadow-blue-600/10 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
                 >
                   <FiPlus className="w-4 h-4 stroke-[3]" />
@@ -1134,44 +1598,104 @@ export function AdminDashboard() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {blogs.map((b, idx) => (
-                  <div key={idx} className="bg-white rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between overflow-hidden group hover:shadow-md transition-all duration-300">
-                    <div className="aspect-video w-full overflow-hidden bg-slate-100 relative">
-                      <img src={b.image} alt={b.title} className="w-full h-full object-cover" />
-                      <span className="absolute top-3 left-3 bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded-full">{b.category}</span>
-                    </div>
-                    <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                      <div className="space-y-2">
-                        <h4 className="font-bold text-slate-800 text-lg group-hover:text-blue-600 transition-colors line-clamp-1">{b.title}</h4>
-                        <p className="text-xs text-slate-400 font-medium">{b.date} • {b.readTime}</p>
-                        <p className="text-sm text-slate-500 line-clamp-2">{b.excerpt}</p>
-                      </div>
-                      <div className="flex items-center justify-between border-t border-slate-150 pt-4">
-                        <span className="text-xs font-bold text-slate-400">By {b.author}</span>
-                        <button
-                          onClick={() => {
-                            if (!window.confirm("Are you sure you want to delete this blog post?")) return;
-                            fetch(`${apiUrl}/blogs/${b.slug}`, { method: 'DELETE' })
-                              .then(res => {
-                                if (res.ok) {
-                                  showNotification('success', 'Blog post deleted successfully!');
-                                  fetchAllData();
-                                } else {
-                                  showNotification('error', 'Failed to delete blog.');
-                                }
-                              });
-                          }}
-                          className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
-                          title="Delete Post"
-                        >
-                          <FiTrash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
+              {loading ? (
+                <div className="h-64 bg-white rounded-3xl border border-slate-200/80 flex items-center justify-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-8 h-8 rounded-full border-4 border-blue-600 border-t-transparent animate-spin"></div>
+                    <span className="text-sm font-semibold text-slate-500">Loading blogs catalog...</span>
                   </div>
-                ))}
-              </div>
+                </div>
+              ) : blogs.length === 0 ? (
+                <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center flex flex-col items-center justify-center">
+                  <div className="p-4 bg-slate-50 rounded-2xl text-slate-400 mb-4">
+                    <FiFolder className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-base font-bold text-slate-800">No blog posts found</h3>
+                  <p className="text-sm text-slate-400 mt-1 max-w-sm">No blog posts are published yet. Click 'Publish New Post' to write your first article.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {blogs.map((b, idx) => (
+                    <motion.div
+                      key={b.slug || idx}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between group"
+                    >
+                      {/* Image Preview & category */}
+                      <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+                        <img
+                          src={b.image || 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop'}
+                          alt={b.title}
+                          className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent"></div>
+                        <span className="absolute bottom-4 left-4 bg-blue-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
+                          {b.category}
+                        </span>
+                      </div>
+
+                      {/* Content block */}
+                      <div className="p-6 flex-1 flex flex-col justify-between">
+                        <div className="space-y-3">
+                          <h3 className="text-lg font-bold text-slate-900 tracking-tight group-hover:text-blue-600 transition-colors line-clamp-2">
+                            {b.title}
+                          </h3>
+
+                          {/* Metadata row */}
+                          <div className="grid grid-cols-2 gap-4 border-y border-slate-100 py-3 text-xs">
+                            <div>
+                              <span className="text-slate-400 block font-semibold mb-0.5">Author</span>
+                              <span className="text-slate-700 font-bold">{b.author}</span>
+                            </div>
+                            <div>
+                              <span className="text-slate-400 block font-semibold mb-0.5">Read Time</span>
+                              <span className="text-slate-700 font-bold">{b.readTime || '5 min read'}</span>
+                            </div>
+                          </div>
+
+                          {/* Excerpt */}
+                          <div>
+                            <span className="text-slate-400 text-[10px] uppercase font-bold tracking-widest block mb-1">Excerpt</span>
+                            <p className="text-xs text-slate-500 leading-relaxed line-clamp-3">
+                              {b.excerpt}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Action buttons panel */}
+                        <div className="flex items-center gap-2 border-t border-slate-100 pt-4 mt-6">
+                          <button
+                            onClick={() => handleEditBlogClick(b)}
+                            className="flex-1 py-2.5 px-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors"
+                          >
+                            <FiEdit2 className="w-3.5 h-3.5" />
+                            Edit details
+                          </button>
+
+                          <button
+                            onClick={() => handleDeleteBlogClick(b.slug)}
+                            className="p-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200/60 rounded-xl transition-colors"
+                            title="Delete blog post"
+                          >
+                            <FiTrash2 className="w-4 h-4" />
+                          </button>
+
+                          <Link
+                            to={`/blog/${b.slug}`}
+                            target="_blank"
+                            className="p-2.5 bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200/60 rounded-xl transition-colors"
+                            title="View live post"
+                          >
+                            <FiExternalLink className="w-4 h-4" />
+                          </Link>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -1267,20 +1791,18 @@ export function AdminDashboard() {
                             </td>
                             <td className="p-5 text-sm font-medium text-slate-600">{reqItem.email}</td>
                             <td className="p-5">
-                              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${
-                                reqItem.status === 'pending'
-                                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                  : reqItem.status === 'approved'
+                              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${reqItem.status === 'pending'
+                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                : reqItem.status === 'approved'
                                   ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                   : 'bg-rose-50 text-rose-700 border border-rose-200'
-                              }`}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${
-                                  reqItem.status === 'pending'
-                                    ? 'bg-amber-500 animate-pulse'
-                                    : reqItem.status === 'approved'
+                                }`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${reqItem.status === 'pending'
+                                  ? 'bg-amber-500 animate-pulse'
+                                  : reqItem.status === 'approved'
                                     ? 'bg-emerald-500'
                                     : 'bg-rose-500'
-                                }`}></span>
+                                  }`}></span>
                                 {reqItem.status.charAt(0).toUpperCase() + reqItem.status.slice(1)}
                               </span>
                             </td>
@@ -1341,7 +1863,7 @@ export function AdminDashboard() {
       <AnimatePresence>
         {isFormOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-end">
-            
+
             {/* Dark Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -1359,7 +1881,7 @@ export function AdminDashboard() {
               transition={{ type: 'spring', damping: 25, stiffness: 220 }}
               className="relative w-full max-w-2xl bg-white h-screen shadow-2xl flex flex-col justify-between border-l border-slate-200"
             >
-              
+
               {/* Drawer Header */}
               <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
                 <div>
@@ -1380,7 +1902,7 @@ export function AdminDashboard() {
 
               {/* Drawer Body Scroll */}
               <form id="project-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-8 space-y-6">
-                
+
                 {/* Title */}
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Project Title *</label>
@@ -1396,7 +1918,7 @@ export function AdminDashboard() {
 
                 {/* Sub Metadata Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  
+
                   {/* Category */}
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Category *</label>
@@ -1457,7 +1979,7 @@ export function AdminDashboard() {
                 {/* Visual Media Picker */}
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Portfolio Hero Image *</label>
-                  
+
                   {/* Premium Tab Switcher */}
                   <div className="grid grid-cols-3 gap-2 bg-slate-100 p-1 rounded-xl mb-4 text-xs font-semibold text-slate-600">
                     <button
@@ -1549,25 +2071,28 @@ export function AdminDashboard() {
                   {/* Dynamic Image Preview */}
                   <div className="relative aspect-[21/9] w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
                     {projectForm.image ? (
-                      <img
-                        src={
-                          editingProject && customImageMap[editingProject.slug] && projectForm.image === editingProject.image
-                            ? customImageMap[editingProject.slug]
-                            : getProjectImage(projectForm.image)
-                        }
-                        alt="Thumbnail preview"
-                        className="w-full h-full object-cover"
-                      />
+                      <>
+                        <img
+                          src={
+                            editingProject && customImageMap[editingProject.slug] && projectForm.image === editingProject.image
+                              ? customImageMap[editingProject.slug]
+                              : getProjectImage(projectForm.image)
+                          }
+                          alt="Thumbnail preview"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setProjectForm(prev => ({ ...prev, image: '' }))}
+                          className="absolute top-3 right-3 p-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-lg transition-colors flex items-center justify-center pointer-events-auto"
+                          title="Remove project image"
+                        >
+                          <FiTrash2 className="w-4 h-4" />
+                        </button>
+                      </>
                     ) : (
                       <div className="h-full w-full flex items-center justify-center text-slate-400 text-xs font-semibold">
                         No image selected yet
-                      </div>
-                    )}
-                    {projectForm.image && (
-                      <div className="absolute inset-0 bg-black/10 flex items-end p-3 pointer-events-none">
-                        <span className="text-[10px] font-bold text-white bg-slate-900/60 px-2 py-0.5 rounded backdrop-blur">
-                          Live Preview Selected
-                        </span>
                       </div>
                     )}
                   </div>
@@ -1584,6 +2109,177 @@ export function AdminDashboard() {
                     placeholder="Provide a descriptive overview explaining the project scope, client issues, and your strategic design approach..."
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 leading-relaxed font-medium"
                   ></textarea>
+                </div>
+
+                {/* Gallery Images (Challenge & Solution pics) */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex justify-between">
+                    <span>Gallery Images (Challenge & Solution)</span>
+                    <span className="text-[10px] text-slate-400 normal-case font-medium">Add additional showcase pictures</span>
+                  </label>
+                  
+                  {/* Upload & Url Input controls */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    {/* Local File Uploader */}
+                    <div className="border border-slate-200 border-dashed rounded-xl p-4 bg-slate-50 hover:bg-slate-100/50 transition-colors text-center flex flex-col items-center justify-center min-h-[90px]">
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        id="gallery-file-upload"
+                        className="hidden"
+                        onChange={handleGalleryUpload}
+                      />
+                      <label htmlFor="gallery-file-upload" className="cursor-pointer block w-full">
+                        <div className="flex items-center justify-center gap-2 text-slate-600">
+                          <FiUploadCloud className="w-5 h-5 text-blue-500" />
+                          <span className="text-xs font-bold text-slate-700">Upload Gallery Images</span>
+                        </div>
+                        <span className="text-[10px] text-slate-400 block mt-1">Supports multiple files under 2MB</span>
+                      </label>
+                    </div>
+
+                    {/* External URL adder */}
+                    <div className="border border-slate-200 rounded-xl p-4 bg-slate-50 flex flex-col justify-center gap-2">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Add External Image URL</span>
+                      <div className="flex gap-2">
+                        <input
+                          type="url"
+                          placeholder="https://images.unsplash.com/..."
+                          value={galleryUrlInput}
+                          onChange={(e) => setGalleryUrlInput(e.target.value)}
+                          className="flex-1 bg-white border border-slate-200 rounded-lg py-1.5 px-3 text-xs focus:outline-none focus:ring-1 focus:ring-blue-550 focus:border-blue-500 transition-all text-slate-800"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddGalleryUrl}
+                          className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition-colors shrink-0"
+                        >
+                          Add URL
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Thumbnail Grid Previews */}
+                  {projectForm.gallery && projectForm.gallery.length > 0 ? (
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                      {projectForm.gallery.map((imgUrl, idx) => (
+                        <div key={idx} className="relative aspect-video rounded-lg overflow-hidden border border-slate-200 bg-white group shadow-sm">
+                          <img
+                            src={getProjectImage(imgUrl)}
+                            alt={`Gallery item ${idx + 1}`}
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveGalleryImage(idx)}
+                              className="p-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-md transition-colors shadow"
+                              title="Remove image"
+                            >
+                              <FiTrash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center p-4 border border-dashed border-slate-200 rounded-xl bg-slate-50/50 text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
+                      No additional gallery images added
+                    </div>
+                  )}
+                </div>
+
+                {/* ── Video Section (Challenge & Solution) ── */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex justify-between">
+                    <span>Videos (Challenge &amp; Solution)</span>
+                    <span className="text-[10px] text-slate-400 normal-case font-medium">YouTube links or direct mp4 URLs</span>
+                  </label>
+
+                  {/* Add video URL */}
+                  <div className="border border-slate-200 rounded-xl p-4 bg-slate-50 flex flex-col gap-2 mb-4">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Add Video Link</span>
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        placeholder="YouTube URL or direct mp4 link (https://...)"
+                        value={videoUrlInput}
+                        onChange={(e) => setVideoUrlInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const trimmed = videoUrlInput.trim();
+                            if (trimmed) {
+                              setProjectForm(prev => ({ ...prev, videos: [...(prev.videos || []), trimmed] }));
+                              setVideoUrlInput('');
+                            }
+                          }
+                        }}
+                        className="flex-1 bg-white border border-slate-200 rounded-lg py-1.5 px-3 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-800"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const trimmed = videoUrlInput.trim();
+                          if (!trimmed) return;
+                          setProjectForm(prev => ({ ...prev, videos: [...(prev.videos || []), trimmed] }));
+                          setVideoUrlInput('');
+                        }}
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition-colors shrink-0"
+                      >
+                        Add Video
+                      </button>
+                    </div>
+                    <span className="text-[10px] text-slate-400">Supports YouTube (youtu.be / youtube.com/watch) or direct .mp4 video links.</span>
+                  </div>
+
+                  {/* Video list */}
+                  {projectForm.videos && projectForm.videos.length > 0 ? (
+                    <div className="space-y-3">
+                      {projectForm.videos.map((vidUrl, idx) => {
+                        let ytId: string | null = null;
+                        try {
+                          const u = new URL(vidUrl);
+                          if (u.hostname.includes('youtube.com')) ytId = u.searchParams.get('v');
+                          else if (u.hostname === 'youtu.be') ytId = u.pathname.slice(1);
+                        } catch {}
+
+                        return (
+                          <div key={idx} className="relative flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3 group">
+                            {ytId ? (
+                              <img
+                                src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`}
+                                alt={`Video ${idx + 1}`}
+                                className="w-24 h-14 object-cover rounded-lg border border-slate-200 shrink-0"
+                              />
+                            ) : (
+                              <div className="w-24 h-14 bg-slate-200 rounded-lg flex items-center justify-center shrink-0">
+                                <svg className="w-6 h-6 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{ytId ? 'YouTube' : 'Direct Video'}</p>
+                              <p className="text-xs text-slate-600 truncate font-mono mt-0.5">{vidUrl}</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setProjectForm(prev => ({ ...prev, videos: (prev.videos || []).filter((_, i) => i !== idx) }))}
+                              className="p-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition-colors shadow shrink-0"
+                              title="Remove video"
+                            >
+                              <FiTrash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center p-4 border border-dashed border-slate-200 rounded-xl bg-slate-50/50 text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
+                      No videos added yet
+                    </div>
+                  )}
                 </div>
 
               </form>
@@ -1672,19 +2368,269 @@ export function AdminDashboard() {
                     placeholder="Short text shown on the service card..."
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-800 leading-relaxed"
                   />
-                </div>
-
-                <div>
+                </div>                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Card Icon</label>
                   <select
                     value={serviceForm.icon}
                     onChange={(e) => setServiceForm({ ...serviceForm, icon: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-800 font-medium"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-800 font-medium animate-none"
                   >
                     {serviceIconOptions.map((opt) => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
                     ))}
                   </select>
+                </div>
+
+                {/* Service Hero Image Selector */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Service Hero Image</label>
+
+                  {/* Premium Tab Switcher */}
+                  <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl mb-4 text-xs font-semibold text-slate-600">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setServiceHeroImageSource('upload');
+                        setServiceForm(prev => ({ ...prev, heroImage: '' }));
+                      }}
+                      className={`py-2 px-3 rounded-lg text-center transition-all ${serviceHeroImageSource === 'upload' ? 'bg-white text-indigo-600 shadow-sm' : 'hover:text-slate-800'}`}
+                    >
+                      Upload Picture
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setServiceHeroImageSource('url');
+                        setServiceForm(prev => ({ ...prev, heroImage: '' }));
+                      }}
+                      className={`py-2 px-3 rounded-lg text-center transition-all ${serviceHeroImageSource === 'url' ? 'bg-white text-indigo-600 shadow-sm' : 'hover:text-slate-800'}`}
+                    >
+                      Paste Image Link
+                    </button>
+                  </div>
+
+                  {/* Mode A: Upload Local Image file */}
+                  {serviceHeroImageSource === 'upload' && (
+                    <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 bg-slate-50 hover:bg-slate-100/50 transition-colors text-center mb-4">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        id="service-hero-file-upload"
+                        className="hidden"
+                        onChange={handleServiceHeroImageUpload}
+                      />
+                      <label htmlFor="service-hero-file-upload" className="cursor-pointer block">
+                        <div className="flex flex-col items-center justify-center gap-2 text-slate-500">
+                          <FiUploadCloud className="w-8 h-8 text-indigo-500 mb-1 mx-auto" />
+                          <span className="text-sm font-bold text-slate-700 block">Choose Image File</span>
+                          <span className="text-xs text-slate-400 block">Supports JPG, PNG, WEBP (under 2MB)</span>
+                        </div>
+                      </label>
+                      {serviceForm.heroImage && serviceForm.heroImage.startsWith('data:image/') && (
+                        <div className="mt-3 text-xs text-emerald-600 font-semibold bg-emerald-50 py-1.5 px-3 rounded-lg inline-flex items-center gap-1.5 border border-emerald-100 mx-auto">
+                          <FiCheck className="w-3.5 h-3.5" /> File loaded successfully!
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Mode B: Paste Image Link */}
+                  {serviceHeroImageSource === 'url' && (
+                    <div className="mb-4">
+                      <input
+                        type="url"
+                        placeholder="Paste image link here (e.g. https://images.unsplash.com/...)"
+                        value={serviceForm.heroImage.startsWith('data:image/') ? '' : serviceForm.heroImage}
+                        onChange={(e) => setServiceForm({ ...serviceForm, heroImage: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-800 font-medium"
+                      />
+                      <span className="text-[10px] text-slate-400 mt-1 block">Paste any visual URL from Unsplash, Pexels, or your custom asset server.</span>
+                    </div>
+                  )}
+
+                  {/* Dynamic Image Preview */}
+                  <div className="relative aspect-[21/9] w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+                    {serviceForm.heroImage ? (
+                      <>
+                        <img
+                          src={serviceForm.heroImage}
+                          alt="Hero thumbnail preview"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setServiceForm(prev => ({ ...prev, heroImage: '' }))}
+                          className="absolute top-3 right-3 p-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-lg transition-colors flex items-center justify-center pointer-events-auto"
+                          title="Remove custom image"
+                        >
+                          <FiTrash2 className="w-4 h-4" />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <img
+                          src={servicesHeroRender}
+                          alt="Default Hero render"
+                          className="w-full h-full object-contain"
+                        />
+                        <div className="absolute inset-0 bg-slate-900/5 flex items-end p-3 pointer-events-none">
+                          <span className="text-[10px] font-bold text-slate-500 bg-white/95 border border-slate-250/50 px-2 py-0.5 rounded-md shadow-sm">
+                            Default 3D Render active
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Service Overview Customizations */}
+                <div className="border-t border-slate-100 pt-6 space-y-4">
+                  <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Service Overview Section</h4>
+                  
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Overview Heading</label>
+                    <input
+                      type="text"
+                      value={serviceForm.overviewHeading}
+                      onChange={(e) => setServiceForm({ ...serviceForm, overviewHeading: e.target.value })}
+                      placeholder="e.g. Brands that stand out — and stay consistent everywhere."
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Overview Body</label>
+                    <textarea
+                      rows={3}
+                      value={serviceForm.overviewBody}
+                      onChange={(e) => setServiceForm({ ...serviceForm, overviewBody: e.target.value })}
+                      placeholder="Detailed explanation of what this service covers..."
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-800 leading-relaxed"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1.5">Overview Image</label>
+                    <div className="flex gap-3 items-center">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        id="service-overview-upload"
+                        className="hidden"
+                        onChange={handleServiceOverviewImageUpload}
+                      />
+                      <label htmlFor="service-overview-upload" className="cursor-pointer py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-colors shrink-0 flex items-center gap-1">
+                        <FiUploadCloud className="w-3.5 h-3.5" /> Upload File
+                      </label>
+                      <input
+                        type="url"
+                        value={serviceForm.overviewImage}
+                        onChange={(e) => setServiceForm({ ...serviceForm, overviewImage: e.target.value })}
+                        placeholder="Or paste external image link..."
+                        className="flex-1 bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-505 text-slate-800"
+                      />
+                    </div>
+                    {serviceForm.overviewImage && (
+                      <div className="mt-2 relative aspect-[16/9] w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+                        <img src={getProjectImage(serviceForm.overviewImage)} alt="Overview preview" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setServiceForm(prev => ({ ...prev, overviewImage: '' }))}
+                          className="absolute top-2 right-2 p-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-lg transition-colors flex items-center justify-center pointer-events-auto"
+                          title="Remove overview image"
+                        >
+                          <FiTrash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Related Showcase Work */}
+                <div className="border-t border-slate-100 pt-6 space-y-4">
+                  <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Related Case Study (Project)</h4>
+                  
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Select Portfolio Project</label>
+                    <select
+                      value={serviceForm.relatedWorkSlug}
+                      onChange={(e) => {
+                        const selectedSlug = e.target.value;
+                        const matchedProj = projects.find(p => p.slug === selectedSlug);
+                        setServiceForm(prev => ({
+                          ...prev,
+                          relatedWorkSlug: selectedSlug,
+                          relatedWorkTitle: prev.relatedWorkTitle || (matchedProj ? matchedProj.title : ''),
+                          relatedWorkDescription: prev.relatedWorkDescription || (matchedProj ? matchedProj.description : ''),
+                          relatedWorkImage: prev.relatedWorkImage || (matchedProj ? (matchedProj.image.startsWith('data:image/') || matchedProj.image.startsWith('http') ? matchedProj.image : matchedProj.image) : '')
+                        }));
+                      }}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-800 font-medium"
+                    >
+                      <option value="">-- Choose project --</option>
+                      {projects.map(proj => (
+                        <option key={proj.slug} value={proj.slug}>{proj.title} ({proj.slug})</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Showcase Title</label>
+                    <input
+                      type="text"
+                      value={serviceForm.relatedWorkTitle}
+                      onChange={(e) => setServiceForm({ ...serviceForm, relatedWorkTitle: e.target.value })}
+                      placeholder="e.g. Arrows rebranding case study"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Showcase Description</label>
+                    <textarea
+                      rows={3}
+                      value={serviceForm.relatedWorkDescription}
+                      onChange={(e) => setServiceForm({ ...serviceForm, relatedWorkDescription: e.target.value })}
+                      placeholder="Short teaser description for this case study..."
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-800 leading-relaxed"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1.5">Showcase Image</label>
+                    <div className="flex gap-3 items-center">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        id="service-related-upload"
+                        className="hidden"
+                        onChange={handleServiceRelatedImageUpload}
+                      />
+                      <label htmlFor="service-related-upload" className="cursor-pointer py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-colors shrink-0 flex items-center gap-1">
+                        <FiUploadCloud className="w-3.5 h-3.5" /> Upload File
+                      </label>
+                      <input
+                        type="url"
+                        value={serviceForm.relatedWorkImage}
+                        onChange={(e) => setServiceForm({ ...serviceForm, relatedWorkImage: e.target.value })}
+                        placeholder="Or paste external image link..."
+                        className="flex-1 bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-800"
+                      />
+                    </div>
+                    {serviceForm.relatedWorkImage && (
+                      <div className="mt-2 relative aspect-[16/9] w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+                        <img src={getProjectImage(serviceForm.relatedWorkImage)} alt="Related work preview" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setServiceForm(prev => ({ ...prev, relatedWorkImage: '' }))}
+                          className="absolute top-2 right-2 p-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-lg transition-colors flex items-center justify-center pointer-events-auto"
+                          title="Remove showcase image"
+                        >
+                          <FiTrash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {editingService?.slug && (
@@ -1719,6 +2665,256 @@ export function AdminDashboard() {
         )}
       </AnimatePresence>
 
+      {/* Add/Edit Blog Drawer */}
+      <AnimatePresence>
+        {isBlogFormOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-end">
+
+            {/* Dark Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsBlogFormOpen(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-[3px]"
+            />
+
+            {/* Slide-out Sidebar Drawer */}
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="relative w-full max-w-2xl bg-white h-screen shadow-2xl flex flex-col justify-between border-l border-slate-200"
+            >
+
+              {/* Drawer Header */}
+              <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-950 flex items-center gap-2">
+                    <FiFolder className="text-blue-500" />
+                    {editingBlog ? 'Edit Blog Post' : 'Publish New Blog Post'}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">Fill out blog post content below to sync with frontend pages.</p>
+                </div>
+                <button
+                  onClick={() => setIsBlogFormOpen(false)}
+                  className="p-2 hover:bg-slate-200/80 rounded-xl transition-colors text-slate-500"
+                  title="Close form"
+                >
+                  <FiX className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Drawer Body Scroll */}
+              <form id="blog-form" onSubmit={handleBlogSubmit} className="flex-1 overflow-y-auto p-8 space-y-6">
+
+                {/* Title */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Blog Title *</label>
+                  <input
+                    type="text"
+                    required
+                    value={blogForm.title}
+                    onChange={(e) => setBlogForm({ ...blogForm, title: e.target.value })}
+                    placeholder="e.g. Design That Converts: Our Approach"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium"
+                  />
+                </div>
+
+                {/* Sub Metadata Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                  {/* Category */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Category *</label>
+                    <select
+                      value={blogForm.category}
+                      onChange={(e) => setBlogForm({ ...blogForm, category: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium"
+                    >
+                      <option value="Design">Design</option>
+                      <option value="Development">Development</option>
+                      <option value="Strategy">Strategy</option>
+                    </select>
+                  </div>
+
+                  {/* Author */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Author Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={blogForm.author}
+                      onChange={(e) => setBlogForm({ ...blogForm, author: e.target.value })}
+                      placeholder="e.g. Lokesh Kumawat"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium"
+                    />
+                  </div>
+
+                  {/* Read Time */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Read Time *</label>
+                    <input
+                      type="text"
+                      required
+                      value={blogForm.readTime}
+                      onChange={(e) => setBlogForm({ ...blogForm, readTime: e.target.value })}
+                      placeholder="e.g. 5 min read"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium"
+                    />
+                  </div>
+
+                </div>
+
+                {/* Excerpt */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Short Excerpt *</label>
+                  <textarea
+                    required
+                    rows={3}
+                    value={blogForm.excerpt}
+                    onChange={(e) => setBlogForm({ ...blogForm, excerpt: e.target.value })}
+                    placeholder="Provide a brief one or two sentence summary of the post..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium leading-relaxed"
+                  />
+                </div>
+
+                {/* Content paragraphs */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Content Paragraphs *</label>
+                  <textarea
+                    required
+                    rows={8}
+                    value={blogForm.content}
+                    onChange={(e) => setBlogForm({ ...blogForm, content: e.target.value })}
+                    placeholder="Type or paste the full content of the article here..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium leading-relaxed"
+                  />
+                </div>
+
+                {/* Cover Image Selector */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Cover Image *</label>
+
+                  {/* Premium Tab Switcher */}
+                  <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl mb-4 text-xs font-semibold text-slate-600">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setBlogImageSource('upload');
+                        setBlogForm(prev => ({ ...prev, image: '' }));
+                      }}
+                      className={`py-2 px-3 rounded-lg text-center transition-all ${blogImageSource === 'upload' ? 'bg-white text-blue-600 shadow-sm' : 'hover:text-slate-800'}`}
+                    >
+                      Upload Picture
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setBlogImageSource('url');
+                        setBlogForm(prev => ({ ...prev, image: '' }));
+                      }}
+                      className={`py-2 px-3 rounded-lg text-center transition-all ${blogImageSource === 'url' ? 'bg-white text-blue-600 shadow-sm' : 'hover:text-slate-800'}`}
+                    >
+                      Paste Image Link
+                    </button>
+                  </div>
+
+                  {/* Mode A: Upload Local Image file */}
+                  {blogImageSource === 'upload' && (
+                    <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 bg-slate-50 hover:bg-slate-100/50 transition-colors text-center mb-4">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        id="blog-file-upload"
+                        className="hidden"
+                        onChange={handleBlogCoverImageUpload}
+                      />
+                      <label htmlFor="blog-file-upload" className="cursor-pointer block">
+                        <div className="flex flex-col items-center justify-center gap-2 text-slate-500">
+                          <FiUploadCloud className="w-8 h-8 text-blue-500 mb-1 mx-auto" />
+                          <span className="text-sm font-bold text-slate-700 block">Choose Image File</span>
+                          <span className="text-xs text-slate-400 block">Supports JPG, PNG, WEBP (under 2MB)</span>
+                        </div>
+                      </label>
+                      {blogForm.image && blogForm.image.startsWith('data:image/') && (
+                        <div className="mt-3 text-xs text-emerald-600 font-semibold bg-emerald-50 py-1.5 px-3 rounded-lg inline-flex items-center gap-1.5 border border-emerald-100 mx-auto">
+                          <FiCheck className="w-3.5 h-3.5" /> File loaded successfully!
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Mode B: Paste Image Link */}
+                  {blogImageSource === 'url' && (
+                    <div className="mb-4">
+                      <input
+                        type="url"
+                        placeholder="Paste image link here (e.g. https://images.unsplash.com/...)"
+                        value={blogForm.image.startsWith('data:image/') ? '' : blogForm.image}
+                        onChange={(e) => setBlogForm({ ...blogForm, image: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium"
+                      />
+                      <span className="text-[10px] text-slate-400 mt-1 block">Paste any visual URL from Unsplash, Pexels, or your custom asset server.</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Dynamic Image Preview */}
+                <div className="relative aspect-[21/9] w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+                  {blogForm.image ? (
+                    <>
+                      <img
+                        src={blogForm.image}
+                        alt="Thumbnail preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setBlogForm(prev => ({ ...prev, image: '' }))}
+                        className="absolute top-2 right-2 p-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-lg transition-colors flex items-center justify-center pointer-events-auto"
+                        title="Remove cover image"
+                      >
+                        <FiTrash2 className="w-4 h-4" />
+                      </button>
+                    </>
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center text-slate-400 text-xs font-semibold">
+                      No cover image selected
+                    </div>
+                  )}
+                </div>
+
+              </form>
+
+              {/* Drawer Footer Actions */}
+              <div className="p-6 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsBlogFormOpen(false)}
+                  className="px-5 py-3 hover:bg-slate-200 rounded-xl text-slate-500 text-sm font-bold transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  form="blog-form"
+                  disabled={blogSubmitting}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold text-sm rounded-xl flex items-center gap-2 shadow-lg shadow-blue-600/10 transition-all active:scale-[0.98]"
+                >
+                  {blogSubmitting && (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  )}
+                  {editingBlog ? 'Save Changes' : 'Publish Article'}
+                </button>
+              </div>
+
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Profile Edit Modal */}
       <AnimatePresence>
         {isProfileOpen && (
@@ -1730,7 +2926,7 @@ export function AdminDashboard() {
               onClick={() => setIsProfileOpen(false)}
               className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
             />
-            
+
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1743,7 +2939,7 @@ export function AdminDashboard() {
                   <h3 className="text-lg font-black text-slate-900 tracking-tight">Edit Admin Profile</h3>
                   <p className="text-xs text-slate-500 mt-0.5">Manage your details, avatar, and security credentials.</p>
                 </div>
-                <button 
+                <button
                   onClick={() => setIsProfileOpen(false)}
                   className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-400 hover:text-slate-700"
                 >
@@ -1753,7 +2949,7 @@ export function AdminDashboard() {
 
               {/* Form body */}
               <form onSubmit={handleProfileSubmit} className="p-6 space-y-5">
-                
+
                 {/* Profile Picture Uploader */}
                 <div className="flex flex-col items-center justify-center gap-2">
                   <div className="relative group cursor-pointer">
@@ -1766,11 +2962,11 @@ export function AdminDashboard() {
                     </div>
                     <label htmlFor="profile-avatar-upload" className="absolute bottom-0 right-0 p-1.5 bg-blue-600 text-white rounded-full border border-white hover:bg-blue-500 transition-colors shadow-md cursor-pointer">
                       <FiUploadCloud className="w-3.5 h-3.5" />
-                      <input 
-                        type="file" 
-                        id="profile-avatar-upload" 
-                        accept="image/*" 
-                        className="hidden" 
+                      <input
+                        type="file"
+                        id="profile-avatar-upload"
+                        accept="image/*"
+                        className="hidden"
                         onChange={handleProfilePicUpload}
                       />
                     </label>
@@ -1834,7 +3030,7 @@ export function AdminDashboard() {
                     Save Profile
                   </button>
                 </div>
-                
+
               </form>
             </motion.div>
           </div>

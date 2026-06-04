@@ -14,9 +14,7 @@ import {
 import { getApiUrl } from "@/utils/api";
 import { ServicePageHero } from "@/components/services/ServicePageHero";
 import {
-  ServicesTopBar,
   ServiceLabel,
-  ServicePageFooter,
   ServiceCtaBanner,
   ServiceCardIcon,
   ArrowIcon,
@@ -24,6 +22,7 @@ import {
   ProcessTimeline,
   SecondaryButton,
 } from "@/components/services/ServiceUi";
+import { Footer } from "@/components/layout/Footer";
 import teamImage from "@/assets/team.jpg";
 
 export function ServicesPage() {
@@ -48,9 +47,8 @@ export function ServicesPage() {
 
   return (
     <div className="bg-white">
-      <ServicesTopBar />
-
-      <ServicePageHero
+      <main className="pt-20 md:pt-28 lg:pt-32">
+        <ServicePageHero
         label={<ServiceLabel>Our services</ServiceLabel>}
         title="We build digital experiences that move brands forward."
         description="We combine strategy, design, and technology to create products, websites, and systems that help ambitious companies grow faster."
@@ -269,7 +267,8 @@ export function ServicesPage() {
       </section>
 
       <ServiceCtaBanner heading="Let's create something exceptional together." />
-      <ServicePageFooter />
+      <Footer />
+      </main>
     </div>
   );
 }

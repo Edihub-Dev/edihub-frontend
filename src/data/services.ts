@@ -5,6 +5,7 @@ import pexels1 from "@/assets/projects/pexels-1.jpg";
 import pexels2 from "@/assets/projects/pexels-2.jpg";
 import pexels3 from "@/assets/projects/pexels-3.jpg";
 import pexels4 from "@/assets/projects/pexels-4.jpg";
+import servicesHeroRender from "@/assets/services-hero-render.png";
 
 export type ServiceFeature = {
   title: string;
@@ -41,6 +42,7 @@ export type ServiceDetail = {
   };
   technologies: string[];
   ctaHeading: string;
+  heroImage: string;
 };
 
 export const servicesList: ServiceDetail[] = [
@@ -79,6 +81,7 @@ export const servicesList: ServiceDetail[] = [
     relatedWork: { title: "Arrows rebrand", category: "BRANDING", description: "A full brand refresh for a growing SaaS company focused on clarity and trust.", slug: "arrows", image: pexels2 },
     technologies: ["Figma", "Illustrator", "After Effects", "Notion", "Framer"],
     ctaHeading: "Let's build a brand that sets you apart.",
+    heroImage: servicesHeroRender,
   },
   {
     slug: "web-design",
@@ -115,6 +118,7 @@ export const servicesList: ServiceDetail[] = [
     relatedWork: { title: "Fintech platform redesign", category: "FINTECH", description: "A complete website redesign for a fintech company focused on clarity, trust, and conversion.", slug: "bullseye", image: pexels1 },
     technologies: ["Framer", "Webflow", "GSAP", "Lottie", "Figma", "Spline"],
     ctaHeading: "Let's build a website that sets your brand apart.",
+    heroImage: servicesHeroRender,
   },
   {
     slug: "ui-ux-design",
@@ -151,6 +155,7 @@ export const servicesList: ServiceDetail[] = [
     relatedWork: { title: "Chantalle product design", category: "PRODUCT", description: "End-to-end UX for a consumer app focused on simplicity and retention.", slug: "chantalle", image: pexels3 },
     technologies: ["Figma", "FigJam", "Principle", "Maze", "Storybook"],
     ctaHeading: "Let's design a product your users will love.",
+    heroImage: servicesHeroRender,
   },
   {
     slug: "development",
@@ -187,6 +192,7 @@ export const servicesList: ServiceDetail[] = [
     relatedWork: { title: "Bullseye platform build", category: "DEVELOPMENT", description: "Full-stack build for a analytics dashboard with real-time data.", slug: "bullseye", image: pexels1 },
     technologies: ["React", "TypeScript", "Node.js", "Vite", "PostgreSQL"],
     ctaHeading: "Let's build software that scales with your vision.",
+    heroImage: servicesHeroRender,
   },
   {
     slug: "motion-design",
@@ -223,6 +229,7 @@ export const servicesList: ServiceDetail[] = [
     relatedWork: { title: "London Museum campaign", category: "MOTION", description: "Motion-led launch assets for a cultural institution rebrand.", slug: "london-museum", image: pexels3 },
     technologies: ["After Effects", "Lottie", "Rive", "Cinema 4D", "GSAP"],
     ctaHeading: "Let's add motion that makes your brand unforgettable.",
+    heroImage: servicesHeroRender,
   },
   {
     slug: "digital-strategy",
@@ -259,6 +266,7 @@ export const servicesList: ServiceDetail[] = [
     relatedWork: { title: "Papyrus growth strategy", category: "STRATEGY", description: "Digital transformation roadmap for an established B2B brand.", slug: "papyrus", image: pexels4 },
     technologies: ["Notion", "Miro", "GA4", "Hotjar", "Figma"],
     ctaHeading: "Let's map a digital strategy that drives real growth.",
+    heroImage: servicesHeroRender,
   },
 ];
 
@@ -268,6 +276,14 @@ export type ApiService = {
   title: string;
   description: string;
   icon: ServiceDetail["icon"];
+  overviewHeading?: string;
+  overviewBody?: string;
+  overviewImage?: string;
+  relatedWorkTitle?: string;
+  relatedWorkDescription?: string;
+  relatedWorkSlug?: string;
+  relatedWorkImage?: string;
+  heroImage?: string;
 };
 
 /** Maps API slugs from admin/DB to rich static detail templates */
@@ -309,15 +325,15 @@ export function buildMinimalServiceDetail(api: ApiService): ServiceDetail {
     cardDescription: api.description,
     icon: api.icon || "web",
     features: defaultFeatures,
-    overviewHeading: `Expert ${api.title.toLowerCase()} for growing brands.`,
-    overviewBody: api.description,
+    overviewHeading: api.overviewHeading || `Expert ${api.title.toLowerCase()} for growing brands.`,
+    overviewBody: api.overviewBody || api.description,
     overviewPoints: [
       "Tailored to your brand and audience",
       "Clear process from discovery to launch",
       "Collaborative, transparent communication",
       "Results-focused delivery",
     ],
-    overviewImage: statsImage,
+    overviewImage: api.overviewImage || statsImage,
     processSteps: [
       { number: "01", title: "Discover", description: "We learn about your business, goals, and audience." },
       { number: "02", title: "Design", description: "We shape concepts focused on clarity and impact." },
@@ -325,14 +341,15 @@ export function buildMinimalServiceDetail(api: ApiService): ServiceDetail {
       { number: "04", title: "Launch", description: "We deliver, test, and optimize for performance." },
     ],
     relatedWork: {
-      title: "Featured client project",
+      title: api.relatedWorkTitle || "Featured client project",
       category: "CASE STUDY",
-      description: "Explore how we help brands succeed in the digital space.",
-      slug: "bullseye",
-      image: pexels1,
+      description: api.relatedWorkDescription || "Explore how we help brands succeed in the digital space.",
+      slug: api.relatedWorkSlug || "bullseye",
+      image: api.relatedWorkImage || pexels1,
     },
     technologies: ["Figma", "React", "TypeScript", "Framer", "Webflow"],
     ctaHeading: `Let's talk about your ${api.title.toLowerCase()} project.`,
+    heroImage: api.heroImage || servicesHeroRender,
   };
 }
 
@@ -350,6 +367,17 @@ export function resolveServiceDetail(api: ApiService | undefined, slug: string):
         heroDescription: api.description,
         cardDescription: api.description,
         icon: api.icon || staticDetail.icon,
+        overviewHeading: api.overviewHeading || staticDetail.overviewHeading,
+        overviewBody: api.overviewBody || staticDetail.overviewBody,
+        overviewImage: api.overviewImage || staticDetail.overviewImage,
+        relatedWork: {
+          title: api.relatedWorkTitle || staticDetail.relatedWork.title,
+          category: staticDetail.relatedWork.category,
+          description: api.relatedWorkDescription || staticDetail.relatedWork.description,
+          slug: api.relatedWorkSlug || staticDetail.relatedWork.slug,
+          image: api.relatedWorkImage || staticDetail.relatedWork.image,
+        },
+        heroImage: api.heroImage || staticDetail.heroImage,
       };
     }
     return buildMinimalServiceDetail(api);

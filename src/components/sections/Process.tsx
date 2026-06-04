@@ -103,7 +103,7 @@ export function Process() {
                   transition={{ duration: 0.4, delay: 0.03 * i }}
                   onMouseEnter={() => setActiveIndex(i)}
                   onClick={() => setActiveIndex(i)}
-                  className={`cursor-pointer rounded-2xl border px-6 py-7 transition-all duration-300 ease-out md:px-7 md:py-8 lg:flex lg:min-h-[30rem] lg:flex-col ${
+                  className={`cursor-pointer rounded-2xl border px-6 py-7 transition-all duration-300 ease-out md:px-7 md:py-8 lg:flex lg:h-[28rem] lg:flex-col ${
                     isActive ? "border-white/30 lg:flex-[2]" : "border-white/15 lg:flex-[1]"
                   }`}
                 >

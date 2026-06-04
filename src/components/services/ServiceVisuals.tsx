@@ -2,14 +2,14 @@ import servicesHeroRender from "@/assets/services-hero-render.png";
 
 
 
-export function ServiceHeroVisual() {
+export function ServiceHeroVisual({ image }: { image?: string } = {}) {
   return (
     <div className="relative flex h-full w-full min-h-[320px] items-center justify-center bg-white sm:min-h-[380px] lg:min-h-[480px]">
       {/* 3D Render Image representing the premium glass panels and stone */}
       <img
-        src={servicesHeroRender}
+        src={image || servicesHeroRender}
         alt="Digital Solutions Glass Panels and Stone Render"
-        className="h-full w-full object-contain"
+        className={`h-full w-full ${image ? "object-cover" : "object-contain"}`}
       />
 
       {/* Decorative text in bottom-right corner */}

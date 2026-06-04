@@ -28,16 +28,18 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import GradualBlur from "@/components/ui/GradualBlur.jsx";
 
 import { SmoothScrollProvider } from "@/components/layout/SmoothScrollProvider";
+import { ScrollToTop } from "@/components/layout/ScrollToTop";
 
 function App() {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith('/admin');
-  const hideNavbar = location.pathname.startsWith('/services');
+  const hideNavbar = false;
 
   return (
     <>
+      <ScrollToTop />
       {!isAdminPage && <SmoothScrollProvider />}
-      {!isAdminPage && !location.pathname.startsWith('/services') && (
+      {!isAdminPage && (
         <GradualBlur
           target="page"
           position="bottom"

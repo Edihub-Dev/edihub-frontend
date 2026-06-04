@@ -2,7 +2,6 @@ import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-
 import { BiMenuAltRight } from "react-icons/bi";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Container } from "@/components/ui/Container";
 import logoSrc from "@/assets/edihubBLCK.png";
 
 export function Navbar() {
@@ -72,7 +71,7 @@ export function Navbar() {
         animate={hidden && !menuOpen ? { y: "-110%" } : { y: 0 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
       >
-        <Container>
+        <div className="mx-auto w-full px-4 sm:px-6 lg:px-8">
           <nav className="flex h-20 items-center justify-between md:h-[6rem]">
             <Link
               to="/"
@@ -91,7 +90,7 @@ export function Navbar() {
               <BiMenuAltRight className="h-15 w-15" />
             </motion.button>
           </nav>
-        </Container>
+        </div>
       </motion.header>
 
       <AnimatePresence>

@@ -43,7 +43,7 @@ export function Services() {
 
   return (
     <Section id="services" className="bg-white">
-      <Container>
+      <Container className="max-w-none px-4 md:px-6">
         <motion.div
           ref={ref}
           variants={list}
@@ -75,61 +75,57 @@ export function Services() {
                 <motion.div
                   key={service.number}
                   variants={item}
-                  className={`border-b border-[#E0E0E0] overflow-hidden md:overflow-visible ${
-                    isActive ? "bg-[#0066FF] rounded-2xl border-transparent" : "bg-white"
-                  }`}
+                  className={`border-b border-[#E0E0E0] overflow-hidden md:overflow-visible ${isActive ? "bg-[#0066FF] rounded-2xl border-transparent" : "bg-white"
+                    }`}
                 >
                   <button
                     type="button"
                     onClick={() =>
                       setActiveService((prev) => (prev === service.number ? null : service.number))
                     }
-                    className={`group relative flex w-full items-center gap-6 px-6 py-6 text-left md:gap-8 md:px-8 md:py-7 md:transition-[padding] md:duration-200 md:ease-out md:hover:px-[30px] ${
-                      isActive ? "px-6 md:px-8" : ""
-                    }`}
+                    className={`group relative flex w-full items-center gap-6 px-6 py-6 text-left md:gap-8 md:px-8 md:py-7 md:transition-[padding] md:duration-200 md:ease-out md:hover:px-[30px] ${isActive ? "px-6 md:px-8" : ""
+                      }`}
                   >
-                  <span
-                    aria-hidden="true"
-                    className={`absolute inset-y-2 left-0 right-0 rounded-2xl bg-[#0066FF] opacity-0 transition-[opacity,left,right] duration-200 ease-out group-hover:opacity-100 group-hover:left-8 group-hover:right-8 md:group-hover:left-10 md:group-hover:right-10 hidden md:block ${
-                      isActive ? "md:opacity-100 md:left-8 md:right-8 md:left-10 md:right-10" : ""
-                    }`}
-                  />
-                  <span
-                    className={`relative z-10 text-3xl font-medium text-[#1A1A1A] group-hover:text-white ${
-                      isActive ? "text-white" : ""
-                    }`}
-                  >
-                    {service.number}
-                  </span>
-                  <h3
-                    className={`relative z-10 flex-1 text-[28px] font-semibold tracking-[-1px] text-[#1A1A1A] transition-[letter-spacing,color] duration-200 group-hover:tracking-[-2.2px] group-hover:text-white sm:text-[32px] md:text-[44px] md:tracking-[-2.2px] lg:text-[52px] ${
-                      isActive ? "md:tracking-[-2.2px] text-white" : ""
-                    }`}
-                  >
-                    {service.title}
-                  </h3>
-                  
-                  {/* Desktop hover description - inside button for flex layout */}
-                  <p className="relative z-10 hidden max-w-3xl text-3xl tracking-[-0.1px] text-white/90 opacity-0 transition-opacity duration-200 md:block group-hover:opacity-100 lg:max-w-4xl">
-                    {service.description}
-                  </p>
-                  
-                  <span
-                    className={`relative z-10 shrink-0 text-8xl font-normal text-[#1A1A1A] transition-[transform,color] duration-200 group-hover:rotate-45 group-hover:text-white ${
-                      isActive ? "rotate-45 text-white" : ""
-                    }`}
-                  >
-                    +
-                  </span>
+                    <span
+                      aria-hidden="true"
+                      className={`absolute inset-y-2 left-0 right-0 rounded-2xl bg-[#0066FF] opacity-0 transition-[opacity,left,right] duration-200 ease-out group-hover:opacity-100 group-hover:left-8 group-hover:right-8 md:group-hover:left-10 md:group-hover:right-10 hidden md:block ${isActive ? "md:opacity-100 md:left-8 md:right-8 md:left-10 md:right-10" : ""
+                        }`}
+                    />
+                    <span
+                      className={`relative z-10 text-[18px] md:text-[22px] font-medium text-[#1A1A1A] group-hover:text-white transition-colors duration-200 ${isActive ? "text-white" : ""
+                        }`}
+                    >
+                      {service.number}
+                    </span>
+                    <h3
+                      className={`relative z-10 flex-1 text-[28px] font-semibold tracking-[-1px] text-[#1A1A1A] transition-[letter-spacing,color] duration-200 group-hover:tracking-[-2.2px] group-hover:text-white sm:text-[32px] md:text-[44px] md:tracking-[-2.2px] lg:text-[52px] ${isActive ? "md:tracking-[-2.2px] text-white" : ""
+                        }`}
+                    >
+                      {service.title}
+                    </h3>
+
+                    {/* Desktop description - visible on active or hover */}
+                    <p
+                      className={`relative z-10 hidden max-w-2xl text-[16px] md:text-[18px] lg:text-[19px] leading-relaxed text-white/90 transition-opacity duration-200 md:block ${isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                        }`}
+                    >
+                      {service.description}
+                    </p>
+
+                    <span
+                      className={`relative z-10 shrink-0 text-[32px] md:text-[36px] lg:text-[40px] font-light text-[#1A1A1A] transition-[transform,color] duration-200 group-hover:rotate-45 group-hover:text-white ${isActive ? "rotate-45 text-white" : ""
+                        }`}
+                    >
+                      +
+                    </span>
                   </button>
-                  
+
                   {/* Expandable description for mobile */}
                   <div
-                    className={`overflow-hidden transition-all duration-300 ease-out ${
-                      isActive ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
-                    }`}
+                    className={`overflow-hidden transition-all duration-300 ease-out ${isActive ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
+                      }`}
                   >
-                    <p className="px-6 pb-6 pt-2 text-lg leading-relaxed text-white/90 md:hidden">
+                    <p className="px-6 pb-6 pt-2 text-[16px] leading-relaxed text-white/90 md:hidden">
                       {service.description}
                     </p>
                   </div>

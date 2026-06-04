@@ -42,13 +42,13 @@ export function AboutStats() {
 
       {/* Two columns: text left, image right */}
       <Section className="bg-white pt-16 lg:pt-24">
-        <Container className="px-5 sm:px-6 lg:pl-16 lg:pr-32 xl:pl-24 xl:pr-48">
-          <div ref={ref} className="grid gap-12 lg:grid-cols-12 lg:gap-0 xl:gap-0">
+        <Container className="px-6 sm:px-8 lg:px-14 xl:px-20">
+          <div ref={ref} className="grid gap-12 lg:grid-cols-12 lg:gap-12 xl:gap-16">
             <motion.div
               variants={list}
               initial="hidden"
               animate={inView ? "show" : "hidden"}
-              className="relative z-10 flex flex-col lg:col-span-6 lg:min-h-[520px] xl:mr-[-2rem] xl:pl-66"
+              className="relative z-10 flex flex-col lg:col-span-6 lg:min-h-[520px]"
             >
               <motion.h3
                 variants={item}
@@ -88,7 +88,7 @@ export function AboutStats() {
               variants={list}
               initial="hidden"
               animate={inView ? "show" : "hidden"}
-              className="lg:col-span-6 lg:flex lg:justify-end xl:-mr-6"
+              className="lg:col-span-6 lg:flex lg:justify-end"
             >
               <motion.div
                 variants={item}

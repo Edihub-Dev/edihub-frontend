@@ -16,6 +16,7 @@ type ServicePageHeroProps = {
   description: string;
   primaryCta?: { to: string; label: string };
   secondaryCta?: { to: string; label: string };
+  heroImage?: string;
 };
 
 /** Identical hero block — used on /services and /services/:slug */
@@ -25,6 +26,7 @@ export function ServicePageHero({
   description,
   primaryCta = { to: "/contact", label: "Start a project" },
   secondaryCta = { to: "/projects", label: "View our work" },
+  heroImage,
 }: ServicePageHeroProps) {
   return (
     <section className="border-b border-[#F3F4F6] bg-white py-16 md:py-20 lg:py-24">
@@ -66,7 +68,7 @@ export function ServicePageHero({
             transition={{ duration: 0.6, delay: 0.12 }}
             className="relative w-full lg:min-h-[480px]"
           >
-            <ServiceHeroVisual />
+            <ServiceHeroVisual image={heroImage} />
           </motion.div>
         </div>
       </Container>

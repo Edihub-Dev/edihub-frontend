@@ -6,14 +6,13 @@ import { resolveServiceDetail, type ApiService } from "@/data/services";
 import { getApiUrl } from "@/utils/api";
 import { ServicePageHero } from "@/components/services/ServicePageHero";
 import {
-  ServicesTopBar,
-  ServicePageFooter,
   ServiceCtaBanner,
   FeatureIcon,
   ArrowIcon,
   TechLogo,
   ServiceLabel,
 } from "@/components/services/ServiceUi";
+import { Footer } from "@/components/layout/Footer";
 
 export function ServiceDetailPage() {
   const { slug } = useParams();
@@ -54,19 +53,22 @@ export function ServiceDetailPage() {
 
   return (
     <div className="bg-white">
-      <ServicesTopBar />
-
-      <ServicePageHero
+      <main className="pt-20 md:pt-28 lg:pt-32">
+        <ServicePageHero
         label={
           <Link
             to="/services"
-            className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#0066FF] hover:underline"
+            className="inline-flex items-center gap-2 text-[14px] font-bold text-[#0066FF] hover:text-[#0052CC] transition-colors"
           >
-            <span aria-hidden className="text-[12px] font-semibold">&lt;</span> SERVICES
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+              <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Back to Services
           </Link>
         }
         title={service.title}
         description={service.heroDescription}
+        heroImage={service.heroImage}
       />
 
       {/* Key features — 4 columns with icon boxes */}
@@ -200,7 +202,8 @@ export function ServiceDetailPage() {
       </section>
 
       <ServiceCtaBanner heading={service.ctaHeading} />
-      <ServicePageFooter />
+      <Footer />
+      </main>
     </div>
   );
 }

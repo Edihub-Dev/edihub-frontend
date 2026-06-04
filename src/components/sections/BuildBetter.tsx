@@ -60,7 +60,6 @@ export function BuildBetter() {
           variants={list}
           initial="hidden"
           animate={inView ? "show" : "hidden"}
-          className="flex min-h-[50vh] flex-col justify-between lg:min-h-[62vh]"
         >
           <div className="flex justify-end">
             <div className="w-full max-w-[640px] lg:max-w-[720px]">
@@ -85,13 +84,6 @@ export function BuildBetter() {
               </motion.div>
             </div>
           </div>
-
-          <motion.h3
-            variants={item}
-            className="mt-24 text-center text-[36px] font-semibold leading-[1.02] tracking-[-0.06em] text-[#1A1A1A] sm:mt-32 sm:text-[44px] md:text-[52px] lg:mt-40 lg:text-[64px]"
-          >
-            or get to know us first!
-          </motion.h3>
         </motion.div>
       </Container>
     </Section>

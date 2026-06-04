@@ -122,6 +122,17 @@ export function BlogDetailPage() {
               transition={{ duration: 0.6 }}
               className="max-w-4xl"
             >
+              {/* Back to Blog Button */}
+              <Link
+                to="/blog"
+                className="inline-flex items-center gap-2 text-[14px] font-bold text-[#0066FF] hover:text-[#0052CC] transition-colors mb-6"
+              >
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                  <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Back to Blog
+              </Link>
+
               {/* Category, Date & Read Time */}
               <div className="flex flex-wrap items-center gap-4 text-[12px] font-bold uppercase tracking-wider text-black/50">
                 <span className="rounded-full bg-[#0066FF]/10 text-[#0066FF] px-3.5 py-1.5">
