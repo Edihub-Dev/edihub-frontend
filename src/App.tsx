@@ -23,6 +23,8 @@ import { BlogPage } from "@/pages/BlogPage";
 import { BlogDetailPage } from "@/pages/BlogDetailPage";
 import { AdminLogin } from "@/pages/AdminLogin";
 import { AdminDashboard } from "@/pages/AdminDashboard";
+import { CareersPage } from "@/pages/CareersPage";
+import { CareerDetailPage } from "@/pages/CareerDetailPage";
 import { Route, Routes, useLocation } from "react-router-dom";
 
 import GradualBlur from "@/components/ui/GradualBlur.jsx";
@@ -122,12 +124,11 @@ function App() {
 
             <Route
               path="/career"
-              element={
-                <>
-                  <CtaSection />
-                  <Footer />
-                </>
-              }
+              element={<CareersPage />}
+            />
+            <Route
+              path="/career/:slug"
+              element={<CareerDetailPage />}
             />
             <Route
               path="/admin"

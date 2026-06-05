@@ -86,13 +86,15 @@ const imageOptions = [
 
 export function AdminDashboard() {
   const [admin, setAdmin] = useState<any>(null);
-  const [activeSection, setActiveSection] = useState<'overview' | 'projects' | 'services' | 'testimonials' | 'team' | 'settings' | 'requests' | 'blogs'>('overview');
+  const [activeSection, setActiveSection] = useState<'overview' | 'projects' | 'services' | 'testimonials' | 'team' | 'settings' | 'requests' | 'blogs' | 'careers' | 'applications'>('overview');
 
   // Data lists
   const [projects, setProjects] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [blogs, setBlogs] = useState<any[]>([]);
+  const [careers, setCareers] = useState<any[]>([]);
+  const [applications, setApplications] = useState<any[]>([]);
   const [accessRequests, setAccessRequests] = useState<any[]>([]);
 
   // Dashboard stats
@@ -100,7 +102,9 @@ export function AdminDashboard() {
     projects: 0,
     services: 0,
     testimonials: 0,
-    blogs: 0
+    blogs: 0,
+    careers: 0,
+    applications: 0
   });
 
   // UI state
@@ -108,6 +112,33 @@ export function AdminDashboard() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<any | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Career Form States
+  const [careerSearchQuery, setCareerSearchQuery] = useState('');
+  const [isCareerFormOpen, setIsCareerFormOpen] = useState(false);
+  const [editingCareer, setEditingCareer] = useState<any | null>(null);
+  const [careerSubmitting, setCareerSubmitting] = useState(false);
+  const [careerForm, setCareerForm] = useState({
+    title: '',
+    department: 'Design',
+    employmentType: 'Full-time',
+    location: 'Anywhere',
+    experience: '3+ Years',
+    isNew: false,
+    icon: 'ui',
+    description: '',
+    aboutRole: '',
+    responsibilities: '',
+    requirements: '',
+    niceToHave: '',
+    image: '',
+    benefits: [] as { title: string; description: string; icon: string }[]
+  });
+
+  const [benefitTitle, setBenefitTitle] = useState('');
+  const [benefitDesc, setBenefitDesc] = useState('');
+  const [benefitIcon, setBenefitIcon] = useState('globe');
+
 
   // Profile Modal state
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -189,6 +220,8 @@ export function AdminDashboard() {
   const [blogGalleryUrlInput, setBlogGalleryUrlInput] = useState('');
   const [blogYoutubeUrlInput, setBlogYoutubeUrlInput] = useState('');
   const [blogVideoSource, setBlogVideoSource] = useState<'youtube' | 'upload'>('youtube');
+  const [careerImageSource, setCareerImageSource] = useState<'upload' | 'url'>('url');
+
 
   // Testimonials Form State
   const [isTestimonialFormOpen, setIsTestimonialFormOpen] = useState(false);
@@ -446,6 +479,25 @@ export function AdminDashboard() {
     };
     reader.readAsDataURL(file);
   };
+
+  const handleCareerImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image is too large! Please upload an image under 2MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        setCareerForm(prev => ({ ...prev, image: reader.result as string }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
 
   const handleTestimonialAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -711,28 +763,36 @@ export function AdminDashboard() {
   const fetchAllData = async () => {
     try {
       setLoading(true);
-      const [projectsRes, servicesRes, testimonialsRes, blogsRes] = await Promise.all([
+      const [projectsRes, servicesRes, testimonialsRes, blogsRes, careersRes, applicationsRes] = await Promise.all([
         fetch(`${apiUrl}/projects`),
         fetch(`${apiUrl}/services`),
         fetch(`${apiUrl}/testimonials`),
-        fetch(`${apiUrl}/blogs`)
+        fetch(`${apiUrl}/blogs`),
+        fetch(`${apiUrl}/careers`),
+        fetch(`${apiUrl}/careers/applications`)
       ]);
 
       const projectsData = await projectsRes.json();
       const servicesData = await servicesRes.json();
       const testimonialsData = await testimonialsRes.json();
       const blogsData = await blogsRes.json();
+      const careersData = await careersRes.json();
+      const applicationsData = await applicationsRes.json();
 
       setProjects(projectsData);
       setServices(servicesData);
       setTestimonials(testimonialsData);
       setBlogs(blogsData);
+      setCareers(careersData);
+      setApplications(applicationsData);
 
       setStats({
         projects: projectsData.length,
         services: servicesData.length,
         testimonials: testimonialsData.length,
-        blogs: blogsData.length
+        blogs: blogsData.length,
+        careers: careersData.length,
+        applications: applicationsData.length
       });
 
       fetchAccessRequests();
@@ -1255,6 +1315,145 @@ export function AdminDashboard() {
       showNotification('error', err.message || 'Error deleting testimonial');
     }
   };
+ 
+  const handleAddNewCareerClick = () => {
+    setCareerForm({
+      title: '',
+      department: 'Design',
+      employmentType: 'Full-time',
+      location: 'Anywhere',
+      experience: '3+ Years',
+      isNew: false,
+      icon: 'ui',
+      description: '',
+      aboutRole: '',
+      responsibilities: '',
+      requirements: '',
+      niceToHave: '',
+      image: '',
+      benefits: []
+    });
+    setBenefitTitle('');
+    setBenefitDesc('');
+    setBenefitIcon('globe');
+    setCareerImageSource('url');
+    setEditingCareer(null);
+    setIsCareerFormOpen(true);
+  };
+
+  const handleEditCareerClick = (c: any) => {
+    setCareerForm({
+      title: c.title || '',
+      department: c.department || 'Design',
+      employmentType: c.employmentType || 'Full-time',
+      location: c.location || 'Anywhere',
+      experience: c.experience || '3+ Years',
+      isNew: !!c.isNew,
+      icon: c.icon || 'ui',
+      description: c.description || '',
+      aboutRole: c.aboutRole || '',
+      responsibilities: Array.isArray(c.responsibilities) ? c.responsibilities.join('\n') : '',
+      requirements: Array.isArray(c.requirements) ? c.requirements.join('\n') : '',
+      niceToHave: Array.isArray(c.niceToHave) ? c.niceToHave.join('\n') : '',
+      image: c.image || '',
+      benefits: Array.isArray(c.benefits) ? c.benefits : []
+    });
+    setBenefitTitle('');
+    setBenefitDesc('');
+    setBenefitIcon('globe');
+
+    const img = c.image || '';
+    if (img.startsWith('data:image/')) {
+      setCareerImageSource('upload');
+    } else {
+      setCareerImageSource('url');
+    }
+
+    setEditingCareer(c);
+    setIsCareerFormOpen(true);
+  };
+
+
+  const handleDeleteCareerClick = async (slug: string) => {
+    if (!window.confirm('Are you sure you want to permanently delete this career listing?')) return;
+    try {
+      const res = await fetch(`${apiUrl}/careers/${slug}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to delete position.');
+      }
+      showNotification('success', 'Career listing deleted successfully!');
+      fetchAllData();
+    } catch (err: any) {
+      showNotification('error', err.message || 'Error occurred during deletion.');
+    }
+  };
+
+  const handleDeleteApplicationClick = async (id: string) => {
+    if (!window.confirm('Are you sure you want to permanently delete this job application?')) return;
+    try {
+      const res = await fetch(`${apiUrl}/careers/applications/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to delete application.');
+      }
+      showNotification('success', 'Application deleted successfully!');
+      fetchAllData();
+    } catch (err: any) {
+      showNotification('error', err.message || 'Error occurred during deletion.');
+    }
+  };
+
+  const handleCareerSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg('');
+
+    if (!careerForm.title.trim() || !careerForm.description.trim() || !careerForm.aboutRole.trim()) {
+      showNotification('error', 'Please fill in Title, Description, and About Role.');
+      return;
+    }
+
+    setCareerSubmitting(true);
+    try {
+      const isEditing = !!editingCareer;
+      const url = isEditing ? `${apiUrl}/careers/${editingCareer.slug}` : `${apiUrl}/careers`;
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const parseLines = (text: string) => text.split('\n').map(l => l.trim()).filter(Boolean);
+
+      const payload = {
+        ...careerForm,
+        responsibilities: parseLines(careerForm.responsibilities),
+        requirements: parseLines(careerForm.requirements),
+        niceToHave: parseLines(careerForm.niceToHave)
+      };
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to save career listing.');
+      }
+
+      showNotification('success', isEditing ? 'Career listing updated successfully!' : 'New career position published!');
+      setIsCareerFormOpen(false);
+      fetchAllData();
+    } catch (err: any) {
+      showNotification('error', err.message || 'Error saving career listing.');
+    } finally {
+      setCareerSubmitting(false);
+    }
+  };
+
+  const filteredCareers = careers.filter(c =>
+    c.title.toLowerCase().includes(careerSearchQuery.toLowerCase()) ||
+    c.department.toLowerCase().includes(careerSearchQuery.toLowerCase()) ||
+    c.experience.toLowerCase().includes(careerSearchQuery.toLowerCase())
+  );
 
   const showNotification = (type: 'success' | 'error', msg: string) => {
     if (type === 'success') {
@@ -1337,6 +1536,8 @@ export function AdminDashboard() {
             { id: 'services', name: 'Services', icon: <FiLayers /> },
             { id: 'testimonials', name: 'Testimonials', icon: <FiMessageSquare /> },
             { id: 'blogs', name: 'Blogs', icon: <FiFolder /> },
+            { id: 'careers', name: 'Careers', icon: <FiBriefcase /> },
+            { id: 'applications', name: 'Applications', icon: <FiUsers />, badge: stats.applications },
             { id: 'team', name: 'Team', icon: <FiUsers /> },
             { id: 'requests', name: 'Access Requests', icon: <FiUserCheck />, badge: accessRequests.filter(r => r.status === 'pending').length },
             { id: 'settings', name: 'Settings', icon: <FiSettings /> },
@@ -1424,11 +1625,13 @@ export function AdminDashboard() {
           {/* 1. OVERVIEW VIEW */}
           {activeSection === 'overview' && (
             <div className="space-y-10">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
                 {[
                   { label: 'Total Portfolio Projects', value: stats.projects, trend: 'Dynamic cloud storage', color: 'from-blue-600 to-blue-400' },
                   { label: 'Offered Services', value: stats.services, trend: 'Managed frontend items', color: 'from-indigo-600 to-indigo-400' },
                   { label: 'Testimonials / Feedback', value: stats.testimonials, trend: 'Verified customer reviews', color: 'from-violet-600 to-violet-400' },
+                  { label: 'Open Positions', value: stats.careers, trend: 'Active job openings', color: 'from-emerald-600 to-emerald-400' },
+                  { label: 'Job Applications', value: stats.applications, trend: 'Resumes received', color: 'from-rose-600 to-rose-400' },
                 ].map((stat, i) => (
                   <motion.div
                     key={i}
@@ -1452,12 +1655,14 @@ export function AdminDashboard() {
                   <span className="text-xs text-slate-400 font-medium">Quick routing links</span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 p-6 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 p-6 gap-4">
                   {[
                     { title: 'Project Portfolio', desc: 'Create, update, year, client and services', action: 'projects', count: stats.projects, icon: <FiBox className="w-6 h-6 text-blue-500" /> },
                     { title: 'Core Services', desc: 'Manage strategic agency operations', action: 'services', count: stats.services, icon: <FiLayers className="w-6 h-6 text-indigo-500" /> },
                     { title: 'Testimonials', desc: 'Publish verified customer statements', action: 'testimonials', count: stats.testimonials, icon: <FiMessageSquare className="w-6 h-6 text-violet-500" /> },
                     { title: 'Articles & Blogs', desc: 'Insights and thoughts publication', action: 'blogs', count: stats.blogs, icon: <FiFolder className="w-6 h-6 text-amber-500" /> },
+                    { title: 'Careers', desc: 'Manage open positions & listings', action: 'careers', count: stats.careers, icon: <FiBriefcase className="w-6 h-6 text-emerald-500" /> },
+                    { title: 'Applications', desc: 'Review candidate resumes & CVs', action: 'applications', count: stats.applications, icon: <FiUserCheck className="w-6 h-6 text-rose-500" /> },
                   ].map((card, idx) => (
                     <div
                       key={idx}
@@ -2341,6 +2546,182 @@ export function AdminDashboard() {
                                   )}
                                 </div>
                               )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 8. CARERS MANAGEMENT VIEW */}
+          {activeSection === 'careers' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">Open Positions (Careers)</h2>
+                  <p className="text-sm text-slate-500 mt-0.5">Add, modify and manage job positions. Syncs instantly with the careers page.</p>
+                </div>
+
+                <button
+                  onClick={handleAddNewCareerClick}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-5 py-3.5 rounded-2xl shadow-lg shadow-blue-600/10 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                >
+                  <FiPlus className="w-4 h-4 stroke-[3]" />
+                  Add New Position
+                </button>
+              </div>
+
+              {/* Filtering and search */}
+              <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row gap-4 items-center">
+                <div className="relative flex-1 w-full">
+                  <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                  <input
+                    type="text"
+                    value={careerSearchQuery}
+                    onChange={(e) => setCareerSearchQuery(e.target.value)}
+                    placeholder="Search careers by title, department or experience..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800"
+                  />
+                </div>
+
+                <div className="text-xs font-semibold text-slate-400 sm:pr-2">
+                  Showing {filteredCareers.length} of {careers.length} positions
+                </div>
+              </div>
+
+              {/* Careers Table/List */}
+              {careers.length === 0 ? (
+                <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center flex flex-col items-center justify-center">
+                  <div className="p-4 bg-slate-50 rounded-2xl text-slate-400 mb-4">
+                    <FiBriefcase className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-base font-bold text-slate-800">No positions found</h3>
+                  <p className="text-sm text-slate-400 mt-1 max-w-sm">Database is empty. Click 'Add New Position' to create your first career listing.</p>
+                </div>
+              ) : (
+                <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50/75 border-b border-slate-200 text-xs font-bold text-slate-400 uppercase">
+                          <th className="p-5">Title / Role</th>
+                          <th className="p-5">Department</th>
+                          <th className="p-5">Type</th>
+                          <th className="p-5">Location</th>
+                          <th className="p-5">Experience</th>
+                          <th className="p-5 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 text-sm text-slate-700 font-semibold">
+                        {filteredCareers.map((c) => (
+                          <tr key={c.slug} className="hover:bg-slate-50/50 transition-colors">
+                            <td className="p-5">
+                              <div className="font-bold text-slate-900">{c.title}</div>
+                              <div className="text-xs text-slate-400 font-medium">{c.slug}</div>
+                            </td>
+                            <td className="p-5">{c.department}</td>
+                            <td className="p-5">
+                              <span className="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-xs font-bold border border-slate-200/40">
+                                {c.employmentType}
+                              </span>
+                            </td>
+                            <td className="p-5">{c.location}</td>
+                            <td className="p-5">{c.experience}</td>
+                            <td className="p-5 text-right space-x-1.5 whitespace-nowrap">
+                              <button
+                                onClick={() => handleEditCareerClick(c)}
+                                className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all cursor-pointer"
+                                title="Edit"
+                              >
+                                <FiEdit2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteCareerClick(c.slug)}
+                                className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all cursor-pointer"
+                                title="Delete"
+                              >
+                                <FiTrash2 className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 9. APPLICATIONS VIEW */}
+          {activeSection === 'applications' && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight">Job Applications</h2>
+                <p className="text-sm text-slate-500 mt-0.5">Review and manage candidates who have submitted applications through the careers page.</p>
+              </div>
+
+              {applications.length === 0 ? (
+                <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center flex flex-col items-center justify-center">
+                  <div className="p-4 bg-slate-50 rounded-2xl text-slate-400 mb-4">
+                    <FiUsers className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-base font-bold text-slate-800">No applications received yet</h3>
+                  <p className="text-sm text-slate-400 mt-1 max-w-sm">When candidates submit their resume details on the job postings, their applications will show up here.</p>
+                </div>
+              ) : (
+                <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50/75 border-b border-slate-200 text-xs font-bold text-slate-400 uppercase">
+                          <th className="p-5">Applicant Details</th>
+                          <th className="p-5">Target Role</th>
+                          <th className="p-5">Resume Link</th>
+                          <th className="p-5">Date Submitted</th>
+                          <th className="p-5 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 text-sm text-slate-700 font-semibold">
+                        {applications.map((app) => (
+                          <tr key={app.id} className="hover:bg-slate-50/50 transition-colors">
+                            <td className="p-5">
+                              <div className="font-bold text-slate-900">{app.name}</div>
+                              <div className="text-xs text-slate-500 font-medium">{app.email} • {app.phone}</div>
+                              {app.coverLetter && (
+                                <div className="mt-2 text-xs font-medium text-slate-400 bg-slate-50 border border-slate-100 p-2.5 rounded-lg max-w-md italic whitespace-pre-wrap">
+                                  "{app.coverLetter}"
+                                </div>
+                              )}
+                            </td>
+                            <td className="p-5">
+                              <div className="font-bold text-slate-800">{app.careerTitle}</div>
+                              <div className="text-xs text-slate-400 font-medium">{app.careerSlug}</div>
+                            </td>
+                            <td className="p-5">
+                              <a
+                                href={app.resumeUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 hover:underline text-xs"
+                              >
+                                View Resume
+                                <FiExternalLink className="w-3.5 h-3.5" />
+                              </a>
+                            </td>
+                            <td className="p-5 text-xs text-slate-400 font-bold">{app.dateSubmitted}</td>
+                            <td className="p-5 text-right">
+                              <button
+                                onClick={() => handleDeleteApplicationClick(app.id)}
+                                className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all cursor-pointer"
+                                title="Delete"
+                              >
+                                <FiTrash2 className="w-4 h-4" />
+                              </button>
                             </td>
                           </tr>
                         ))}
@@ -3754,6 +4135,467 @@ export function AdminDashboard() {
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   )}
                   {editingBlog ? 'Save Changes' : 'Publish Article'}
+                </button>
+              </div>
+
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Add/Edit Career Drawer */}
+      <AnimatePresence>
+        {isCareerFormOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-end">
+
+            {/* Dark Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsCareerFormOpen(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-[3px]"
+            />
+
+            {/* Slide-out Sidebar Drawer */}
+            <motion.div
+              initial={{ x: '105%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '105%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="relative w-full max-w-2xl bg-white h-screen shadow-2xl flex flex-col justify-between border-l border-slate-200"
+            >
+
+              {/* Drawer Header */}
+              <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-950 flex items-center gap-2">
+                    <FiBriefcase className="text-blue-500" />
+                    {editingCareer ? 'Edit Career Position' : 'Publish New Career Position'}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5 font-medium">Define role requirements, duties, and metadata for public listings.</p>
+                </div>
+                <button
+                  onClick={() => setIsCareerFormOpen(false)}
+                  className="p-2 hover:bg-slate-200/80 rounded-xl transition-colors text-slate-500"
+                  title="Close form"
+                >
+                  <FiX className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Drawer Body Scroll */}
+              <form id="career-form" onSubmit={handleCareerSubmit} className="flex-1 overflow-y-auto p-8 space-y-6">
+
+                {/* Title */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Job Title *</label>
+                  <input
+                    type="text"
+                    required
+                    value={careerForm.title}
+                    onChange={(e) => setCareerForm({ ...careerForm, title: e.target.value })}
+                    placeholder="e.g. Senior Frontend Engineer"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium"
+                  />
+                </div>
+
+                {/* Sub Metadata Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                  {/* Department */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Department *</label>
+                    <select
+                      value={careerForm.department}
+                      onChange={(e) => setCareerForm({ ...careerForm, department: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium"
+                    >
+                      <option value="Design">Design</option>
+                      <option value="Development">Development</option>
+                      <option value="Marketing">Marketing</option>
+                      <option value="Operations">Operations</option>
+                      <option value="Strategy">Strategy</option>
+                      <option value="Content">Content</option>
+                    </select>
+                  </div>
+
+                  {/* Employment Type */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Employment Type *</label>
+                    <select
+                      value={careerForm.employmentType}
+                      onChange={(e) => setCareerForm({ ...careerForm, employmentType: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium"
+                    >
+                      <option value="Full-time">Full-time</option>
+                      <option value="Part-time">Part-time</option>
+                      <option value="Contract">Contract</option>
+                      <option value="Internship">Internship</option>
+                    </select>
+                  </div>
+
+                  {/* Icon */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Icon representation *</label>
+                    <select
+                      value={careerForm.icon}
+                      onChange={(e) => setCareerForm({ ...careerForm, icon: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium"
+                    >
+                      <option value="ui">UI/UX Layout (ui)</option>
+                      <option value="code">Development / Tech (code)</option>
+                      <option value="brand">Branding Identity (brand)</option>
+                      <option value="marketing">Growth & Campaign (marketing)</option>
+                      <option value="operations">PM & Operations (operations)</option>
+                      <option value="writer">Content Copywriting (writer)</option>
+                    </select>
+                  </div>
+
+                </div>
+
+                {/* Location & Experience & Checkbox */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                  {/* Location */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Location *</label>
+                    <input
+                      type="text"
+                      required
+                      value={careerForm.location}
+                      onChange={(e) => setCareerForm({ ...careerForm, location: e.target.value })}
+                      placeholder="e.g. Anywhere / Remote"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium"
+                    />
+                  </div>
+
+                  {/* Experience */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Experience level *</label>
+                    <input
+                      type="text"
+                      required
+                      value={careerForm.experience}
+                      onChange={(e) => setCareerForm({ ...careerForm, experience: e.target.value })}
+                      placeholder="e.g. 3+ Years"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium"
+                    />
+                  </div>
+
+                  {/* New checkbox toggle */}
+                  <div className="flex items-center pt-8">
+                    <label className="relative flex items-center gap-3 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={careerForm.isNew}
+                        onChange={(e) => setCareerForm({ ...careerForm, isNew: e.target.checked })}
+                        className="w-5 h-5 rounded border-slate-350 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer"
+                      />
+                      <span className="text-xs font-bold text-slate-655 uppercase tracking-wider">Mark as 'New' role</span>
+                    </label>
+                  </div>
+
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Short Description *</label>
+                  <textarea
+                    required
+                    rows={3}
+                    value={careerForm.description}
+                    onChange={(e) => setCareerForm({ ...careerForm, description: e.target.value })}
+                    placeholder="Short summary of the position shown in listings..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium leading-relaxed"
+                  />
+                </div>
+
+                {/* Role Image */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Role Card Image (Optional)</label>
+
+                  {/* Tab Switcher */}
+                  <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl mb-4 text-xs font-semibold text-slate-600 w-fit">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCareerImageSource('upload');
+                        setCareerForm(prev => ({ ...prev, image: '' }));
+                      }}
+                      className={`py-1.5 px-3 rounded-lg text-center transition-all ${careerImageSource === 'upload' ? 'bg-white text-blue-600 shadow-sm' : 'hover:text-slate-800'}`}
+                    >
+                      Upload Picture
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCareerImageSource('url');
+                        setCareerForm(prev => ({ ...prev, image: '' }));
+                      }}
+                      className={`py-1.5 px-3 rounded-lg text-center transition-all ${careerImageSource === 'url' ? 'bg-white text-blue-600 shadow-sm' : 'hover:text-slate-800'}`}
+                    >
+                      Paste Image Link
+                    </button>
+                  </div>
+
+                  {/* Mode A: Upload Local Image file */}
+                  {careerImageSource === 'upload' && (
+                    <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 bg-slate-50 hover:bg-slate-100/50 transition-colors text-center mb-4">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        id="career-file-upload"
+                        className="hidden"
+                        onChange={handleCareerImageUpload}
+                      />
+                      <label htmlFor="career-file-upload" className="cursor-pointer block">
+                        <div className="flex flex-col items-center justify-center gap-2 text-slate-500">
+                          <FiUploadCloud className="w-8 h-8 text-blue-500 mb-1 mx-auto" />
+                          <span className="text-sm font-bold text-slate-700 block">Choose Image File</span>
+                          <span className="text-xs text-slate-400 block">Supports JPG, PNG, WEBP (under 2MB)</span>
+                        </div>
+                      </label>
+                      {careerForm.image && careerForm.image.startsWith('data:image/') && (
+                        <div className="mt-3 text-xs text-emerald-600 font-semibold bg-emerald-50 py-1.5 px-3 rounded-lg inline-flex items-center gap-1.5 border border-emerald-100 mx-auto">
+                          <FiCheck className="w-3.5 h-3.5" /> File loaded successfully!
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Mode B: Paste Image Link */}
+                  {careerImageSource === 'url' && (
+                    <div className="mb-4">
+                      <input
+                        type="url"
+                        placeholder="Paste image link here (e.g. https://images.unsplash.com/...)"
+                        value={careerForm.image.startsWith('data:image/') ? '' : careerForm.image}
+                        onChange={(e) => setCareerForm({ ...careerForm, image: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 font-medium"
+                      />
+                      <span className="text-[10px] text-slate-400 mt-1 block">Paste any visual URL from Unsplash, Pexels, or your custom asset server.</span>
+                    </div>
+                  )}
+
+                  {/* Dynamic Image Preview */}
+                  {careerForm.image && (
+                    <div className="relative aspect-video w-full max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 mb-4">
+                      <img
+                        src={careerForm.image}
+                        alt="Career thumbnail preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setCareerForm(prev => ({ ...prev, image: '' }))}
+                        className="absolute top-3 right-3 p-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-lg transition-colors flex items-center justify-center"
+                        title="Remove image"
+                      >
+                        <FiTrash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* About Role */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">About the Role *</label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={careerForm.aboutRole}
+                    onChange={(e) => setCareerForm({ ...careerForm, aboutRole: e.target.value })}
+                    placeholder="Provide a detailed overview of the role, scope, and team fit..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium leading-relaxed"
+                  />
+                </div>
+
+                {/* Responsibilities (newline-separated) */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex justify-between">
+                    <span>Key Responsibilities</span>
+                    <span className="text-[10px] text-slate-400 normal-case font-semibold">Enter each responsibility on a new line</span>
+                  </label>
+                  <textarea
+                    rows={5}
+                    value={careerForm.responsibilities}
+                    onChange={(e) => setCareerForm({ ...careerForm, responsibilities: e.target.value })}
+                    placeholder="e.g.&#10;Design digital products from concepts to launch&#10;Maintain design system components&#10;Collaborate with front-end developers"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-850 font-mono leading-relaxed text-xs"
+                  />
+                </div>
+
+                {/* Requirements (newline-separated) */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex justify-between">
+                    <span>Job Requirements</span>
+                    <span className="text-[10px] text-slate-400 normal-case font-semibold">Enter each requirement on a new line</span>
+                  </label>
+                  <textarea
+                    rows={5}
+                    value={careerForm.requirements}
+                    onChange={(e) => setCareerForm({ ...careerForm, requirements: e.target.value })}
+                    placeholder="e.g.&#10;3+ years of professional engineering experience&#10;Proficient in React, Tailwind, and Vite&#10;Solid communication skills"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-855 font-mono leading-relaxed text-xs"
+                  />
+                </div>
+
+                {/* Nice To Have (newline-separated) */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex justify-between">
+                    <span>Nice to Have (Bonus points)</span>
+                    <span className="text-[10px] text-slate-400 normal-case font-semibold">Enter each bonus skill on a new line</span>
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={careerForm.niceToHave}
+                    onChange={(e) => setCareerForm({ ...careerForm, niceToHave: e.target.value })}
+                    placeholder="e.g.&#10;Experience with Framer Motion or canvas animation&#10;Familiarity with local json databases&#10;Previous agency environment work"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-860 font-mono leading-relaxed text-xs"
+                  />
+                </div>
+
+                {/* What We Offer / Benefits */}
+                <div className="border-t border-slate-100 pt-6 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest">What We Offer (Custom Benefits / Perks)</label>
+                    <span className="text-[10px] text-slate-400 font-semibold normal-case">Optional: falls back to default 5 perks if empty</span>
+                  </div>
+
+                  {/* Add Benefit Inputs Grid */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* Icon select */}
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Select Icon</label>
+                        <select
+                          value={benefitIcon}
+                          onChange={(e) => setBenefitIcon(e.target.value)}
+                          className="w-full bg-white border border-slate-200 rounded-lg py-1.5 px-3 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 font-semibold"
+                        >
+                          <option value="globe">🌐 Globe (Remote)</option>
+                          <option value="heart">❤️ Heart (Health/Wellness)</option>
+                          <option value="trending">📈 Trending (Growth/Learning)</option>
+                          <option value="calendar">📅 Calendar (Flexible schedule)</option>
+                          <option value="users">👥 Users (Great Team)</option>
+                        </select>
+                      </div>
+
+                      {/* Title */}
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Offer Title</label>
+                        <input
+                          type="text"
+                          value={benefitTitle}
+                          onChange={(e) => setBenefitTitle(e.target.value)}
+                          placeholder="e.g. Work from anywhere"
+                          className="w-full bg-white border border-slate-200 rounded-lg py-1.5 px-3 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Offer Description</label>
+                      <input
+                        type="text"
+                        value={benefitDesc}
+                        onChange={(e) => setBenefitDesc(e.target.value)}
+                        placeholder="e.g. Fully remote team with flexibility that fits your life."
+                        className="w-full bg-white border border-slate-200 rounded-lg py-1.5 px-3 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800"
+                      />
+                    </div>
+
+                    {/* Add Button */}
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!benefitTitle.trim() || !benefitDesc.trim()) {
+                            alert("Please fill in both the Title and Description for this benefit.");
+                            return;
+                          }
+                          setCareerForm(prev => ({
+                            ...prev,
+                            benefits: [
+                              ...prev.benefits,
+                              { title: benefitTitle.trim(), description: benefitDesc.trim(), icon: benefitIcon }
+                            ]
+                          }));
+                          setBenefitTitle('');
+                          setBenefitDesc('');
+                          setBenefitIcon('globe');
+                        }}
+                        className="py-1.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm cursor-pointer"
+                      >
+                        Add Offer
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* List of current benefits */}
+                  {careerForm.benefits && careerForm.benefits.length > 0 ? (
+                    <div className="space-y-2.5">
+                      {careerForm.benefits.map((benefit, idx) => (
+                        <div key={idx} className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-sm text-blue-600 font-bold text-sm">
+                              {benefit.icon === 'globe' && '🌐'}
+                              {benefit.icon === 'heart' && '❤️'}
+                              {benefit.icon === 'trending' && '📈'}
+                              {benefit.icon === 'calendar' && '📅'}
+                              {benefit.icon === 'users' && '👥'}
+                            </div>
+                            <div className="min-w-0">
+                              <h5 className="text-xs font-bold text-slate-800 truncate">{benefit.title}</h5>
+                              <p className="text-[10px] text-slate-400 truncate leading-relaxed">{benefit.description}</p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCareerForm(prev => ({
+                                ...prev,
+                                benefits: prev.benefits.filter((_, i) => i !== idx)
+                              }));
+                            }}
+                            className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors border border-rose-250/20 shadow-sm"
+                            title="Remove benefit"
+                          >
+                            <FiTrash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center p-4 border border-dashed border-slate-200 rounded-xl bg-slate-50/50 text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
+                      Default company benefits active
+                    </div>
+                  )}
+                </div>
+
+              </form>
+
+              {/* Drawer Footer Actions */}
+              <div className="p-6 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsCareerFormOpen(false)}
+                  className="px-5 py-3 hover:bg-slate-200 rounded-xl text-slate-500 text-sm font-bold transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  form="career-form"
+                  disabled={careerSubmitting}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold text-sm rounded-xl flex items-center gap-2 shadow-lg shadow-blue-600/10 transition-all active:scale-[0.98]"
+                >
+                  {careerSubmitting && (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  )}
+                  {editingCareer ? 'Save Changes' : 'Publish Position'}
                 </button>
               </div>
 
