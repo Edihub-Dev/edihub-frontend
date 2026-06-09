@@ -15,8 +15,8 @@ export const getApiUrl = () => {
     return 'http://localhost:5000/api';
   }
 
-  console.warn('VITE_API_URL is not set, defaulting to https://refinance-marion-elegant-helped.trycloudflare.com/api');
-  return 'https://refinance-marion-elegant-helped.trycloudflare.com/api';
+  console.warn('VITE_API_URL is not set, defaulting to https://edihub-backend.onrender.com/api');
+  return 'https://edihub-backend.onrender.com/api';
 };
 
 export function getYouTubeId(url: string): string | null {
