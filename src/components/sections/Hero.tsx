@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import heroImage from "@/assets/hero-image.jpg";
+import heroImage from "@/assets/hero-image.webp";
 import ShinyText from "./ShinyText";
 
 const accentBlue = "#0066FF";
@@ -110,7 +110,7 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Full-width hero image — add public/hero-image.jpg for the co-working / team photo */}
+      {/* Full-width hero image — add public/hero-image.webp for the co-working / team photo */}
       <div ref={heroImageRef} className="relative h-[65vh] min-h-[320px] w-full overflow-hidden bg-zinc-200">
         <motion.div
           initial={{ opacity: 0, y: 18 }}

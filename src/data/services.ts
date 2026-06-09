@@ -1,11 +1,11 @@
-import heroImage from "@/assets/hero-image.jpg";
-import statsImage from "@/assets/stats.jpg";
-import teamImage from "@/assets/team.jpg";
-import pexels1 from "@/assets/projects/pexels-1.jpg";
-import pexels2 from "@/assets/projects/pexels-2.jpg";
-import pexels3 from "@/assets/projects/pexels-3.jpg";
-import pexels4 from "@/assets/projects/pexels-4.jpg";
-import servicesHeroRender from "@/assets/services-hero-render.png";
+import heroImage from "@/assets/hero-image.webp";
+import statsImage from "@/assets/stats.webp";
+import teamImage from "@/assets/team.webp";
+import pexels1 from "@/assets/projects/pexels-1.webp";
+import pexels2 from "@/assets/projects/pexels-2.webp";
+import pexels3 from "@/assets/projects/pexels-3.webp";
+import pexels4 from "@/assets/projects/pexels-4.webp";
+import servicesHeroRender from "@/assets/services-hero-render.webp";
 
 export type ServiceFeature = {
   title: string;

@@ -168,7 +168,7 @@ function VideoGrid({
     <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
       {videos.map((vid, i) => {
         const ytId = vid.type === "youtube" ? getYouTubeId(vid.url) : null;
-        const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null;
+        const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.webp` : null;
         return (
           <motion.button
             key={i}

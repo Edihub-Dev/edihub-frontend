@@ -26,10 +26,10 @@ import {
   FiSearch
 } from "react-icons/fi";
 
-import teamImage from "@/assets/team.jpg";
-import statsImage from "@/assets/stats.jpg";
-import heroImage from "@/assets/hero-image.jpg";
-import pexels1 from "@/assets/projects/pexels-1.jpg";
+import teamImage from "@/assets/team.webp";
+import statsImage from "@/assets/stats.webp";
+import heroImage from "@/assets/hero-image.webp";
+import pexels1 from "@/assets/projects/pexels-1.webp";
 
 // Map key string to React icon
 const getJobIcon = (iconName: string) => {

@@ -1,16 +1,16 @@
 /// <reference types="vite/client" />
 
-declare module "*.png" {
+declare module "*.webp" {
   const src: string;
   export default src;
 }
 
-declare module "*.jpg" {
+declare module "*.webp" {
   const src: string;
   export default src;
 }
 
-declare module "*.jpeg" {
+declare module "*.webp" {
   const src: string;
   export default src;
 }

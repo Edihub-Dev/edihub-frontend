@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { TeamImageStats } from "./TeamImageStats";
-import teamImage from "@/assets/stats.jpg";
+import teamImage from "@/assets/stats.webp";
 
 const list = {
   hidden: {},

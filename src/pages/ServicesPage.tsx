@@ -23,7 +23,7 @@ import {
   SecondaryButton,
 } from "@/components/services/ServiceUi";
 import { Footer } from "@/components/layout/Footer";
-import teamImage from "@/assets/team.jpg";
+import teamImage from "@/assets/team.webp";
 
 export function ServicesPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);

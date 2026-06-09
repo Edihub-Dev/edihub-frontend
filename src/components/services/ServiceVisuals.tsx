@@ -1,4 +1,4 @@
-import servicesHeroRender from "@/assets/services-hero-render.png";
+import servicesHeroRender from "@/assets/services-hero-render.webp";
 
 
 

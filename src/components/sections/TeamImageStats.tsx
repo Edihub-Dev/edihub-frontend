@@ -1,6 +1,6 @@
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import teamImage from "@/assets/team.jpg";
+import teamImage from "@/assets/team.webp";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 

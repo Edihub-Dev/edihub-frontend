@@ -285,7 +285,7 @@ export function BlogDetailPage() {
                       {blog.videos.map((vid, idx) => {
                         const ytId = vid.type === 'youtube' ? getYouTubeId(vid.url) : null;
                         const thumbSrc = ytId
-                          ? `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`
+                          ? `https://img.youtube.com/vi/${ytId}/maxresdefault.webp`
                           : null;
 
                         return (

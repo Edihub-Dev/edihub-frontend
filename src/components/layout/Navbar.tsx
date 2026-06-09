@@ -2,7 +2,7 @@ import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-
 import { BiMenuAltRight } from "react-icons/bi";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import logoSrc from "@/assets/edihubBLCK.png";
+import logoSrc from "@/assets/edihubBLCK.webp";
 
 export function Navbar() {
   const [hidden, setHidden] = useState(false);

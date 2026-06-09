@@ -4,14 +4,14 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { getApiUrl } from "@/utils/api";
 
-import bgCanvasStudio from "@/assets/pexels-canvastudio-3153198.jpg";
-import bgMikhailNilov from "@/assets/pexels-mikhail-nilov-6930549.jpg";
-import heroImage from "@/assets/hero-image.jpg";
+import bgCanvasStudio from "@/assets/pexels-canvastudio-3153198.webp";
+import bgMikhailNilov from "@/assets/pexels-mikhail-nilov-6930549.webp";
+import heroImage from "@/assets/hero-image.webp";
 
 const imageMap: Record<string, string> = {
-  "hero-image.jpg": heroImage,
-  "pexels-mikhail-nilov-6930549.jpg": bgMikhailNilov,
-  "pexels-canvastudio-3153198.jpg": bgCanvasStudio,
+  "hero-image.webp": heroImage,
+  "pexels-mikhail-nilov-6930549.webp": bgMikhailNilov,
+  "pexels-canvastudio-3153198.webp": bgCanvasStudio,
 };
 
 export function Testimonials() {

@@ -25,29 +25,29 @@ import {
 } from 'react-icons/fi';
 import { getApiUrl, getYouTubeId } from '../utils/api';
 
-import pexels1 from '../assets/projects/pexels-1.jpg';
-import pexels2 from '../assets/projects/pexels-2.jpg';
-import pexels3 from '../assets/projects/pexels-3.jpg';
-import pexels4 from '../assets/projects/pexels-4.jpg';
-import pexels5 from '../assets/projects/pexels-5.jpg';
+import pexels1 from '../assets/projects/pexels-1.webp';
+import pexels2 from '../assets/projects/pexels-2.webp';
+import pexels3 from '../assets/projects/pexels-3.webp';
+import pexels4 from '../assets/projects/pexels-4.webp';
+import pexels5 from '../assets/projects/pexels-5.webp';
 
-import arrowsImg from '../assets/projects/arrows.png';
-import chantalleImg from '../assets/projects/chantalle.png';
-import papyrusImg from '../assets/projects/papyrus.png';
-import londonMuseumImg from '../assets/projects/london-museum.png';
-import bullseyeImg from '../assets/projects/bullseye.png';
-import interferenceImg from '../assets/projects/interference.png';
-import servicesHeroRender from '../assets/services-hero-render.png';
+import arrowsImg from '../assets/projects/arrows.webp';
+import chantalleImg from '../assets/projects/chantalle.webp';
+import papyrusImg from '../assets/projects/papyrus.webp';
+import londonMuseumImg from '../assets/projects/london-museum.webp';
+import bullseyeImg from '../assets/projects/bullseye.webp';
+import interferenceImg from '../assets/projects/interference.webp';
+import servicesHeroRender from '../assets/services-hero-render.webp';
 import { resolveServiceDetail } from '../data/services';
 
-import bgCanvasStudio from '../assets/pexels-canvastudio-3153198.jpg';
-import bgMikhailNilov from '../assets/pexels-mikhail-nilov-6930549.jpg';
-import heroImage from '../assets/hero-image.jpg';
+import bgCanvasStudio from '../assets/pexels-canvastudio-3153198.webp';
+import bgMikhailNilov from '../assets/pexels-mikhail-nilov-6930549.webp';
+import heroImage from '../assets/hero-image.webp';
 
 const testimonialImageMap: Record<string, string> = {
-  "hero-image.jpg": heroImage,
-  "pexels-mikhail-nilov-6930549.jpg": bgMikhailNilov,
-  "pexels-canvastudio-3153198.jpg": bgCanvasStudio,
+  "hero-image.webp": heroImage,
+  "pexels-mikhail-nilov-6930549.webp": bgMikhailNilov,
+  "pexels-canvastudio-3153198.webp": bgCanvasStudio,
 };
 
 
@@ -61,11 +61,11 @@ const customImageMap: Record<string, string> = {
 };
 
 const imageMap: Record<string, string> = {
-  "pexels-1.jpg": pexels1,
-  "pexels-2.jpg": pexels2,
-  "pexels-3.jpg": pexels3,
-  "pexels-4.jpg": pexels4,
-  "pexels-5.jpg": pexels5,
+  "pexels-1.webp": pexels1,
+  "pexels-2.webp": pexels2,
+  "pexels-3.webp": pexels3,
+  "pexels-4.webp": pexels4,
+  "pexels-5.webp": pexels5,
 };
 
 const getProjectImage = (imageName: string) => {
@@ -77,11 +77,11 @@ const getProjectImage = (imageName: string) => {
 };
 
 const imageOptions = [
-  { value: 'pexels-1.jpg', label: 'Dark Tech Sphere (Pexels 1)' },
-  { value: 'pexels-2.jpg', label: 'Minimalist Workspace (Pexels 2)' },
-  { value: 'pexels-3.jpg', label: 'Creative Layout (Pexels 3)' },
-  { value: 'pexels-4.jpg', label: 'Modern Architectural Detail (Pexels 4)' },
-  { value: 'pexels-5.jpg', label: 'Premium Branding Texture (Pexels 5)' }
+  { value: 'pexels-1.webp', label: 'Dark Tech Sphere (Pexels 1)' },
+  { value: 'pexels-2.webp', label: 'Minimalist Workspace (Pexels 2)' },
+  { value: 'pexels-3.webp', label: 'Creative Layout (Pexels 3)' },
+  { value: 'pexels-4.webp', label: 'Modern Architectural Detail (Pexels 4)' },
+  { value: 'pexels-5.webp', label: 'Premium Branding Texture (Pexels 5)' }
 ];
 
 export function AdminDashboard() {
@@ -162,7 +162,7 @@ export function AdminDashboard() {
     year: new Date().getFullYear().toString(),
     tags: '',
     description: '',
-    image: 'pexels-1.jpg',
+    image: 'pexels-1.webp',
     gallery: [] as string[],
     videos: [] as string[]
   });
@@ -232,8 +232,8 @@ export function AdminDashboard() {
     role: '',
     text: '',
     rating: 5,
-    avatar: 'hero-image.jpg',
-    bgImage: 'hero-image.jpg'
+    avatar: 'hero-image.webp',
+    bgImage: 'hero-image.webp'
   });
   const [avatarSource, setAvatarSource] = useState<'template' | 'upload' | 'url'>('template');
   const [bgImageSource, setBgImageSource] = useState<'template' | 'upload' | 'url'>('template');
@@ -841,7 +841,7 @@ export function AdminDashboard() {
       year: new Date().getFullYear().toString(),
       tags: '',
       description: '',
-      image: 'pexels-1.jpg',
+      image: 'pexels-1.webp',
       gallery: [],
       videos: []
     });
@@ -860,7 +860,7 @@ export function AdminDashboard() {
       year: project.year,
       tags: Array.isArray(project.tags) ? project.tags.join(', ') : project.tags || '',
       description: project.description,
-      image: project.image || 'pexels-1.jpg',
+      image: project.image || 'pexels-1.webp',
       gallery: Array.isArray(project.gallery) ? project.gallery : [],
       videos: Array.isArray(project.videos) ? project.videos : []
     });
@@ -1208,8 +1208,8 @@ export function AdminDashboard() {
       role: '',
       text: '',
       rating: 5,
-      avatar: 'hero-image.jpg',
-      bgImage: 'hero-image.jpg'
+      avatar: 'hero-image.webp',
+      bgImage: 'hero-image.webp'
     });
     setAvatarSource('template');
     setBgImageSource('template');
@@ -1224,8 +1224,8 @@ export function AdminDashboard() {
       role: t.role || '',
       text: t.text || t.quote || t.content || '',
       rating: t.rating || 5,
-      avatar: t.avatar || 'hero-image.jpg',
-      bgImage: t.bgImage || 'hero-image.jpg'
+      avatar: t.avatar || 'hero-image.webp',
+      bgImage: t.bgImage || 'hero-image.webp'
     });
 
     const av = t.avatar || '';
@@ -1288,7 +1288,7 @@ export function AdminDashboard() {
 
       showNotification('success', `Testimonial ${isEditing ? 'updated' : 'added'} successfully!`);
       setIsTestimonialFormOpen(false);
-      setTestimonialForm({ name: '', company: '', role: '', text: '', rating: 5, avatar: 'hero-image.jpg', bgImage: 'hero-image.jpg' });
+      setTestimonialForm({ name: '', company: '', role: '', text: '', rating: 5, avatar: 'hero-image.webp', bgImage: 'hero-image.webp' });
       setEditingTestimonial(null);
       fetchAllData();
     } catch (err: any) {
@@ -2060,9 +2060,9 @@ export function AdminDashboard() {
                           onChange={(e) => setTestimonialForm({ ...testimonialForm, avatar: e.target.value })}
                           className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-blue-500"
                         >
-                          <option value="hero-image.jpg">Default Hero Image (hero-image.jpg)</option>
-                          <option value="pexels-mikhail-nilov-6930549.jpg">Mikhail Nilov Office (pexels-mikhail-nilov-6930549.jpg)</option>
-                          <option value="pexels-canvastudio-3153198.jpg">Canvas Studio Team (pexels-canvastudio-3153198.jpg)</option>
+                          <option value="hero-image.webp">Default Hero Image (hero-image.webp)</option>
+                          <option value="pexels-mikhail-nilov-6930549.webp">Mikhail Nilov Office (pexels-mikhail-nilov-6930549.webp)</option>
+                          <option value="pexels-canvastudio-3153198.webp">Canvas Studio Team (pexels-canvastudio-3153198.webp)</option>
                         </select>
                       )}
 
@@ -2091,7 +2091,7 @@ export function AdminDashboard() {
                           type="text"
                           value={testimonialForm.avatar}
                           onChange={(e) => setTestimonialForm({ ...testimonialForm, avatar: e.target.value })}
-                          placeholder="https://example.com/avatar.jpg"
+                          placeholder="https://example.com/avatar.webp"
                           className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500"
                         />
                       )}
@@ -2125,9 +2125,9 @@ export function AdminDashboard() {
                           onChange={(e) => setTestimonialForm({ ...testimonialForm, bgImage: e.target.value })}
                           className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-blue-500"
                         >
-                          <option value="hero-image.jpg">Default Hero Image (hero-image.jpg)</option>
-                          <option value="pexels-mikhail-nilov-6930549.jpg">Mikhail Nilov Office (pexels-mikhail-nilov-6930549.jpg)</option>
-                          <option value="pexels-canvastudio-3153198.jpg">Canvas Studio Team (pexels-canvastudio-3153198.jpg)</option>
+                          <option value="hero-image.webp">Default Hero Image (hero-image.webp)</option>
+                          <option value="pexels-mikhail-nilov-6930549.webp">Mikhail Nilov Office (pexels-mikhail-nilov-6930549.webp)</option>
+                          <option value="pexels-canvastudio-3153198.webp">Canvas Studio Team (pexels-canvastudio-3153198.webp)</option>
                         </select>
                       )}
 
@@ -2156,7 +2156,7 @@ export function AdminDashboard() {
                           type="text"
                           value={testimonialForm.bgImage}
                           onChange={(e) => setTestimonialForm({ ...testimonialForm, bgImage: e.target.value })}
-                          placeholder="https://example.com/background.jpg"
+                          placeholder="https://example.com/background.webp"
                           className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500"
                         />
                       )}
@@ -2182,7 +2182,7 @@ export function AdminDashboard() {
                         onClick={() => {
                           setIsTestimonialFormOpen(false);
                           setEditingTestimonial(null);
-                          setTestimonialForm({ name: '', company: '', role: '', text: '', rating: 5, avatar: 'hero-image.jpg', bgImage: 'hero-image.jpg' });
+                          setTestimonialForm({ name: '', company: '', role: '', text: '', rating: 5, avatar: 'hero-image.webp', bgImage: 'hero-image.webp' });
                         }}
                         className="flex-1 py-2.5 px-4 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-bold rounded-xl transition-all"
                       >
@@ -2863,7 +2863,7 @@ export function AdminDashboard() {
                       type="button"
                       onClick={() => {
                         setImageSource('template');
-                        setProjectForm(prev => ({ ...prev, image: 'pexels-1.jpg' }));
+                        setProjectForm(prev => ({ ...prev, image: 'pexels-1.webp' }));
                       }}
                       className={`py-2 px-3 rounded-lg text-center transition-all ${imageSource === 'template' ? 'bg-white text-blue-600 shadow-sm' : 'hover:text-slate-800'}`}
                     >
@@ -2894,7 +2894,7 @@ export function AdminDashboard() {
                   {/* Mode A: Preset Template Select Dropdown */}
                   {imageSource === 'template' && (
                     <select
-                      value={projectForm.image.startsWith('data:image/') || projectForm.image.startsWith('http') ? 'pexels-1.jpg' : projectForm.image}
+                      value={projectForm.image.startsWith('data:image/') || projectForm.image.startsWith('http') ? 'pexels-1.webp' : projectForm.image}
                       onChange={(e) => setProjectForm({ ...projectForm, image: e.target.value })}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-bold mb-4"
                     >
@@ -3122,7 +3122,7 @@ export function AdminDashboard() {
                           <div key={idx} className="relative flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3 group">
                             {ytId ? (
                               <img
-                                src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`}
+                                src={`https://img.youtube.com/vi/${ytId}/hqdefault.webp`}
                                 alt={`Video ${idx + 1}`}
                                 className="w-24 h-14 object-cover rounded-lg border border-slate-200 shrink-0"
                               />
@@ -3488,7 +3488,7 @@ export function AdminDashboard() {
                         return (
                           <div key={idx} className="flex items-center gap-2 p-2 bg-slate-50 border border-slate-200 rounded-lg">
                             {ytId ? (
-                              <img src={`https://img.youtube.com/vi/${ytId}/default.jpg`} alt="yt" className="w-16 h-10 object-cover rounded shrink-0" />
+                              <img src={`https://img.youtube.com/vi/${ytId}/default.webp`} alt="yt" className="w-16 h-10 object-cover rounded shrink-0" />
                             ) : vid.type === 'upload' ? (
                               <div className="w-16 h-10 bg-black rounded shrink-0 relative overflow-hidden">
                                 <video src={vid.url} className="w-full h-full object-cover opacity-80" muted />
@@ -3671,7 +3671,7 @@ export function AdminDashboard() {
                           return (
                             <div key={idx} className="flex items-center gap-2 p-2 bg-slate-50 border border-slate-200 rounded-lg">
                               {ytId ? (
-                                <img src={`https://img.youtube.com/vi/${ytId}/default.jpg`} alt="yt" className="w-16 h-10 object-cover rounded shrink-0" />
+                                <img src={`https://img.youtube.com/vi/${ytId}/default.webp`} alt="yt" className="w-16 h-10 object-cover rounded shrink-0" />
                               ) : vid.type === 'upload' ? (
                                 <div className="w-16 h-10 bg-black rounded shrink-0 relative overflow-hidden">
                                   <video src={vid.url} className="w-full h-full object-cover opacity-80" muted />
@@ -4075,7 +4075,7 @@ export function AdminDashboard() {
                           <div key={idx} className="relative flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3 group">
                             {vid.type === 'youtube' && ytId ? (
                               <img
-                                src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`}
+                                src={`https://img.youtube.com/vi/${ytId}/hqdefault.webp`}
                                 alt={`YouTube Video ${idx + 1}`}
                                 className="w-24 h-14 object-cover rounded-lg border border-slate-200 shrink-0"
                               />

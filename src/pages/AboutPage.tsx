@@ -3,8 +3,8 @@ import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { Section } from "@/components/ui/Section";
 import { Container } from "@/components/ui/Container";
-import teamImage from "@/assets/team.jpg";
-import statsImage from "@/assets/stats.jpg";
+import teamImage from "@/assets/team.webp";
+import statsImage from "@/assets/stats.webp";
 
 import { CtaSection } from "@/components/sections/CtaSection";
 import { Footer } from "@/components/layout/Footer";

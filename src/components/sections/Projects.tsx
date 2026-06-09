@@ -1,11 +1,11 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import pexels1 from "@/assets/projects/pexels-1.jpg";
-import pexels2 from "@/assets/projects/pexels-2.jpg";
-import pexels3 from "@/assets/projects/pexels-3.jpg";
-import pexels4 from "@/assets/projects/pexels-4.jpg";
-import pexels5 from "@/assets/projects/pexels-5.jpg";
+import pexels1 from "@/assets/projects/pexels-1.webp";
+import pexels2 from "@/assets/projects/pexels-2.webp";
+import pexels3 from "@/assets/projects/pexels-3.webp";
+import pexels4 from "@/assets/projects/pexels-4.webp";
+import pexels5 from "@/assets/projects/pexels-5.webp";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { getApiUrl } from "@/utils/api";
@@ -36,11 +36,11 @@ const headerItem = {
 };
 
 const imageMap: Record<string, string> = {
-  "pexels-1.jpg": pexels1,
-  "pexels-2.jpg": pexels2,
-  "pexels-3.jpg": pexels3,
-  "pexels-4.jpg": pexels4,
-  "pexels-5.jpg": pexels5,
+  "pexels-1.webp": pexels1,
+  "pexels-2.webp": pexels2,
+  "pexels-3.webp": pexels3,
+  "pexels-4.webp": pexels4,
+  "pexels-5.webp": pexels5,
 };
 
 function ProjectCard({

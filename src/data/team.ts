@@ -1,4 +1,4 @@
-import teamImage from "@/assets/team.jpg";
+import teamImage from "@/assets/team.webp";
 
 export const team = [
   {

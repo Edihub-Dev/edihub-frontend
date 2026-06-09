@@ -4,13 +4,13 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 
 const clientLogos = [
-  { name: "", file: "1-5.png" },
-  { name: "", file: "2.png" },
-  { name: "", file: "3-4.png" },
-  { name: "", file: "4.png" },
-  { name: "", file: "5-1.png" },
-  { name: "", file: "6.png" },
-  { name: "", file: "7.png" },
+  { name: "", file: "1-5.webp" },
+  { name: "", file: "2.webp" },
+  { name: "", file: "3-4.webp" },
+  { name: "", file: "4.webp" },
+  { name: "", file: "5-1.webp" },
+  { name: "", file: "6.webp" },
+  { name: "", file: "7.webp" },
   { name: "", file: "Asset 3.svg" },
   { name: "", file: "Finux.svg" },
 ];
