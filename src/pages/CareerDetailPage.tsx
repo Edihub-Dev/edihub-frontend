@@ -46,7 +46,6 @@ export function CareerDetailPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [career, setCareer] = useState<Career | null>(null);
-  const [careersList, setCareersList] = useState<Career[]>([]);
   const [loading, setLoading] = useState(true);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
@@ -71,7 +70,6 @@ export function CareerDetailPage() {
         return res.json();
       })
       .then((data: Career[]) => {
-        setCareersList(data);
         const found = data.find((c) => c.slug === slug);
         if (found) {
           setCareer(found);
@@ -88,7 +86,6 @@ export function CareerDetailPage() {
       })
       .catch((err) => {
         console.warn("Fallback to static defaultCareers due to:", err.message);
-        setCareersList(defaultCareers);
         const localFound = defaultCareers.find((c) => c.slug === slug);
         if (localFound) {
           setCareer(localFound);
