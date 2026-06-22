@@ -5,6 +5,7 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { CtaSection } from "@/components/sections/CtaSection";
 import { getApiUrl, getYouTubeId } from "@/utils/api";
 import pexels1 from "@/assets/projects/pexels-1.webp";
 import pexels2 from "@/assets/projects/pexels-2.webp";
@@ -119,52 +120,77 @@ export function ProjectDetailPage() {
   return (
     <div className="bg-white">
       <Navbar />
-      
-      <main className="pt-32">
-        {/* Hero Section */}
-        <Section className="pb-12">
-          <Container className="px-6 sm:px-8 lg:px-14 xl:px-20">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <Link
-                to="/projects"
-                className="inline-flex items-center gap-2 text-[14px] font-bold text-[#0066FF] hover:text-[#0052CC] transition-colors mb-6"
-              >
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-                  <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Back to Projects
-              </Link>
-              <p className="text-[14px] font-bold tracking-[0.2em] text-[#0066FF] uppercase">
-                / {project.category} /
-              </p>
-              <h1 className="mt-8 text-[48px] font-semibold leading-[0.95] tracking-[-0.06em] text-[#111827] sm:text-[64px] md:text-[80px] lg:text-[110px]">
-                {project.title}
-              </h1>
-            </motion.div>
-          </Container>
-        </Section>
 
-        {/* Hero Image */}
-        <Section className="py-0">
-          <Container className="px-0 sm:px-8 lg:px-14 xl:px-20">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="relative aspect-[16/9] w-full overflow-hidden sm:rounded-[2rem]"
-            >
-              <img
-                src={customImageMap[project.slug] || imageMap[project.image] || project.image}
-                alt={project.title}
-                className="h-full w-full object-cover"
-              />
-            </motion.div>
-          </Container>
-        </Section>
+      <main>
+        {/* ── Finux-style Hero: image as full background with overlaid content ── */}
+        <div className="relative min-h-[85vh] flex flex-col justify-end overflow-hidden">
+          {/* Background image */}
+          <motion.div
+            initial={{ opacity: 0, scale: 1.04 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="absolute inset-0"
+          >
+            <img
+              src={customImageMap[project.slug] || imageMap[project.image] || project.image}
+              alt={project.title}
+              className="w-full h-full object-cover"
+            />
+            {/* Dark gradient overlay — dark at top for navbar, fades to white at bottom */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.82) 75%, rgba(255,255,255,1) 100%)",
+              }}
+            />
+            {/* Bottom blur vignette */}
+            <div
+              className="absolute bottom-0 left-0 right-0 pointer-events-none"
+              style={{
+                height: "30%",
+                backdropFilter: "blur(14px)",
+                WebkitBackdropFilter: "blur(14px)",
+                maskImage: "linear-gradient(to bottom, transparent 0%, black 70%)",
+                WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 70%)",
+              }}
+            />
+          </motion.div>
+
+          {/* Overlaid content */}
+          <div className="relative z-10 pt-36 pb-24">
+            <Container className="px-6 sm:px-8 lg:px-14 xl:px-20">
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.15 }}
+              >
+                {/* Back link */}
+                <Link
+                  to="/projects"
+                  className="inline-flex items-center gap-2 text-[13px] font-bold text-white/70 hover:text-white transition-colors mb-6 uppercase tracking-widest"
+                >
+                  <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Back to Projects
+                </Link>
+
+                {/* Category badge */}
+                <div className="mb-5">
+                  <span className="text-[11px] font-black tracking-widest text-blue-300 uppercase bg-blue-500/20 border border-blue-400/30 px-3 py-1 rounded-full backdrop-blur-sm">
+                    {project.category}
+                  </span>
+                </div>
+
+                {/* Title */}
+                <h1 className="text-[48px] font-semibold leading-[0.95] tracking-[-0.06em] text-white sm:text-[64px] md:text-[80px] lg:text-[110px]">
+                  {project.title}
+                </h1>
+              </motion.div>
+            </Container>
+          </div>
+        </div>
 
         {/* Content Section */}
         <Section className="py-24 lg:py-32">
@@ -392,6 +418,7 @@ export function ProjectDetailPage() {
         </Section>
       </main>
 
+      <CtaSection />
       <Footer />
 
       {/* ── Lightbox Modal ── */}

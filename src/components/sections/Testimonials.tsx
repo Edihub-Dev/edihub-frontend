@@ -108,8 +108,8 @@ export function Testimonials() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mx-auto mt-12 w-full max-w-[1300px]"
         >
-          <div className="relative overflow-hidden rounded-2xl bg-[#F5F5F3] px-4 py-10 md:bg-[#F2F2F2] md:px-0 md:py-0">
-            <div ref={bgRef} className="relative hidden h-[420px] w-full md:block md:h-[780px]">
+          <div ref={bgRef} className="relative overflow-hidden rounded-2xl bg-[#F5F5F3] px-4 py-10 md:bg-[#F2F2F2] md:px-0 md:py-0">
+            <div className="relative hidden h-[420px] w-full md:block md:h-[780px]">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.img
                   key={activeIndex}

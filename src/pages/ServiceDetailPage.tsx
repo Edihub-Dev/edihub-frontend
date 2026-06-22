@@ -6,13 +6,13 @@ import { resolveServiceDetail, type ApiService } from "@/data/services";
 import { getApiUrl } from "@/utils/api";
 import { ServicePageHero } from "@/components/services/ServicePageHero";
 import {
-  ServiceCtaBanner,
   FeatureIcon,
   ArrowIcon,
   TechLogo,
   ServiceLabel,
 } from "@/components/services/ServiceUi";
 import { Footer } from "@/components/layout/Footer";
+import { CtaSection } from "@/components/sections/CtaSection";
 
 // ─── helpers ──────────────────────────────────────────────
 function getYouTubeId(url: string): string | null {
@@ -400,8 +400,8 @@ export function ServiceDetailPage() {
         </section>
 
         {/* Process */}
-        <section className="border-t border-[#F3F4F6] bg-[#FAFAFA] py-20 md:py-28">
-          <Container className="px-5 sm:px-6 lg:px-10 xl:px-16">
+        <section className="border-t border-[#F3F4F6] bg-[#FAFAFA] min-h-screen flex items-center py-0 md:py-0">
+          <Container className="px-5 sm:px-6 lg:px-10 xl:px-16 w-full">
             <div className="grid gap-14 lg:grid-cols-12 lg:gap-16">
               <div className="lg:col-span-4">
                 <ServiceLabel>Our process</ServiceLabel>
@@ -508,7 +508,7 @@ export function ServiceDetailPage() {
           </Container>
         </section>
 
-        <ServiceCtaBanner heading={service.ctaHeading} />
+        <CtaSection />
         <Footer />
       </main>
     </div>

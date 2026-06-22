@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Link } from "react-router-dom";
+import { ServiceLabel } from "@/components/services/ServiceUi";
 
 const faqs = [
   {
@@ -33,23 +34,40 @@ const faqs = [
   },
 ];
 
-export function Faq() {
+export type FaqItem = {
+  question: string;
+  answer: string;
+};
+
+interface FaqProps {
+  items?: FaqItem[];
+  title?: string;
+  label?: string;
+}
+
+export function Faq({ items, title = "Common Qs", label }: FaqProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+  const displayFaqs = items || faqs;
 
   return (
     <Section id="faq" className="bg-white">
       <Container>
         <div ref={ref} className="grid gap-12 lg:grid-cols-12 lg:gap-16">
           <div className="lg:col-span-5">
+            {label && (
+              <div className="mb-4">
+                <ServiceLabel>{label}</ServiceLabel>
+              </div>
+            )}
             <motion.h2
               initial={{ opacity: 0, y: 12 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.4 }}
               className="text-6xl font-bold tracking-tight text-[#1A1A1A] sm:text-7xl"
             >
-              Common Qs
+              {title}
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 12 }}
@@ -75,7 +93,7 @@ export function Faq() {
           </div>
           <div className="lg:col-span-7">
             <div className="space-y-0 border-t border-[#EFEFEF]">
-              {faqs.map((faq, i) => (
+              {displayFaqs.map((faq, i) => (
                 <motion.div
                   key={faq.question}
                   initial={{ opacity: 0, y: 12 }}

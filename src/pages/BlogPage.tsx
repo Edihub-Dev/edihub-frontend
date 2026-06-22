@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Section } from "@/components/ui/Section";
 import { Container } from "@/components/ui/Container";
 import { Footer } from "@/components/layout/Footer";
+import { CtaSection } from "@/components/sections/CtaSection";
 import { getApiUrl } from "@/utils/api";
 
 type Blog = {
@@ -208,6 +209,7 @@ export function BlogPage() {
         )}
       </main>
 
+      <CtaSection />
       <Footer />
     </div>
   );

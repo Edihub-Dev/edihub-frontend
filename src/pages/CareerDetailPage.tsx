@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { CtaSection } from "@/components/sections/CtaSection";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { getApiUrl } from "@/utils/api";
@@ -164,7 +165,7 @@ export function CareerDetailPage() {
                   <FiArrowLeft className="w-4 h-4" />
                   Back to All Positions
                 </Link>
-                
+
                 <div className="flex flex-wrap gap-2 text-xs font-black tracking-widest text-blue-600 uppercase">
                   <span>{career.department}</span>
                   <span>•</span>
@@ -187,14 +188,13 @@ export function CareerDetailPage() {
                     Apply for this Position
                     <FiArrowUpRight className="w-4 h-4" />
                   </button>
-                  
+
                   <button
                     onClick={() => setIsBookmarked(!isBookmarked)}
-                    className={`inline-flex items-center justify-center w-14 h-14 border rounded-2xl transition-all cursor-pointer ${
-                      isBookmarked 
+                    className={`inline-flex items-center justify-center w-14 h-14 border rounded-2xl transition-all cursor-pointer ${isBookmarked
                         ? "bg-blue-50 border-blue-200 text-blue-600"
                         : "bg-white border-zinc-200 hover:bg-zinc-50 text-zinc-400 hover:text-zinc-600"
-                    }`}
+                      }`}
                     title={isBookmarked ? "Saved" : "Save Job"}
                   >
                     <FiBookmark className={`w-5 h-5 ${isBookmarked ? "fill-blue-600" : ""}`} />
@@ -205,9 +205,9 @@ export function CareerDetailPage() {
               {/* Right Mockup Graphics */}
               <div className="lg:col-span-5 relative h-[280px] sm:h-[350px] w-full flex items-center justify-center">
                 <div className="absolute w-[280px] h-[280px] rounded-full bg-blue-200/30 blur-[80px] pointer-events-none" />
-                
+
                 {/* 3D Glassmorphic Cards Stack */}
-                <div 
+                <div
                   className="relative w-full max-w-[320px] h-full"
                   style={{ perspective: 1000 }}
                 >
@@ -274,7 +274,7 @@ export function CareerDetailPage() {
                   {career.department}
                 </div>
               </div>
-              
+
               <div className="space-y-1">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Employment Type</span>
                 <div className="flex items-center gap-2 text-[14px] font-bold text-zinc-800">
@@ -314,10 +314,10 @@ export function CareerDetailPage() {
         <Section className="py-24">
           <Container className="px-6 sm:px-8 lg:px-14 xl:px-20">
             <div className="grid gap-16 lg:grid-cols-12 lg:gap-20">
-              
+
               {/* Left Column: Job Description Lists */}
               <div className="lg:col-span-8 space-y-14">
-                
+
                 {/* About the role */}
                 <div className="space-y-6">
                   <h2 className="text-[11px] font-black tracking-widest text-blue-600 uppercase">
@@ -409,7 +409,7 @@ export function CareerDetailPage() {
                 {/* Job Details Card */}
                 <div className="p-8 border border-zinc-200 rounded-[2.5rem] bg-white shadow-sm space-y-6">
                   <h4 className="text-lg font-bold text-zinc-950 tracking-tight">Job Details</h4>
-                  
+
                   <div className="divide-y divide-zinc-100 text-sm">
                     <div className="py-3.5 flex justify-between gap-4">
                       <span className="text-zinc-400 font-semibold">Department</span>
@@ -441,7 +441,7 @@ export function CareerDetailPage() {
                 {/* What We Offer Card */}
                 <div className="p-8 border border-zinc-200 rounded-[2.5rem] bg-zinc-50/50 space-y-6">
                   <h4 className="text-lg font-bold text-zinc-950 tracking-tight">What we offer</h4>
-                  
+
                   <div className="space-y-4">
                     {(career.benefits && career.benefits.length > 0 ? career.benefits : whyJoinEdihub).map((item, idx) => (
                       <div key={idx} className="flex gap-4">
@@ -461,47 +461,7 @@ export function CareerDetailPage() {
           </Container>
         </Section>
 
-        {/* CTA Card Section */}
-        <Section className="bg-white py-24 border-t border-zinc-100">
-          <Container className="px-6 sm:px-8 lg:px-14 xl:px-20">
-            <div className="relative overflow-hidden rounded-[3rem] border border-blue-100 bg-gradient-to-br from-blue-50/80 via-white to-blue-50/30 p-12 sm:p-16 md:p-24 text-center">
-              <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-blue-100/50 rounded-full blur-[100px] -z-10 pointer-events-none" />
-              <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-50/80 rounded-full blur-[100px] -z-10 pointer-events-none" />
-
-              <div className="relative max-w-2xl mx-auto space-y-8">
-                <span className="text-[10px] font-black tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100/80 uppercase">
-                  • Ready to Join?
-                </span>
-                
-                <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-zinc-950 leading-none">
-                  Let's build something amazing together.
-                </h2>
-                
-                <p className="text-zinc-500 max-w-md mx-auto text-sm sm:text-base leading-relaxed">
-                  If you're eager to build digital products that challenge the status quo, apply now or forward your resume details.
-                </p>
-
-                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-                  <button
-                    onClick={() => setIsApplyOpen(true)}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-zinc-950 hover:bg-zinc-850 text-white rounded-2xl text-xs font-black transition-all cursor-pointer active:scale-98"
-                  >
-                    Apply For This Position
-                    <FiArrowUpRight className="w-4 h-4" />
-                  </button>
-                  
-                  <Link
-                    to="/contact"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-800 rounded-2xl text-xs font-black transition-all cursor-pointer active:scale-98"
-                  >
-                    Send Us Your Resume
-                    <FiArrowUpRight className="w-4 h-4" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </Container>
-        </Section>
+        <CtaSection />
       </main>
 
       <Footer />
@@ -548,7 +508,7 @@ export function CareerDetailPage() {
                   <div className="w-20 h-20 bg-emerald-50 border border-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mx-auto animate-bounce">
                     <FiCheck className="w-10 h-10 stroke-[2.5]" />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <h3 className="text-2xl font-bold text-zinc-950">Application Submitted!</h3>
                     <p className="text-zinc-500 text-sm leading-relaxed max-w-xs mx-auto">
@@ -609,7 +569,7 @@ export function CareerDetailPage() {
                           className="w-full bg-zinc-50 border border-zinc-200 rounded-xl py-3 px-4 text-xs font-bold text-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-600/10 focus:border-blue-600 focus:bg-white transition-all"
                         />
                       </div>
-                      
+
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-zinc-500 uppercase">Phone Number *</label>
                         <input

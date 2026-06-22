@@ -44,7 +44,7 @@ export function AboutPage() {
   return (
     <>
       {/* Hero - Building digital excellence since 2014 */}
-      <Section className="bg-white pt-32 md:pt-48 lg:pt-56">
+      <Section className="bg-white pt-44 pb-16 md:pt-56 md:pb-20 lg:pt-64 lg:pb-24 xl:pt-72 xl:pb-28">
         <Container className="px-6 sm:px-8 lg:px-14 xl:px-20">
           <motion.div
             ref={heroRef}

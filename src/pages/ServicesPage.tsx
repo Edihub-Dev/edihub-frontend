@@ -1,5 +1,6 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import { Faq } from "@/components/sections/Faq";
 import { Link } from "react-router-dom";
 import { Container } from "@/components/ui/Container";
 import {
@@ -15,7 +16,6 @@ import { getApiUrl } from "@/utils/api";
 import { ServicePageHero } from "@/components/services/ServicePageHero";
 import {
   ServiceLabel,
-  ServiceCtaBanner,
   ServiceCardIcon,
   ArrowIcon,
   WhyEdihubIcon,
@@ -23,11 +23,29 @@ import {
   SecondaryButton,
 } from "@/components/services/ServiceUi";
 import { Footer } from "@/components/layout/Footer";
+import { CtaSection } from "@/components/sections/CtaSection";
 import teamImage from "@/assets/team.webp";
+import arrowsImg from "@/assets/projects/arrows.webp";
+import chantalleImg from "@/assets/projects/chantalle.webp";
+import papyrusImg from "@/assets/projects/papyrus.webp";
+import bullseyeImg from "@/assets/projects/bullseye.webp";
+
+const customImageMap: Record<string, string> = {
+  "arrows": arrowsImg,
+  "chantalle": chantalleImg,
+  "papyrus": papyrusImg,
+  "bullseye": bullseyeImg,
+};
 
 export function ServicesPage() {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [testimonialIndex, setTestimonialIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTestimonialIndex((prev) => (prev + 1) % servicesTestimonials.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [testimonialIndex]);
   const [serviceCards, setServiceCards] = useState<
     Array<{ slug: string; title: string; cardDescription: string; icon: string }>
   >([]);
@@ -107,8 +125,8 @@ export function ServicesPage() {
       </section>
 
       {/* Process */}
-      <section className="border-t border-[#F3F4F6] py-20 md:py-28">
-        <Container className="px-5 sm:px-6 lg:px-10 xl:px-16">
+      <section className="border-t border-[#F3F4F6] min-h-screen flex items-center py-0 md:py-0">
+        <Container className="px-5 sm:px-6 lg:px-10 xl:px-16 w-full">
           <ServiceLabel>Process</ServiceLabel>
           <h2 className="mt-4 max-w-[22ch] text-[36px] font-semibold leading-[1.08] tracking-[-0.06em] text-[#111827] sm:text-[44px] md:text-[52px]">
             A simple process built for complex projects.
@@ -130,39 +148,51 @@ export function ServicesPage() {
             </SecondaryButton>
           </div>
 
-          <div className="mt-12 grid gap-6 sm:grid-cols-2">
-            {selectedWork.map((project) => (
-              <Link
-                key={project.slug}
-                to={`/projects/${project.slug}`}
-                className="group overflow-hidden rounded-2xl border border-[#EBEEF2] bg-white transition-shadow hover:shadow-lg"
-              >
-                <div className="aspect-[16/10] overflow-hidden bg-zinc-100">
-                  <img
-                    src={project.image}
-                    alt=""
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                  />
+          <div className="mt-12 grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:gap-x-12 lg:gap-y-24">
+            {selectedWork.map((project) => {
+              const projectImage = customImageMap[project.slug] || project.image;
+              const displayCategory = project.category.charAt(0).toUpperCase() + project.category.slice(1).toLowerCase();
+              return (
+                <div
+                  key={project.slug}
+                  className="group"
+                >
+                  <Link to={`/projects/${project.slug}`} className="block">
+                    {/* Image Container with Zoom Effect */}
+                    <div className="aspect-[4/3] w-full overflow-hidden rounded-[24px] md:rounded-[32px] bg-zinc-50 relative shadow-sm transition-all duration-500 hover:shadow-lg">
+                      <img
+                        src={projectImage}
+                        alt={project.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-700 ease-[0.33,1,0.68,1] group-hover:scale-105"
+                      />
+                      {/* Soft overlay on hover */}
+                      <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/[0.02]" />
+                    </div>
+
+                    {/* Text & Tags Row */}
+                    <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-1">
+                      <h3 className="text-[20px] font-semibold tracking-tight text-black sm:text-[24px] group-hover:text-[#0066FF] transition-colors duration-300">
+                        {project.title}
+                      </h3>
+                      <div className="flex flex-wrap gap-2 sm:justify-end">
+                        <span
+                          className="rounded-full border border-black/15 bg-white px-3 py-1.5 text-[12px] font-medium leading-none text-black/60 transition-all duration-300 group-hover:border-black/30 group-hover:text-black"
+                        >
+                          {displayCategory}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
                 </div>
-                <div className="flex items-start justify-between gap-4 p-6">
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#0066FF]">
-                      {project.category}
-                    </p>
-                    <h3 className="mt-2 text-[18px] font-bold text-[#111827]">{project.title}</h3>
-                  </div>
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#E5E7EB] transition-colors group-hover:border-[#111827]">
-                    <ArrowIcon className="h-3.5 w-3.5" />
-                  </span>
-                </div>
-              </Link>
-            ))}
+              );
+            })}
           </div>
         </Container>
       </section>
 
       {/* Why EDIHUB */}
-      <section className="py-20 md:py-28">
+      <section className="min-h-screen flex items-center py-0 md:py-0">
         <Container className="px-5 sm:px-6 lg:px-10 xl:px-16">
           <div className="grid gap-16 lg:grid-cols-12">
             <div className="lg:col-span-5">
@@ -187,9 +217,9 @@ export function ServicesPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="border-t border-[#F3F4F6] bg-[#FAFAFA] py-20 md:py-28">
-        <Container className="px-5 sm:px-6 lg:px-10 xl:px-16">
-          <div className="grid gap-12 lg:grid-cols-12">
+      <section className="border-t border-[#F3F4F6] bg-[#FAFAFA] min-h-screen flex items-center py-0 md:py-0">
+        <Container className="px-5 sm:px-6 lg:px-10 xl:px-16 w-full">
+          <div className="grid gap-12 lg:grid-cols-12 items-center w-full">
             <div className="lg:col-span-4">
               <ServiceLabel>Testimonials</ServiceLabel>
               <span className="mt-8 block text-[120px] font-serif leading-none text-[#E5E7EB]">&ldquo;</span>
@@ -212,61 +242,37 @@ export function ServicesPage() {
                 </button>
               </div>
             </div>
-            <div className="grid gap-5 sm:grid-cols-3 lg:col-span-8">
-              {servicesTestimonials.map((t, i) => (
-                <div
-                  key={t.name}
-                  className={`rounded-2xl border bg-white p-6 transition-opacity ${
-                    i === testimonialIndex ? "border-[#C7D9F5] shadow-sm" : "border-[#EBEEF2] opacity-80"
-                  }`}
+            <div className="relative flex items-center justify-center lg:col-span-8 w-full min-h-[300px]">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={testimonialIndex}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.4, ease: "easeInOut" }}
+                  className="w-full rounded-[24px] md:rounded-[32px] border border-[#EBEEF2] bg-white p-8 md:p-12 shadow-sm"
                 >
-                  <p className="text-[14px] leading-[1.65] text-[#374151]">&ldquo;{t.quote}&rdquo;</p>
-                  <div className="mt-6 flex items-center gap-3">
-                    <img src={teamImage} alt="" className="h-10 w-10 rounded-full object-cover" />
+                  <p className="text-[20px] md:text-[24px] font-medium leading-[1.6] tracking-tight text-[#111827]">
+                    &ldquo;{servicesTestimonials[testimonialIndex].quote}&rdquo;
+                  </p>
+                  <div className="mt-8 flex items-center gap-4">
+                    <img src={teamImage} alt="" className="h-12 w-12 rounded-full object-cover" />
                     <div>
-                      <p className="text-[13px] font-bold text-[#111827]">{t.name}</p>
-                      <p className="text-[12px] text-[#9CA3AF]">{t.role}</p>
+                      <p className="text-[15px] font-bold text-[#111827]">{servicesTestimonials[testimonialIndex].name}</p>
+                      <p className="text-[13px] text-[#6B7280]">{servicesTestimonials[testimonialIndex].role}</p>
                     </div>
                   </div>
-                </div>
-              ))}
+                </motion.div>
+              </AnimatePresence>
             </div>
           </div>
         </Container>
       </section>
 
       {/* FAQ */}
-      <section className="py-20 md:py-28">
-        <Container className="px-5 sm:px-6 lg:px-10 xl:px-16">
-          <div className="grid gap-12 lg:grid-cols-12">
-            <div className="lg:col-span-5">
-              <ServiceLabel>FAQ</ServiceLabel>
-              <h2 className="mt-4 text-[40px] font-semibold tracking-[-0.06em] text-[#111827]">
-                Frequently asked questions
-              </h2>
-            </div>
-            <div className="lg:col-span-7">
-              {servicesFaq.map((faq, i) => (
-                <div key={faq.question} className="border-b border-[#EBEEF2]">
-                  <button
-                    type="button"
-                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    className="flex w-full items-center justify-between py-6 text-left"
-                  >
-                    <span className="pr-8 text-[15px] font-semibold text-[#111827]">{faq.question}</span>
-                    <span className="text-xl font-light text-[#9CA3AF]">{openFaq === i ? "−" : "+"}</span>
-                  </button>
-                  {openFaq === i && (
-                    <p className="pb-6 text-[14px] leading-[1.7] text-[#6B7280]">{faq.answer}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </Container>
-      </section>
+      <Faq items={servicesFaq} title="Frequently asked questions" label="FAQ" />
 
-      <ServiceCtaBanner heading="Let's create something exceptional together." />
+      <CtaSection />
       <Footer />
       </main>
     </div>

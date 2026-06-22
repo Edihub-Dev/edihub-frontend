@@ -43,7 +43,7 @@ export function Services() {
 
   return (
     <Section id="services" className="bg-white">
-      <Container className="max-w-none px-4 md:px-6">
+      <Container>
         <motion.div
           ref={ref}
           variants={list}

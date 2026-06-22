@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { CtaSection } from "@/components/sections/CtaSection";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { getApiUrl } from "@/utils/api";
@@ -548,49 +549,7 @@ export function CareersPage() {
         </Container>
       </Section>
 
-      {/* CTA Card Section */}
-      <Section className="bg-white py-24">
-        <Container className="px-6 sm:px-8 lg:px-14 xl:px-20">
-          <div className="relative overflow-hidden rounded-[3rem] border border-blue-100 bg-gradient-to-br from-blue-50/80 via-white to-blue-50/30 p-12 sm:p-16 md:p-24 text-center">
-            {/* Glowing accents */}
-            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-blue-100/50 rounded-full blur-[100px] -z-10 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-50/80 rounded-full blur-[100px] -z-10 pointer-events-none" />
-
-            <div className="relative max-w-2xl mx-auto space-y-8">
-              <span className="text-[10px] font-black tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100/80 uppercase">
-                • Ready to Join?
-              </span>
-              
-              <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-zinc-950 leading-none">
-                Let's create the future together.
-              </h2>
-              
-              <p className="text-zinc-500 max-w-md mx-auto text-sm sm:text-base leading-relaxed">
-                If you don't see an exact fit in our open listings, send us your resume anyway! We're always looking for talented minds.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-                <a
-                  href="#positions"
-                  onClick={handleScrollToPositions}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-zinc-950 hover:bg-zinc-850 text-white rounded-2xl text-xs font-black transition-all cursor-pointer active:scale-98"
-                >
-                  View Open Positions
-                  <FiArrowUpRight className="w-4 h-4" />
-                </a>
-                
-                <Link
-                  to="/contact"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-800 rounded-2xl text-xs font-black transition-all cursor-pointer active:scale-98"
-                >
-                  Send Us Your Resume
-                  <FiArrowUpRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </Container>
-      </Section>
+      <CtaSection />
 
       <Footer />
     </div>

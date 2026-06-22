@@ -5,6 +5,7 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { CtaSection } from "@/components/sections/CtaSection";
 import { getApiUrl, getYouTubeId } from "@/utils/api";
 
 type Blog = {
@@ -237,7 +238,7 @@ export function BlogDetailPage() {
               </div>
 
               {/* Right Side: Article Body & Tags */}
-              <div className="lg:col-span-9 max-w-3xl">
+              <div className="lg:col-span-9">
                 <div className="prose prose-lg">
                   {renderContent(blog.content)}
                 </div>
@@ -422,6 +423,7 @@ export function BlogDetailPage() {
         </Section>
       </main>
 
+      <CtaSection />
       <Footer />
 
       {/* ── Image Lightbox Modal ── */}

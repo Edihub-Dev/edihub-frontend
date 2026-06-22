@@ -3,6 +3,7 @@ import { useRef, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
+import heroImage from "@/assets/hero-image.webp";
 
 const list = {
   hidden: {},
@@ -53,38 +54,59 @@ export function BuildBetter() {
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <Section id="build-better" className="bg-white py-20 md:py-28 lg:py-32">
+    <Section id="build-better" className="bg-white min-h-screen flex items-center py-0 md:py-0 lg:py-0 xl:py-0">
       <Container className="px-5 sm:px-6 lg:px-10 xl:px-16">
-        <motion.div
+        <div
           ref={ref}
-          variants={list}
-          initial="hidden"
-          animate={inView ? "show" : "hidden"}
+          className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-24"
         >
-          <div className="flex justify-end">
-            <div className="w-full max-w-[640px] lg:max-w-[720px]">
-              <motion.h2
-                variants={item}
-                className="text-[40px] font-semibold leading-[1.02] tracking-[-0.06em] text-[#1A1A1A] sm:text-[48px] md:text-[56px] lg:text-[64px]"
-              >
-                Want to build
-                <br />
-                something better?
-              </motion.h2>
-
-              <motion.p
-                variants={item}
-                className="mt-8 max-w-[42ch] text-[16px] leading-[1.55] text-[#6A6A6A] sm:mt-10 sm:text-[18px] lg:text-[20px]"
-              >
-                Our team brings together design, development, and strategic thinking to help you grow.
-              </motion.p>
-
-              <motion.div variants={item} className="mt-10 sm:mt-12">
-                <ArrowLink to="/contact">Start now</ArrowLink>
-              </motion.div>
+          {/* Left — Image */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 24 }}
+            animate={inView ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.96, y: 24 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="relative overflow-hidden rounded-[2.5rem] lg:rounded-[3.5rem] bg-zinc-100 aspect-[4/5] w-full max-w-[520px] mx-auto lg:mx-0"
+          >
+            <img
+              src={heroImage}
+              alt="Our workspace"
+              className="absolute inset-0 h-full w-full object-cover object-center"
+            />
+            {/* subtle accent badge */}
+            <div className="absolute bottom-6 left-6 rounded-2xl bg-white/90 backdrop-blur px-5 py-3 shadow-lg">
+              <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[#0066FF]">Edihub Studio</p>
+              <p className="mt-0.5 text-[12px] text-[#6A6A6A]">Design · Dev · Strategy</p>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+
+          {/* Right — Text */}
+          <motion.div
+            variants={list}
+            initial="hidden"
+            animate={inView ? "show" : "hidden"}
+            className="flex flex-col"
+          >
+            <motion.h2
+              variants={item}
+              className="text-[40px] font-semibold leading-[1.02] tracking-[-0.06em] text-[#1A1A1A] sm:text-[48px] md:text-[56px] lg:text-[64px]"
+            >
+              Want to build
+              <br />
+              something better?
+            </motion.h2>
+
+            <motion.p
+              variants={item}
+              className="mt-8 max-w-[42ch] text-[16px] leading-[1.55] text-[#6A6A6A] sm:mt-10 sm:text-[18px] lg:text-[20px]"
+            >
+              Our team brings together design, development, and strategic thinking to help you grow.
+            </motion.p>
+
+            <motion.div variants={item} className="mt-10 sm:mt-12">
+              <ArrowLink to="/contact">Start now</ArrowLink>
+            </motion.div>
+          </motion.div>
+        </div>
       </Container>
     </Section>
   );
