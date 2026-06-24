@@ -33,7 +33,6 @@ export function Services() {
     fetch(`${apiUrl}/services`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("Services data fetched:", data);
         setServices(data);
       })
       .catch((err) => console.error("Error fetching services:", err));

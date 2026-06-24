@@ -23,7 +23,6 @@ export function Testimonials() {
     fetch(`${apiUrl}/testimonials`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("Testimonials data fetched:", data);
         setTestimonials(data);
       })
       .catch((err) => console.error("Error fetching testimonials:", err));
@@ -80,7 +79,15 @@ export function Testimonials() {
     setActiveIndex((i) => (i + 1) % total);
   };
 
-  if (testimonials.length === 0) return null;
+  // Always render the section so `bgRef` is hydrated immediately;
+  // hide content until data arrives to avoid layout shift.
+  if (testimonials.length === 0) {
+    return (
+      <Section id="testimonials" className="bg-white">
+        <div ref={bgRef} style={{ position: "relative" }} />
+      </Section>
+    );
+  }
 
   return (
     <Section id="testimonials" className="bg-white">
