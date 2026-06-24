@@ -14,14 +14,21 @@ export function Navbar() {
   const lastDirRef = useRef<0 | 1 | -1>(0);
 
   useEffect(() => {
-    if (!menuOpen) return;
+    if (!menuOpen) {
+      document.body.style.overflow = "";
+      return;
+    }
+    document.body.style.overflow = "hidden";
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setMenuOpen(false);
     };
 
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = "";
+      document.removeEventListener("keydown", onKeyDown);
+    };
   }, [menuOpen]);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
@@ -111,14 +118,15 @@ export function Navbar() {
               role="dialog"
               aria-modal="true"
               className="absolute right-0 top-0 h-full w-[78vw] max-w-[720px] bg-[#0052FF] text-white overflow-y-auto"
+              style={{ willChange: "transform" }}
               variants={{
                 open: {
                   x: 0,
-                  transition: { type: "tween", duration: 0.6, ease: "easeOut" },
+                  transition: { type: "tween", duration: 0.38, ease: [0.25, 0.46, 0.45, 0.94] },
                 },
                 closed: {
                   x: "100%",
-                  transition: { type: "tween", duration: 0.6, ease: "easeIn" },
+                  transition: { type: "tween", duration: 0.3, ease: [0.55, 0.06, 0.68, 0.19] },
                 },
               }}
               initial="closed"

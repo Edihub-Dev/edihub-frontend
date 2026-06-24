@@ -103,26 +103,57 @@ export function Process() {
                   transition={{ duration: 0.4, delay: 0.03 * i }}
                   onMouseEnter={() => setActiveIndex(i)}
                   onClick={() => setActiveIndex(i)}
-                  className={`cursor-pointer rounded-2xl border px-6 py-7 transition-all duration-300 ease-out md:px-7 md:py-8 lg:flex lg:h-[28rem] lg:flex-col ${
+                  className={`cursor-pointer rounded-2xl border px-6 py-7 transition-colors duration-300 ease-out md:px-7 md:py-8 lg:flex lg:h-[28rem] lg:flex-col ${
                     isActive ? "border-white/30 lg:flex-[2]" : "border-white/15 lg:flex-[1]"
                   }`}
                 >
                   <span
-                    className={`text-xl font-medium ${isActive ? "text-white/70" : "text-white/30"}`}
+                    className={`text-xl font-medium transition-colors duration-300 ${isActive ? "text-white/70" : "text-white/30"}`}
                   >
                     {step.number}
                   </span>
                   <h3
-                    className={`mt-5 text-[22px] font-semibold leading-[1.05] tracking-[-1.2px] md:text-[44px] ${
+                    className={`mt-5 text-[22px] font-semibold leading-[1.05] tracking-[-1.2px] transition-colors duration-300 md:text-[32px] lg:text-[44px] ${
                       isActive ? "text-white" : "text-white/50"
                     }`}
                   >
                     {step.title}
                   </h3>
-                  <div className="flex-1" />
+
+                  {/* Desktop only spacer — pushes description to bottom in fixed-height cards */}
+                  <div className="hidden lg:block lg:flex-1" />
+
+                  {/*
+                    MOBILE accordion using CSS grid-template-rows trick.
+                    gridTemplateRows: "0fr" → "1fr" animates height smoothly to/from auto.
+                    Inner div MUST have min-h-0 for the collapse to work.
+                    This gives proper accordion: active = expanded, inactive = collapsed.
+                  */}
+                  <div
+                    className="grid lg:hidden overflow-hidden"
+                    style={{
+                      gridTemplateRows: isActive ? "1fr" : "0fr",
+                      transition: "grid-template-rows 320ms cubic-bezier(0.4, 0, 0.2, 1)",
+                    }}
+                  >
+                    <div className="min-h-0">
+                      <p className="pt-5 text-[15px] leading-[1.55] text-white/65">
+                        {step.description}
+                      </p>
+                      <div className="mt-4 pb-1">
+                        <span
+                          className="inline-block h-3 w-3 rounded-full"
+                          style={{ backgroundColor: ACCENT_DOT }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Desktop: AnimatePresence — fine because lg cards have fixed height */}
                   <AnimatePresence>
                     {isActive && (
                       <motion.div
+                        className="hidden lg:block"
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 6 }}
