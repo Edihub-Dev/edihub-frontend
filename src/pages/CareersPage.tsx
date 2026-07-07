@@ -53,19 +53,21 @@ const getJobIcon = (iconName: string) => {
   }
 };
 
-const getBenefitIcon = (iconName: string) => {
+
+
+const getBenefitIconWhite = (iconName: string) => {
   switch (iconName) {
     case "globe":
-      return <FiGlobe className="w-6 h-6 text-blue-600" />;
+      return <FiGlobe className="w-6 h-6 text-white" />;
     case "heart":
-      return <FiHeart className="w-6 h-6 text-blue-600" />;
+      return <FiHeart className="w-6 h-6 text-white" />;
     case "trending":
-      return <FiTrendingUp className="w-6 h-6 text-blue-600" />;
+      return <FiTrendingUp className="w-6 h-6 text-white" />;
     case "calendar":
-      return <FiCalendar className="w-6 h-6 text-blue-600" />;
+      return <FiCalendar className="w-6 h-6 text-white" />;
     case "users":
     default:
-      return <FiUsers className="w-6 h-6 text-blue-600" />;
+      return <FiUsers className="w-6 h-6 text-white" />;
   }
 };
 
@@ -98,6 +100,7 @@ export function CareersPage() {
   const [isLocDropdownOpen, setIsLocDropdownOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(6);
   const [cardsOpen, setCardsOpen] = useState(false);
+  const [activeCardIndex, setActiveCardIndex] = useState(0);
 
   const positionsRef = useRef<HTMLDivElement>(null);
 
@@ -136,6 +139,38 @@ export function CareersPage() {
   const handleScrollToPositions = (e: React.MouseEvent) => {
     e.preventDefault();
     positionsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handleCardClick = (idx: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (activeCardIndex === idx) {
+      handleScrollToPositions(e);
+    } else {
+      setActiveCardIndex(idx);
+    }
+  };
+
+  const getCardVariants = (cardIdx: number) => {
+    const rel = (cardIdx - activeCardIndex + 3) % 3;
+    if (rel === 0) {
+      // Front active card position
+      return {
+        initial: { zIndex: 30, opacity: 1, rotateY: -15, rotateX: 8, z: 0, x: 0, y: 0, scale: 1 },
+        hover: { zIndex: 30, opacity: 1, rotateY: -8, rotateX: 4, z: 0, x: 0, y: 5, scale: 1.02 }
+      };
+    } else if (rel === 1) {
+      // Right/back card position
+      return {
+        initial: { zIndex: 10, opacity: 0.35, rotateY: -25, rotateX: 12, z: -80, x: 60, y: 0, rotate: 0 },
+        hover: { zIndex: 10, opacity: 0.95, rotateY: -10, rotateX: 5, z: 0, x: 100, y: -25, rotate: 6 }
+      };
+    } else {
+      // Left/back card position
+      return {
+        initial: { zIndex: 20, opacity: 0.7, rotateY: -25, rotateX: 12, z: -40, x: -30, y: 0, rotate: 0 },
+        hover: { zIndex: 20, opacity: 0.95, rotateY: -10, rotateX: 5, z: 0, x: -100, y: 20, rotate: -6 }
+      };
+    }
   };
 
   return (
@@ -214,23 +249,20 @@ export function CareersPage() {
                 style={{ perspective: 1200 }}
                 onMouseEnter={() => setCardsOpen(true)}
                 onMouseLeave={() => setCardsOpen(false)}
-                onClick={handleScrollToPositions}
                 animate={cardsOpen ? "hover" : "initial"}
               >
                 {/* 3D stacked cards */}
                 {/* Back card (Design) */}
                 <motion.div
-                  variants={{
-                    initial: { opacity: 0.35, rotateY: -25, rotateX: 12, z: -80, x: 60, y: 0, rotate: 0 },
-                    hover: { opacity: 1, rotateY: -10, rotateX: 5, z: 0, x: 100, y: -25, rotate: 6 }
-                  }}
+                  variants={getCardVariants(2)}
+                  onClick={(e) => handleCardClick(2, e)}
                   transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
-                  className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-xl flex flex-col justify-between"
+                  className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-xl flex flex-col justify-between cursor-pointer"
                   style={{ transformStyle: "preserve-3d" }}
                 >
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Design Team</span>
-                    <div className="w-8 h-8 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400 text-xs">03</div>
+                    <span className="text-[13px] font-black text-zinc-400 uppercase tracking-widest">Design Team</span>
+                    <div className="w-8 h-8 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400 text-[13px]">03</div>
                   </div>
 
                   {/* Image container */}
@@ -238,22 +270,20 @@ export function CareersPage() {
                     <img src={pexels3} alt="Design" className="w-full h-full object-cover" />
                   </div>
 
-                  <div className="text-lg font-bold text-zinc-900 leading-tight">Design & Creative</div>
+                  <div className="text-[22px] font-bold text-zinc-900 leading-tight">Design & Creative</div>
                 </motion.div>
 
                 {/* Middle card (Development) */}
                 <motion.div
-                  variants={{
-                    initial: { opacity: 0.7, rotateY: -25, rotateX: 12, z: -40, x: 30, y: 0, rotate: 0 },
-                    hover: { opacity: 1, rotateY: -10, rotateX: 5, z: 0, x: -100, y: 20, rotate: -6 }
-                  }}
+                  variants={getCardVariants(1)}
+                  onClick={(e) => handleCardClick(1, e)}
                   transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
-                  className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-xl flex flex-col justify-between"
+                  className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-xl flex flex-col justify-between cursor-pointer"
                   style={{ transformStyle: "preserve-3d" }}
                 >
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Dev Team</span>
-                    <div className="w-8 h-8 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400 text-xs">02</div>
+                    <span className="text-[13px] font-black text-zinc-400 uppercase tracking-widest">Dev Team</span>
+                    <div className="w-8 h-8 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400 text-[13px]">02</div>
                   </div>
 
                   {/* Image container */}
@@ -261,24 +291,22 @@ export function CareersPage() {
                     <img src={pexels2} alt="Development" className="w-full h-full object-cover" />
                   </div>
 
-                  <div className="text-lg font-bold text-zinc-900 leading-tight">Tech & Development</div>
+                  <div className="text-[22px] font-bold text-zinc-900 leading-tight">Tech & Development</div>
                 </motion.div>
 
                 {/* Front card (General / We're Hiring) */}
                 <motion.div
-                  variants={{
-                    initial: { opacity: 1, rotateY: -20, rotateX: 10, z: 0, x: 0, y: 0, scale: 1 },
-                    hover: { opacity: 1, rotateY: -12, rotateX: 6, z: 0, x: 0, y: 5, scale: 1.02 }
-                  }}
+                  variants={getCardVariants(0)}
+                  onClick={(e) => handleCardClick(0, e)}
                   transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
-                  className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-2xl flex flex-col justify-between select-none"
+                  className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-2xl flex flex-col justify-between select-none cursor-pointer"
                   style={{ transformStyle: "preserve-3d", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.08)" }}
                 >
                   <div className="flex justify-between items-start">
-                    <div className="px-3 py-1 bg-blue-50 border border-blue-100 rounded-full text-[10px] font-black text-blue-600 uppercase tracking-widest">
+                    <div className="px-3 py-1 bg-blue-50 border border-blue-100 rounded-full text-[13px] font-black text-blue-600 uppercase tracking-widest">
                       We're Hiring
                     </div>
-                    <div className="w-10 h-10 rounded-xl bg-blue-600/10 flex items-center justify-center font-extrabold text-blue-600 text-sm">01</div>
+                    <div className="w-10 h-10 rounded-xl bg-blue-600/10 flex items-center justify-center font-extrabold text-blue-600 text-[13px]">01</div>
                   </div>
 
                   {/* Image container */}
@@ -287,7 +315,7 @@ export function CareersPage() {
                   </div>
 
                   <div className="space-y-3">
-                    <p className="text-xl font-bold tracking-tight text-zinc-900 leading-tight">
+                    <p className="text-[22px] font-bold tracking-tight text-zinc-900 leading-tight">
                       We're hiring creative minds and problem solvers.
                     </p>
                     <div className="w-full h-1 bg-blue-100 rounded-full overflow-hidden">
@@ -502,6 +530,7 @@ export function CareersPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
             {whyJoinEdihub.map((item, idx) => {
+              const cardBgImages = [pexels1, pexels2, pexels3, teamImage, statsImage];
               const getGridSpan = (i: number) => {
                 switch (i) {
                   case 0:
@@ -524,19 +553,34 @@ export function CareersPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: idx * 0.08 }}
-                  className={`p-8 md:p-10 bg-white border border-zinc-200 rounded-[32px] flex flex-col justify-between min-h-[280px] hover:shadow-[0_30px_70px_rgba(0,102,255,0.06)] hover:border-blue-300 hover:-translate-y-2 transition-all duration-400 ease-out group ${getGridSpan(idx)}`}
+                  className={`relative rounded-[32px] overflow-hidden flex flex-col justify-between min-h-[300px] border border-zinc-200/80 hover:border-blue-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 ease-out group ${getGridSpan(idx)}`}
                 >
-                  <div className="w-14 h-14 bg-zinc-50 border border-zinc-100 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-105 group-hover:bg-blue-600/5 group-hover:border-blue-200/50 transition-all duration-300">
-                    {getBenefitIcon(item.icon)}
+                  {/* Background Image with Hover Zoom */}
+                  <div className="absolute inset-0 z-0 overflow-hidden">
+                    <img 
+                      src={cardBgImages[idx % cardBgImages.length]} 
+                      alt="" 
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                    {/* Dark gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/95 via-zinc-950/70 to-black/20" />
                   </div>
-                  
-                  <div className="space-y-3 mt-8">
-                    <h3 className="text-[20px] sm:text-[24px] font-semibold text-zinc-950 tracking-tight group-hover:text-blue-600 transition-colors duration-300">
-                      {item.title}
-                    </h3>
-                    <p className="text-[15px] text-zinc-500 leading-relaxed">
-                      {item.description}
-                    </p>
+
+                  {/* Card Content Overlay */}
+                  <div className="relative z-10 p-8 md:p-10 flex flex-col justify-between h-full min-h-[300px] w-full">
+                    {/* Icon container - Glassmorphic design */}
+                    <div className="w-14 h-14 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center shadow-lg text-white group-hover:scale-110 group-hover:bg-blue-600 group-hover:border-blue-500 transition-all duration-300">
+                      {getBenefitIconWhite(item.icon)}
+                    </div>
+                    
+                    <div className="space-y-3 mt-12">
+                      <h3 className="text-[20px] sm:text-[24px] font-bold text-white tracking-tight group-hover:text-blue-400 transition-colors duration-300">
+                        {item.title}
+                      </h3>
+                      <p className="text-[15px] text-zinc-300 leading-relaxed">
+                        {item.description}
+                      </p>
+                    </div>
                   </div>
                 </motion.div>
               );

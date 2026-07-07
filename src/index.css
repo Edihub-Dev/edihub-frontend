@@ -93,3 +93,15 @@ body::-webkit-scrollbar-thumb:hover {
 .animate-sonar-scan {
   animation: sonar-scan 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
+
+/* Force hand pointer cursor on all clickable elements globally */
+a,
+button,
+input[type="button"],
+input[type="submit"],
+input[type="file"],
+select,
+label,
+[role="button"] {
+  cursor: pointer !important;
+}

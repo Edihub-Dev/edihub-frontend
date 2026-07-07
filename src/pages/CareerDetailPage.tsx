@@ -69,6 +69,7 @@ export function CareerDetailPage() {
   const [career, setCareer] = useState<Career | null>(null);
   const [loading, setLoading] = useState(true);
   const [detailCardsOpen, setDetailCardsOpen] = useState(false);
+  const [activeCardIndex, setActiveCardIndex] = useState(0);
 
   // Application form modal state
   const [isApplyOpen, setIsApplyOpen] = useState(false);
@@ -188,6 +189,30 @@ export function CareerDetailPage() {
     }
   };
 
+  const handleCardClick = (idx: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (activeCardIndex !== idx) {
+      setActiveCardIndex(idx);
+    } else {
+      setIsApplyOpen(true);
+    }
+  };
+
+  const getDetailCardVariants = (cardIdx: number) => {
+    const isFront = activeCardIndex === cardIdx;
+    if (isFront) {
+      return {
+        initial: { zIndex: 30, opacity: 1, rotateY: -8, rotateX: 6, z: 0, x: 0, y: 0, rotate: 0 },
+        hover: { zIndex: 30, opacity: 1, rotateY: -12, rotateX: 8, z: 0, x: -20, y: 10, rotate: -4 }
+      };
+    } else {
+      return {
+        initial: { zIndex: 10, opacity: 0.6, rotateY: -15, rotateX: 10, z: -40, x: 0, y: 0, rotate: 0 },
+        hover: { zIndex: 10, opacity: 1, rotateY: -5, rotateX: 2, z: 0, x: 80, y: -20, rotate: 6 }
+      };
+    }
+  };
+
   return (
     <div className="bg-white text-zinc-900 min-h-screen">
       <Navbar />
@@ -201,30 +226,30 @@ export function CareerDetailPage() {
               <div className="lg:col-span-7 space-y-6">
                 <Link
                   to="/career"
-                  className="inline-flex items-center gap-2 text-[13px] font-black text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest"
+                  className="inline-flex items-center gap-2 text-[16px] font-black text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest"
                 >
                   <FiArrowLeft className="w-4 h-4" />
                   Back to All Positions
                 </Link>
 
-                <div className="flex flex-wrap gap-2 text-xs font-black tracking-widest text-blue-600 uppercase">
+                <div className="flex flex-wrap gap-2 text-[15px] font-black tracking-widest text-blue-600 uppercase">
                   <span>{career.department}</span>
                   <span>•</span>
                   <span>{career.employmentType}</span>
                 </div>
 
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-zinc-950 leading-tight">
+                <h1 className="text-[36px] sm:text-[48px] md:text-[60px] font-bold tracking-tight text-zinc-950 leading-tight">
                   {career.title}
                 </h1>
 
-                <p className="text-lg text-zinc-500 leading-relaxed max-w-xl">
+                <p className="text-[18px] sm:text-[20px] text-zinc-500 leading-relaxed max-w-xl">
                   {career.description}
                 </p>
 
                 <div className="flex flex-wrap gap-4 pt-2">
                   <button
                     onClick={() => setIsApplyOpen(true)}
-                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-xs font-black tracking-wider uppercase transition-all shadow-lg shadow-blue-600/10 cursor-pointer active:scale-98"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-[15px] sm:text-[16px] font-black tracking-wider uppercase transition-all shadow-lg shadow-blue-600/10 cursor-pointer active:scale-98"
                   >
                     Apply for this Position
                     <FiArrowUpRight className="w-4 h-4" />
@@ -242,39 +267,45 @@ export function CareerDetailPage() {
                   style={{ perspective: 1000 }}
                   onMouseEnter={() => setDetailCardsOpen(true)}
                   onMouseLeave={() => setDetailCardsOpen(false)}
-                  onClick={() => setIsApplyOpen(true)}
                   animate={detailCardsOpen ? "hover" : "initial"}
                 >
                   {/* Back card */}
                   <motion.div
-                    variants={{
-                      initial: { opacity: 0.6, rotateY: -15, rotateX: 10, z: -40, x: 0, y: 0, rotate: 0 },
-                      hover: { opacity: 1, rotateY: -5, rotateX: 2, z: 0, x: 80, y: -20, rotate: 6 }
-                    }}
+                    variants={getDetailCardVariants(1)}
+                    onClick={(e) => handleCardClick(1, e)}
                     transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
-                    className="absolute inset-0 bg-gradient-to-tr from-blue-50/50 to-indigo-50/20 border border-zinc-200/60 rounded-3xl p-6 shadow-xl flex flex-col justify-between"
+                    className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-xl flex flex-col justify-between cursor-pointer"
                     style={{ transformStyle: "preserve-3d" }}
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400">EDI</div>
-                    <div className="space-y-2">
-                      <div className="w-24 h-2 bg-zinc-200 rounded-full" />
-                      <div className="w-full h-2 bg-zinc-150 rounded-full" />
+                  >                    <div className="flex justify-between items-center">
+                      <span className="text-[13px] font-black text-zinc-400 uppercase tracking-widest">Life at Edihub</span>
+                      <div className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400 text-[13px]">EDI</div>
+                    </div>
+
+                    {/* Image inside back card */}
+                    <div className="my-3 h-[140px] rounded-2xl overflow-hidden bg-zinc-100 border border-zinc-200/60 relative">
+                      <img src={heroImage} alt="Life at Edihub" className="w-full h-full object-cover" />
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="text-[18px] font-bold text-zinc-950">Join our team.</div>
+                      <div className="flex gap-2">
+                        <span className="text-[12px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-400 font-bold">Remote-first</span>
+                        <span className="text-[12px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-400 font-bold">Global</span>
+                      </div>
                     </div>
                   </motion.div>
 
                   {/* Front card */}
                   <motion.div
-                    variants={{
-                      initial: { opacity: 1, rotateY: -8, rotateX: 6, z: 0, x: 0, y: 0, rotate: 0 },
-                      hover: { opacity: 1, rotateY: -12, rotateX: 8, z: 0, x: -20, y: 10, rotate: -4 }
-                    }}
+                    variants={getDetailCardVariants(0)}
+                    onClick={(e) => handleCardClick(0, e)}
                     transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
-                    className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-2xl flex flex-col justify-between"
+                    className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-2xl flex flex-col justify-between cursor-pointer"
                     style={{ transformStyle: "preserve-3d", boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.05)" }}
                   >
                     <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{career.department} Team</span>
-                      <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-600 font-bold text-xs">EDI</div>
+                      <span className="text-[13px] font-black text-zinc-400 uppercase tracking-widest">{career.department} Team</span>
+                      <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-600 font-bold text-[13px]">EDI</div>
                     </div>
 
                     {/* Image inside card */}
@@ -289,10 +320,10 @@ export function CareerDetailPage() {
                     </div>
 
                     <div className="space-y-3 pt-2">
-                      <div className="text-lg font-bold text-zinc-950 tracking-tight leading-tight">{career.title}</div>
+                      <div className="text-[22px] font-bold text-zinc-955 tracking-tight leading-tight">{career.title}</div>
                       <div className="flex gap-2">
-                        <span className="text-[10px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-500 font-bold">{career.employmentType}</span>
-                        <span className="text-[10px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-500 font-bold">{career.location}</span>
+                        <span className="text-[12px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-500 font-bold">{career.employmentType}</span>
+                        <span className="text-[12px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-500 font-bold">{career.location}</span>
                       </div>
                     </div>
                   </motion.div>
@@ -307,40 +338,40 @@ export function CareerDetailPage() {
           <Container className="px-6 sm:px-8 lg:px-14 xl:px-20">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 p-8 border border-zinc-200 bg-zinc-50/50 rounded-[2.5rem] shadow-sm">
               <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Department</span>
-                <div className="flex items-center gap-2 text-[14px] font-bold text-zinc-800">
+                <span className="text-[13px] font-bold uppercase tracking-wider text-zinc-400">Department</span>
+                <div className="flex items-center gap-2 text-[18px] font-bold text-zinc-800">
                   <FiBriefcase className="w-4 h-4 text-blue-600 shrink-0" />
                   {career.department}
                 </div>
               </div>
 
               <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Employment Type</span>
-                <div className="flex items-center gap-2 text-[14px] font-bold text-zinc-800">
+                <span className="text-[13px] font-bold uppercase tracking-wider text-zinc-400">Employment Type</span>
+                <div className="flex items-center gap-2 text-[18px] font-bold text-zinc-800">
                   <FiClock className="w-4 h-4 text-blue-600 shrink-0" />
                   {career.employmentType}
                 </div>
               </div>
 
               <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Location</span>
-                <div className="flex items-center gap-2 text-[14px] font-bold text-zinc-800">
+                <span className="text-[13px] font-bold uppercase tracking-wider text-zinc-400">Location</span>
+                <div className="flex items-center gap-2 text-[18px] font-bold text-zinc-800">
                   <FiMapPin className="w-4 h-4 text-blue-600 shrink-0" />
                   {career.location}
                 </div>
               </div>
 
               <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Experience</span>
-                <div className="flex items-center gap-2 text-[14px] font-bold text-zinc-800">
+                <span className="text-[13px] font-bold uppercase tracking-wider text-zinc-400">Experience</span>
+                <div className="flex items-center gap-2 text-[18px] font-bold text-zinc-800">
                   <FiTrendingUp className="w-4 h-4 text-blue-600 shrink-0" />
                   {career.experience}
                 </div>
               </div>
 
               <div className="space-y-1 col-span-2 sm:col-span-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Date Posted</span>
-                <div className="flex items-center gap-2 text-[14px] font-bold text-zinc-800">
+                <span className="text-[13px] font-bold uppercase tracking-wider text-zinc-400">Date Posted</span>
+                <div className="flex items-center gap-2 text-[18px] font-bold text-zinc-800">
                   <FiCalendar className="w-4 h-4 text-blue-600 shrink-0" />
                   {career.datePosted}
                 </div>
@@ -359,13 +390,13 @@ export function CareerDetailPage() {
 
                 {/* About the role */}
                 <div className="space-y-6">
-                  <h2 className="text-[11px] font-black tracking-widest text-blue-600 uppercase">
+                  <h2 className="text-[13px] font-black tracking-widest text-blue-600 uppercase">
                     / About the role /
                   </h2>
-                  <h3 className="text-3xl font-bold tracking-tight text-zinc-950 leading-tight">
+                  <h3 className="text-4xl font-bold tracking-tight text-zinc-950 leading-tight">
                     About the role
                   </h3>
-                  <p className="text-zinc-500 text-base sm:text-lg leading-relaxed">
+                  <p className="text-zinc-500 text-[18px] sm:text-[20px] leading-relaxed">
                     {career.aboutRole || `We are looking for a qualified candidate to step into the role of ${career.title}. You will have the opportunity to collaborate closely with our core team and define modern solutions for our clients.`}
                   </p>
                 </div>
@@ -373,10 +404,10 @@ export function CareerDetailPage() {
                 {/* What you'll do */}
                 {career.responsibilities && career.responsibilities.length > 0 && (
                   <div className="space-y-6">
-                    <h2 className="text-[11px] font-black tracking-widest text-blue-600 uppercase">
+                    <h2 className="text-[13px] font-black tracking-widest text-blue-600 uppercase">
                       / Responsibilities /
                     </h2>
-                    <h3 className="text-3xl font-bold tracking-tight text-zinc-950 leading-tight">
+                    <h3 className="text-4xl font-bold tracking-tight text-zinc-950 leading-tight">
                       What you'll do
                     </h3>
                     <ul className="space-y-4">
@@ -385,7 +416,7 @@ export function CareerDetailPage() {
                           <div className="w-5 h-5 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 mt-1">
                             <FiCheck className="w-3.5 h-3.5 text-blue-600" />
                           </div>
-                          <span className="text-zinc-600 text-[15px] sm:text-base leading-normal">
+                          <span className="text-zinc-600 text-[16px] sm:text-[18px] leading-relaxed">
                             {resp}
                           </span>
                         </li>
@@ -397,10 +428,10 @@ export function CareerDetailPage() {
                 {/* What we're looking for */}
                 {career.requirements && career.requirements.length > 0 && (
                   <div className="space-y-6">
-                    <h2 className="text-[11px] font-black tracking-widest text-blue-600 uppercase">
+                    <h2 className="text-[13px] font-black tracking-widest text-blue-600 uppercase">
                       / Requirements /
                     </h2>
-                    <h3 className="text-3xl font-bold tracking-tight text-zinc-950 leading-tight">
+                    <h3 className="text-4xl font-bold tracking-tight text-zinc-950 leading-tight">
                       What we're looking for
                     </h3>
                     <ul className="space-y-4">
@@ -409,7 +440,7 @@ export function CareerDetailPage() {
                           <div className="w-5 h-5 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 mt-1">
                             <FiCheck className="w-3.5 h-3.5 text-blue-600" />
                           </div>
-                          <span className="text-zinc-600 text-[15px] sm:text-base leading-normal">
+                          <span className="text-zinc-600 text-[16px] sm:text-[18px] leading-relaxed">
                             {req}
                           </span>
                         </li>
@@ -421,10 +452,10 @@ export function CareerDetailPage() {
                 {/* Nice to have */}
                 {career.niceToHave && career.niceToHave.length > 0 && (
                   <div className="space-y-6">
-                    <h2 className="text-[11px] font-black tracking-widest text-blue-600 uppercase">
+                    <h2 className="text-[13px] font-black tracking-widest text-blue-600 uppercase">
                       / Nice to have /
                     </h2>
-                    <h3 className="text-3xl font-bold tracking-tight text-zinc-950 leading-tight">
+                    <h3 className="text-4xl font-bold tracking-tight text-zinc-950 leading-tight">
                       Nice to have
                     </h3>
                     <ul className="space-y-4">
@@ -433,7 +464,7 @@ export function CareerDetailPage() {
                           <div className="w-5 h-5 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 mt-1">
                             <FiCheck className="w-3.5 h-3.5 text-blue-600" />
                           </div>
-                          <span className="text-zinc-600 text-[15px] sm:text-base leading-normal">
+                          <span className="text-zinc-600 text-[16px] sm:text-[18px] leading-relaxed">
                             {nice}
                           </span>
                         </li>
@@ -447,30 +478,30 @@ export function CareerDetailPage() {
               <div className="lg:col-span-4 space-y-8">
                 {/* Job Details Card */}
                 <div className="p-8 border border-zinc-200 rounded-[2.5rem] bg-white shadow-sm space-y-6">
-                  <h4 className="text-lg font-bold text-zinc-950 tracking-tight">Job Details</h4>
+                  <h4 className="text-[24px] font-bold text-zinc-950 tracking-tight">Job Details</h4>
 
-                  <div className="divide-y divide-zinc-100 text-sm">
-                    <div className="py-3.5 flex justify-between gap-4">
+                  <div className="divide-y divide-zinc-100 text-[16px]">
+                    <div className="py-4 flex justify-between gap-4">
                       <span className="text-zinc-400 font-semibold">Department</span>
                       <span className="text-zinc-800 font-bold">{career.department}</span>
                     </div>
-                    <div className="py-3.5 flex justify-between gap-4">
+                    <div className="py-4 flex justify-between gap-4">
                       <span className="text-zinc-400 font-semibold">Role</span>
                       <span className="text-zinc-800 font-bold">{career.title}</span>
                     </div>
-                    <div className="py-3.5 flex justify-between gap-4">
+                    <div className="py-4 flex justify-between gap-4">
                       <span className="text-zinc-400 font-semibold">Employment Type</span>
                       <span className="text-zinc-800 font-bold">{career.employmentType}</span>
                     </div>
-                    <div className="py-3.5 flex justify-between gap-4">
+                    <div className="py-4 flex justify-between gap-4">
                       <span className="text-zinc-400 font-semibold">Location</span>
                       <span className="text-zinc-800 font-bold">{career.location}</span>
                     </div>
-                    <div className="py-3.5 flex justify-between gap-4">
+                    <div className="py-4 flex justify-between gap-4">
                       <span className="text-zinc-400 font-semibold">Experience</span>
                       <span className="text-zinc-800 font-bold">{career.experience}</span>
                     </div>
-                    <div className="py-3.5 flex justify-between gap-4">
+                    <div className="py-4 flex justify-between gap-4">
                       <span className="text-zinc-400 font-semibold">Date Posted</span>
                       <span className="text-zinc-800 font-bold">{career.datePosted}</span>
                     </div>
@@ -479,17 +510,17 @@ export function CareerDetailPage() {
 
                 {/* What We Offer Card */}
                 <div className="p-8 border border-zinc-200 rounded-[2.5rem] bg-zinc-50/50 space-y-6">
-                  <h4 className="text-lg font-bold text-zinc-950 tracking-tight">What we offer</h4>
+                  <h4 className="text-[24px] font-bold text-zinc-950 tracking-tight">What we offer</h4>
 
                   <div className="space-y-4">
                     {(career.benefits && career.benefits.length > 0 ? career.benefits : whyJoinEdihub).map((item, idx) => (
                       <div key={idx} className="flex gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-white border border-zinc-200 flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                        <div className="w-11 h-11 rounded-xl bg-white border border-zinc-200 flex items-center justify-center shrink-0 shadow-sm mt-0.5">
                           {getBenefitIcon(item.icon)}
                         </div>
                         <div className="space-y-0.5">
-                          <h5 className="text-[13px] font-bold text-zinc-900 leading-none">{item.title}</h5>
-                          <p className="text-[11px] text-zinc-400 leading-normal">{item.description}</p>
+                          <h5 className="text-[17px] font-bold text-zinc-900 leading-snug">{item.title}</h5>
+                          <p className="text-[14px] text-zinc-500 leading-relaxed">{item.description}</p>
                         </div>
                       </div>
                     ))}
@@ -528,7 +559,8 @@ export function CareerDetailPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -80 }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="relative bg-white border border-zinc-200 rounded-[32px] p-10 md:p-12 max-w-2xl w-full shadow-2xl max-h-[90vh] overflow-y-auto z-10"
+              className="relative bg-white border border-zinc-200 rounded-[32px] p-8 md:p-10 max-w-2xl w-full shadow-2xl max-h-[95vh] overflow-y-auto z-10 [&::-webkit-scrollbar]:hidden"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {/* Close Button */}
               <button
@@ -537,15 +569,15 @@ export function CareerDetailPage() {
                   setApplySuccess(false);
                   setApplyError("");
                 }}
-                className="absolute top-8 right-8 w-11 h-11 rounded-full bg-zinc-50 hover:bg-zinc-100 flex items-center justify-center text-zinc-400 hover:text-zinc-800 transition-all border border-zinc-200 shadow-sm"
+                className="absolute top-6 right-6 w-10 h-10 rounded-full bg-zinc-50 hover:bg-zinc-100 flex items-center justify-center text-zinc-400 hover:text-zinc-800 transition-all border border-zinc-200 shadow-sm"
               >
                 <FiX className="w-5 h-5" />
               </button>
 
               {applySuccess ? (
-                <div className="text-center py-10 space-y-6">
-                  <div className="w-20 h-20 bg-emerald-50 border border-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mx-auto animate-bounce">
-                    <FiCheck className="w-10 h-10 stroke-[2.5]" />
+                <div className="text-center py-8 space-y-6">
+                  <div className="w-16 h-16 bg-emerald-50 border border-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mx-auto animate-bounce">
+                    <FiCheck className="w-8 h-8 stroke-[2.5]" />
                   </div>
 
                   <div className="space-y-3">
@@ -566,12 +598,12 @@ export function CareerDetailPage() {
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleApplySubmit} className="space-y-6">
-                  <div className="space-y-2">
-                    <span className="text-[11px] font-black text-blue-600 bg-blue-50/50 border border-blue-100/50 px-3 py-1 rounded-full uppercase tracking-wider inline-block">
+                <form onSubmit={handleApplySubmit} className="space-y-5">
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] font-black text-blue-600 bg-blue-50/50 border border-blue-100/50 px-3 py-0.5 rounded-full uppercase tracking-wider inline-block">
                       Apply Now
                     </span>
-                    <h3 className="text-[28px] sm:text-[34px] font-bold text-zinc-950 leading-tight tracking-tight">
+                    <h3 className="text-[24px] sm:text-[28px] font-bold text-zinc-950 leading-tight tracking-tight">
                       Join us as a <br />{career.title}
                     </h3>
                   </div>
@@ -583,65 +615,65 @@ export function CareerDetailPage() {
                     </div>
                   )}
 
-                  <div className="space-y-5">
-                    <div className="space-y-1.5">
-                      <label className="text-[14px] font-bold text-zinc-500 uppercase tracking-wider block">Full Name *</label>
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <label className="text-[13px] font-bold text-zinc-500 uppercase tracking-wider block">Full Name *</label>
                       <input
                         type="text"
                         required
                         value={formFields.name}
                         onChange={(e) => setFormFields({ ...formFields, name: e.target.value })}
                         placeholder="e.g. Jane Doe"
-                        className="w-full bg-zinc-50/50 border border-zinc-200 rounded-2xl py-4 px-5 text-[15px] font-medium text-zinc-800 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all duration-300"
+                        className="w-full bg-zinc-50/50 border border-zinc-200 rounded-2xl py-3 px-5 text-[15px] font-medium text-zinc-800 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all duration-300"
                       />
                     </div>
 
-                    <div className="grid sm:grid-cols-2 gap-5">
-                      <div className="space-y-1.5">
-                        <label className="text-[14px] font-bold text-zinc-500 uppercase tracking-wider block">Email Address *</label>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-[13px] font-bold text-zinc-500 uppercase tracking-wider block">Email Address *</label>
                         <input
                           type="email"
                           required
                           value={formFields.email}
                           onChange={(e) => setFormFields({ ...formFields, email: e.target.value })}
                           placeholder="e.g. jane@example.com"
-                          className="w-full bg-zinc-50/50 border border-zinc-200 rounded-2xl py-4 px-5 text-[15px] font-medium text-zinc-800 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all duration-300"
+                          className="w-full bg-zinc-50/50 border border-zinc-200 rounded-2xl py-3 px-5 text-[15px] font-medium text-zinc-800 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all duration-300"
                         />
                       </div>
 
-                      <div className="space-y-1.5">
-                        <label className="text-[14px] font-bold text-zinc-500 uppercase tracking-wider block">Phone Number *</label>
+                      <div className="space-y-1">
+                        <label className="text-[13px] font-bold text-zinc-500 uppercase tracking-wider block">Phone Number *</label>
                         <input
                           type="tel"
                           required
                           value={formFields.phone}
                           onChange={(e) => setFormFields({ ...formFields, phone: e.target.value })}
                           placeholder="e.g. +1 555 123 456"
-                          className="w-full bg-zinc-50/50 border border-zinc-200 rounded-2xl py-4 px-5 text-[15px] font-medium text-zinc-800 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all duration-300"
+                          className="w-full bg-zinc-50/50 border border-zinc-200 rounded-2xl py-3 px-5 text-[15px] font-medium text-zinc-800 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all duration-300"
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                      <label className="text-[14px] font-bold text-zinc-500 uppercase tracking-wider block">Resume/CV URL *</label>
+                    <div className="space-y-1">
+                      <label className="text-[13px] font-bold text-zinc-500 uppercase tracking-wider block">Resume/CV URL *</label>
                       <input
                         type="url"
                         required
                         value={formFields.resumeUrl}
                         onChange={(e) => setFormFields({ ...formFields, resumeUrl: e.target.value })}
                         placeholder="Link to PDF (Google Drive, Dropbox, etc.)"
-                        className="w-full bg-zinc-50/50 border border-zinc-200 rounded-2xl py-4 px-5 text-[15px] font-medium text-zinc-800 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all duration-300"
+                        className="w-full bg-zinc-50/50 border border-zinc-200 rounded-2xl py-3 px-5 text-[15px] font-medium text-zinc-800 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all duration-300"
                       />
                     </div>
 
-                    <div className="space-y-1.5">
-                      <label className="text-[14px] font-bold text-zinc-500 uppercase tracking-wider block">Cover Letter / Message</label>
+                    <div className="space-y-1">
+                      <label className="text-[13px] font-bold text-zinc-500 uppercase tracking-wider block">Cover Letter / Message</label>
                       <textarea
-                        rows={4}
+                        rows={3}
                         value={formFields.coverLetter}
                         onChange={(e) => setFormFields({ ...formFields, coverLetter: e.target.value })}
                         placeholder="Tell us why you are a great fit..."
-                        className="w-full bg-zinc-50/50 border border-zinc-200 rounded-2xl py-4 px-5 text-[15px] font-medium text-zinc-800 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all duration-300 resize-none"
+                        className="w-full bg-zinc-50/50 border border-zinc-200 rounded-2xl py-3 px-5 text-[15px] font-medium text-zinc-800 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all duration-300 resize-none"
                       />
                     </div>
                   </div>
@@ -649,7 +681,7 @@ export function CareerDetailPage() {
                   <button
                     type="submit"
                     disabled={formSubmitting}
-                    className="w-full inline-flex items-center justify-center gap-2 py-4.5 bg-blue-600 hover:bg-blue-700 disabled:bg-zinc-300 text-white rounded-2xl text-[15px] font-extrabold uppercase tracking-wider transition-all shadow-lg shadow-blue-600/10 cursor-pointer active:scale-98"
+                    className="w-full inline-flex items-center justify-center gap-2 py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-zinc-300 text-white rounded-2xl text-[15px] font-extrabold uppercase tracking-wider transition-all shadow-lg shadow-blue-600/10 cursor-pointer active:scale-98"
                   >
                     {formSubmitting ? (
                       <span className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />

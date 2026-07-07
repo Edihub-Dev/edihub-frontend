@@ -25,8 +25,8 @@ export function ServicesTopBar() {
 
 export function ServiceLabel({ children }: { children: ReactNode }) {
   return (
-    <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-[#0066FF] select-none">
-      <span className="h-1.5 w-1.5 rounded-full border border-[#0066FF] bg-white shrink-0" />
+    <div className="inline-flex items-center gap-2.5 text-[14px] font-black uppercase tracking-[0.24em] text-[#0066FF] select-none">
+      <span className="h-2.5 w-2.5 rounded-full border-[2px] border-[#0066FF] bg-white shrink-0" />
       <span>{children}</span>
     </div>
   );
@@ -210,10 +210,10 @@ export function WhyEdihubIcon({ index }: { index: number }) {
   const colors = ["#0066FF", "#6366F1", "#8B5CF6", "#0066FF"];
   return (
     <div
-      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#E8EEF8] bg-white transition-all duration-300 group-hover:scale-110 group-hover:border-transparent group-hover:shadow-[0_4px_20px_rgba(0,102,255,0.12)]"
+      className="flex h-13 w-13 shrink-0 items-center justify-center rounded-xl border border-[#E8EEF8] bg-white transition-all duration-300 group-hover:scale-110 group-hover:border-transparent group-hover:shadow-[0_4px_20px_rgba(0,102,255,0.12)]"
       style={{ color: colors[index % colors.length] }}
     >
-      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+      <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
         <path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2L12 17l-6.3 4 2.3-7.2-6-4.6h7.6L12 2z" strokeLinejoin="round" />
       </svg>
     </div>
@@ -223,14 +223,14 @@ export function WhyEdihubIcon({ index }: { index: number }) {
 export function ProcessTimeline({ steps }: { steps: { number: string; title: string; description: string }[] }) {
   return (
     <div className="relative mt-16 lg:mt-24">
-      <div className="absolute left-0 right-0 top-[7px] hidden h-px bg-[#E5E7EB] lg:block" />
+      <div className="absolute left-0 right-0 top-[11px] hidden h-px bg-[#E5E7EB] lg:block" />
       <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-10">
         {steps.map((step) => (
           <div key={step.number} className="relative group">
-            <div className="mb-8 flex h-4 w-4 items-center justify-center rounded-full bg-[#0066FF] ring-[6px] ring-white transition-all duration-300 group-hover:scale-125 group-hover:ring-[#0066FF]/20" />
-            <p className="text-[13px] font-bold uppercase tracking-[0.15em] text-[#0066FF]">{step.number}</p>
-            <h3 className="mt-3 text-[22px] font-semibold tracking-tight text-[#111827] sm:text-[24px] group-hover:text-[#0066FF] transition-colors duration-300">{step.title}</h3>
-            <p className="mt-4 text-[16px] leading-[1.65] text-[#555555]">{step.description}</p>
+            <div className="mb-10 flex h-6 w-6 items-center justify-center rounded-full bg-[#0066FF] ring-[10px] ring-white transition-all duration-300 group-hover:scale-125 group-hover:ring-[#0066FF]/20" />
+            <p className="text-[16px] font-extrabold uppercase tracking-[0.18em] text-[#0066FF]">{step.number}</p>
+            <h3 className="mt-4 text-[28px] font-extrabold tracking-tight text-[#111827] sm:text-[32px] md:text-[36px] group-hover:text-[#0066FF] transition-colors duration-300">{step.title}</h3>
+            <p className="mt-5 text-[18px] sm:text-[20px] md:text-[22px] leading-[1.75] text-[#4B5563] font-medium">{step.description}</p>
           </div>
         ))}
       </div>

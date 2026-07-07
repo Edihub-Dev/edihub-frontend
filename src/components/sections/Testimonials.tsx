@@ -7,12 +7,38 @@ import { getApiUrl } from "@/utils/api";
 import bgCanvasStudio from "@/assets/pexels-canvastudio-3153198.webp";
 import bgMikhailNilov from "@/assets/pexels-mikhail-nilov-6930549.webp";
 import heroImage from "@/assets/hero-image.webp";
+import teamImage from "@/assets/team.webp";
 
 const imageMap: Record<string, string> = {
   "hero-image.webp": heroImage,
   "pexels-mikhail-nilov-6930549.webp": bgMikhailNilov,
   "pexels-canvastudio-3153198.webp": bgCanvasStudio,
+  "team.webp": teamImage,
 };
+
+const fallbackTestimonials = [
+  {
+    quote: "Finally found a team that understands both design and business. Our brand now perfectly captures what makes us different.",
+    name: "James Chen",
+    role: "CEO, Vertex Labs",
+    bgImage: "pexels-canvastudio-3153198.webp",
+    avatar: "team.webp"
+  },
+  {
+    quote: "EDIHUB transformed our digital presence completely. The new website increased our conversion rate by 40% in the first month.",
+    name: "Sarah Mitchell",
+    role: "Marketing Director, Nexora",
+    bgImage: "pexels-mikhail-nilov-6930549.webp",
+    avatar: "team.webp"
+  },
+  {
+    quote: "The attention to detail and strategic thinking set them apart. Our product launch was a huge success thanks to their design.",
+    name: "Emma Rodriguez",
+    role: "Product Lead, Flowstack",
+    bgImage: "hero-image.webp",
+    avatar: "team.webp"
+  }
+];
 
 export function Testimonials() {
   const bgRef = useRef<HTMLDivElement | null>(null);
@@ -23,9 +49,16 @@ export function Testimonials() {
     fetch(`${apiUrl}/testimonials`)
       .then((res) => res.json())
       .then((data) => {
-        setTestimonials(data);
+        if (Array.isArray(data) && data.length > 0) {
+          setTestimonials(data);
+        } else {
+          setTestimonials(fallbackTestimonials);
+        }
       })
-      .catch((err) => console.error("Error fetching testimonials:", err));
+      .catch((err) => {
+        console.error("Error fetching testimonials:", err);
+        setTestimonials(fallbackTestimonials);
+      });
   }, []);
 
   const { scrollYProgress } = useScroll({

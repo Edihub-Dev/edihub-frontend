@@ -1,6 +1,7 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Faq } from "@/components/sections/Faq";
+import { Testimonials } from "@/components/sections/Testimonials";
 import { Link } from "react-router-dom";
 import { Container } from "@/components/ui/Container";
 import {
@@ -9,7 +10,6 @@ import {
   whyEdihubItems,
   selectedWork,
   servicesFaq,
-  servicesTestimonials,
   type ApiService,
 } from "@/data/services";
 import { getApiUrl } from "@/utils/api";
@@ -24,7 +24,6 @@ import {
 } from "@/components/services/ServiceUi";
 import { Footer } from "@/components/layout/Footer";
 import { CtaSection } from "@/components/sections/CtaSection";
-import teamImage from "@/assets/team.webp";
 import arrowsImg from "@/assets/projects/arrows.webp";
 import chantalleImg from "@/assets/projects/chantalle.webp";
 import papyrusImg from "@/assets/projects/papyrus.webp";
@@ -38,14 +37,6 @@ const customImageMap: Record<string, string> = {
 };
 
 export function ServicesPage() {
-  const [testimonialIndex, setTestimonialIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTestimonialIndex((prev) => (prev + 1) % servicesTestimonials.length);
-    }, 3000);
-    return () => clearInterval(timer);
-  }, [testimonialIndex]);
   const [serviceCards, setServiceCards] = useState<
     Array<{ slug: string; title: string; cardDescription: string; icon: string }>
   >([]);
@@ -82,7 +73,7 @@ export function ServicesPage() {
                 What we do
               </h2>
             </div>
-            <p className="max-w-[48ch] text-[15px] leading-[1.7] text-[#6B7280] lg:text-[16px]">
+            <p className="max-w-[48ch] text-[18px] sm:text-[20px] leading-[1.7] text-[#4B5563] font-medium">
               End-to-end digital services — from brand strategy and design to development and launch. Click any service to explore details.
             </p>
           </div>
@@ -111,7 +102,7 @@ export function ServicesPage() {
                   />
                   <ServiceCardIcon type={service.icon} />
                   <h3 className="text-[20px] font-bold tracking-[-0.02em] text-[#111827]">{service.title}</h3>
-                  <p className="mt-4 flex-1 text-[14px] leading-[1.65] text-[#6B7280]">{service.cardDescription}</p>
+                  <p className="mt-4 flex-1 text-[16px] sm:text-[17px] leading-[1.7] text-[#4B5563] font-medium">{service.cardDescription}</p>
                   <div className="mt-8 flex justify-end">
                     <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E5E7EB] text-[#111827] transition-all group-hover:border-[#0066FF] group-hover:bg-[#0066FF] group-hover:text-white">
                       <ArrowIcon className="h-3.5 w-3.5" />
@@ -128,7 +119,7 @@ export function ServicesPage() {
       <section className="border-t border-[#F3F4F6] min-h-screen flex items-center py-0 md:py-0">
         <Container className="px-5 sm:px-6 lg:px-10 xl:px-16 w-full">
           <ServiceLabel>Process</ServiceLabel>
-          <h2 className="mt-4 max-w-[22ch] text-[36px] font-semibold leading-[1.08] tracking-[-0.06em] text-[#111827] sm:text-[44px] md:text-[52px]">
+          <h2 className="mt-5 max-w-[22ch] text-[42px] font-bold leading-[1.05] tracking-[-0.06em] text-[#111827] sm:text-[54px] md:text-[68px]">
             A simple process built for complex projects.
           </h2>
           <ProcessTimeline steps={servicesProcessSteps} />
@@ -177,7 +168,7 @@ export function ServicesPage() {
                       </h3>
                       <div className="flex flex-wrap gap-2 sm:justify-end">
                         <span
-                          className="rounded-full border border-black/15 bg-white px-3 py-1.5 text-[12px] font-medium leading-none text-black/60 transition-all duration-300 group-hover:border-black/30 group-hover:text-black"
+                          className="rounded-full border border-black/15 bg-white px-3.5 py-2 text-[13px] sm:text-[14px] font-bold leading-none text-black/60 transition-all duration-300 group-hover:border-black/30 group-hover:text-black"
                         >
                           {displayCategory}
                         </span>
@@ -194,20 +185,20 @@ export function ServicesPage() {
       {/* Why EDIHUB */}
       <section className="min-h-screen flex items-center py-0 md:py-0">
         <Container className="px-5 sm:px-6 lg:px-10 xl:px-16">
-          <div className="grid gap-16 lg:grid-cols-12">
+          <div className="grid gap-16 lg:grid-cols-12 items-center">
             <div className="lg:col-span-5">
               <ServiceLabel>Why Edihub</ServiceLabel>
-              <h2 className="mt-4 text-[36px] font-semibold leading-[1.08] tracking-[-0.06em] text-[#111827] sm:text-[44px]">
+              <h2 className="mt-5 text-[42px] font-bold leading-[1.05] tracking-[-0.06em] text-[#111827] sm:text-[54px] md:text-[68px]">
                 Built for brands that want more than just aesthetics.
               </h2>
             </div>
-            <div className="space-y-10 lg:col-span-7">
+            <div className="space-y-12 lg:col-span-7">
               {whyEdihubItems.map((w, i) => (
-                <div key={w.title} className="flex gap-5 group cursor-pointer">
+                <div key={w.title} className="flex gap-6 items-start group cursor-pointer">
                   <WhyEdihubIcon index={i} />
                   <div>
-                    <h3 className="text-[20px] font-semibold tracking-tight text-[#111827] sm:text-[22px] group-hover:text-[#0066FF] transition-colors duration-300">{w.title}</h3>
-                    <p className="mt-2 text-[16px] leading-[1.65] text-[#555555]">{w.description}</p>
+                    <h3 className="text-[28px] font-extrabold tracking-tight text-[#111827] sm:text-[32px] md:text-[36px] group-hover:text-[#0066FF] transition-colors duration-300">{w.title}</h3>
+                    <p className="mt-3 text-[18px] sm:text-[20px] md:text-[22px] leading-[1.75] text-[#4B5563] font-medium">{w.description}</p>
                   </div>
                 </div>
               ))}
@@ -217,81 +208,7 @@ export function ServicesPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="border-t border-[#F3F4F6] bg-[#FAFAFA] min-h-screen flex items-center py-0 md:py-0">
-        <Container className="px-5 sm:px-6 lg:px-10 xl:px-16 w-full">
-          <div className="grid gap-12 lg:grid-cols-12 items-center w-full">
-            <div className="lg:col-span-4 flex flex-col justify-between min-h-[160px]">
-              <div>
-                <ServiceLabel>Testimonials</ServiceLabel>
-                <div className="mt-6 text-[#0066FF] opacity-20 hidden lg:block">
-                  <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M7.17 6A5.17 5.17 0 0 0 2 11.17V18a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6.24a3.2 3.2 0 0 1 3.18-2.8.75.75 0 0 0 .75-.75V6.75A.75.75 0 0 0 9.42 6H7.17Zm12 0A5.17 5.17 0 0 0 14 11.17V18a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1.76a3.2 3.2 0 0 1 3.18-2.8.75.75 0 0 0 .75-.75V6.75A.75.75 0 0 0 21.42 6h-2.25Z" />
-                  </svg>
-                </div>
-              </div>
-              <div className="mt-6 flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setTestimonialIndex((p) => (p === 0 ? servicesTestimonials.length - 1 : p - 1))}
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white text-black transition-all duration-300 hover:bg-black hover:text-white hover:scale-105 active:scale-95 shadow-sm cursor-pointer"
-                  aria-label="Previous"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTestimonialIndex((p) => (p + 1) % servicesTestimonials.length)}
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white text-black transition-all duration-300 hover:bg-black hover:text-white hover:scale-105 active:scale-95 shadow-sm cursor-pointer"
-                  aria-label="Next"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div className="relative flex items-center justify-center lg:col-span-8 w-full min-h-[350px]">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={testimonialIndex}
-                  initial={{ opacity: 0, x: 25 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -25 }}
-                  transition={{ duration: 0.35, ease: "easeOut" }}
-                  className="w-full rounded-[24px] md:rounded-[32px] border border-[#EBEEF2] bg-white p-10 md:p-14 shadow-lg shadow-black/[0.03] relative"
-                >
-                  {/* Decorative Quote Mark on the top right of the card */}
-                  <div className="absolute right-10 top-10 text-[#0066FF]/10 md:right-14 md:top-14 pointer-events-none">
-                    <svg width="56" height="56" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                      <path d="M7.17 6A5.17 5.17 0 0 0 2 11.17V18a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6.24a3.2 3.2 0 0 1 3.18-2.8.75.75 0 0 0 .75-.75V6.75A.75.75 0 0 0 9.42 6H7.17Zm12 0A5.17 5.17 0 0 0 14 11.17V18a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1.76a3.2 3.2 0 0 1 3.18-2.8.75.75 0 0 0 .75-.75V6.75A.75.75 0 0 0 21.42 6h-2.25Z" />
-                    </svg>
-                  </div>
-
-                  <div className="pr-8 md:pr-12">
-                    <p className="text-[28px] font-semibold tracking-[-0.05em] leading-[1.15] text-[#111827] md:text-[34px]">
-                      &ldquo;{servicesTestimonials[testimonialIndex].quote}&rdquo;
-                    </p>
-                  </div>
-
-                  <div className="mt-10 flex items-center justify-between gap-6 pt-6 border-t border-neutral-100">
-                    <div className="flex items-center gap-4">
-                      <div className="h-14 w-14 overflow-hidden rounded-full bg-zinc-100 border border-neutral-200/50 shadow-sm">
-                        <img src={teamImage} alt="" className="h-full w-full object-cover" />
-                      </div>
-                      <div>
-                        <p className="text-[18px] font-semibold leading-none text-[#111827]">{servicesTestimonials[testimonialIndex].name}</p>
-                        <p className="mt-2 text-[14px] leading-none text-[#6B7280] md:text-[15px]">{servicesTestimonials[testimonialIndex].role}</p>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </div>
-        </Container>
-      </section>
+      <Testimonials />
 
       {/* FAQ */}
       <Faq items={servicesFaq} title="Frequently asked questions" label="FAQ" />

@@ -48,7 +48,7 @@ export function ServicePageHero({
             </motion.h1>
             <motion.p
               variants={item}
-              className="mt-8 max-w-[46ch] text-[15px] leading-[1.7] text-[#6B7280] sm:text-[17px]"
+              className="mt-8 max-w-[46ch] text-[18px] sm:text-[20px] md:text-[22px] leading-[1.7] text-[#4B5563] font-medium"
             >
               {description}
             </motion.p>

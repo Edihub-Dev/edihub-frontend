@@ -79,7 +79,7 @@ export function ProjectDetailPage() {
         console.error("Error fetching project:", err);
         setLoading(false);
       });
-      
+
     window.scrollTo(0, 0);
   }, [slug, navigate]);
 
@@ -123,27 +123,28 @@ export function ProjectDetailPage() {
 
       <main>
         {/* ── Finux-style Hero: image as full background with overlaid content ── */}
-        <div className="relative min-h-[80vh] flex flex-col justify-end overflow-hidden">
+        <div className="relative h-screen flex flex-col justify-end overflow-hidden bg-zinc-950">
           {/* Background image */}
           <motion.div
-            initial={{ opacity: 0, scale: 1.04 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ duration: 1, ease: "easeOut" }}
             className="absolute inset-0"
           >
             <img
               src={customImageMap[project.slug] || imageMap[project.image] || project.image}
               alt={project.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover scale-[1.05] opacity-60"
+              style={{ filter: "blur(12px)" }}
             />
             {/* Dark gradient overlay — dark at top for navbar, fades to dark at bottom */}
             <div
-              className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20"
+              className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/30"
             />
           </motion.div>
-
+ 
           {/* Overlaid content */}
-          <div className="relative z-10 pt-44 pb-36 md:pb-48">
+          <div className="relative z-10 pt-44 pb-48 md:pb-64 lg:pb-80">
             <Container className="px-6 sm:px-8 lg:px-14 xl:px-20">
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
@@ -156,7 +157,7 @@ export function ProjectDetailPage() {
                   className="inline-flex items-center gap-2 text-[13px] font-bold text-white/70 hover:text-white transition-colors mb-6 uppercase tracking-widest"
                 >
                   <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   Back to Projects
                 </Link>
@@ -182,166 +183,169 @@ export function ProjectDetailPage() {
           <Container className="max-w-5xl px-4 sm:px-6">
             {/* 80% Width Overlapping Premium Box */}
             <div className="bg-white border border-zinc-200/80 rounded-[32px] p-8 sm:p-12 md:p-16 shadow-2xl relative z-10">
-              <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+              <div className="grid gap-16 lg:grid-cols-12 lg:gap-24">
                 {/* Left Side: Metadata */}
                 <div className="lg:col-span-4">
-                  <div className="space-y-12">
-                    <div>
-                      <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#9CA3AF]">
-                        Client
-                      </h4>
-                      <p className="mt-3 text-[18px] font-medium text-[#111827]">
-                        {project.client}
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#9CA3AF]">
-                        Year
-                      </h4>
-                      <p className="mt-3 text-[18px] font-medium text-[#111827]">
-                        {project.year}
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#9CA3AF]">
-                        Services
-                      </h4>
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {project.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="rounded-full border border-[#E5E7EB] bg-white px-4 py-2 text-[14px] font-medium text-[#4B5563]"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+                <div className="space-y-12">
+                  <div>
+                    <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#9CA3AF]">
+                      Client
+                    </h4>
+                    <p className="mt-3 text-[18px] font-medium text-[#111827]">
+                      {project.client}
+                    </p>
                   </div>
-                </div>
-
-                {/* Right Side: Description */}
-                <div className="lg:col-span-8">
-                  <div className="max-w-2xl">
-                    <h3 className="text-[28px] font-semibold leading-[1.2] text-[#111827] sm:text-[36px]">
-                      The Challenge & Solution
-                    </h3>
-                    <p className="mt-8 text-[18px] leading-[1.6] text-[#4B5563] sm:text-[20px]">
-                      {project.description}
+                  <div>
+                    <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#9CA3AF]">
+                      Year
+                    </h4>
+                    <p className="mt-3 text-[18px] font-medium text-[#111827]">
+                      {project.year}
                     </p>
-                    <p className="mt-8 text-[18px] leading-[1.6] text-[#4B5563] sm:text-[20px]">
-                      We approached this project with a focus on delivering a high-end digital experience that reflects the client's values and vision. Every detail, from the color palette to the typography, was carefully considered to ensure a cohesive and impactful brand identity.
-                    </p>
-                    
-                    {project.gallery && project.gallery.length > 0 && (
-                      <div className="mt-16 space-y-6">
-                        <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#9CA3AF] border-b border-[#E5E7EB] pb-3">
-                          Project Gallery
-                        </h4>
-                        <div className="grid gap-6 sm:grid-cols-2">
-                          {project.gallery.map((imgUrl, idx) => {
-                            const isFullWidth = project.gallery!.length % 2 !== 0 && idx === project.gallery!.length - 1;
-                            return (
-                              <motion.button
-                                key={idx}
-                                type="button"
-                                onClick={() => setLightboxIndex(idx)}
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.6, delay: idx * 0.08 }}
-                                className={`group relative overflow-hidden rounded-2xl border border-[#E5E7EB] bg-slate-50 shadow-sm aspect-video cursor-zoom-in ${isFullWidth ? 'sm:col-span-2' : ''}`}
-                              >
-                                <img
-                                  src={imageMap[imgUrl] || imgUrl}
-                                  alt={`${project.title} gallery item ${idx + 1}`}
-                                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                />
-                                {/* Zoom icon hint */}
-                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
-                                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-2.5 shadow-lg">
-                                    <svg className="w-5 h-5 text-[#111827]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0zm-6-3v6m-3-3h6"/>
-                                    </svg>
-                                  </div>
-                                </div>
-                              </motion.button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-
-                    {project.videos && project.videos.length > 0 && (
-                      <div className="mt-16 space-y-6">
-                        <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#9CA3AF] border-b border-[#E5E7EB] pb-3">
-                          Video Showcase
-                        </h4>
-                        <div className="grid gap-6 sm:grid-cols-2">
-                          {project.videos.map((vidUrl, idx) => {
-                            // Detect YouTube (watch, youtu.be, shorts)
-                            const ytId = getYouTubeId(vidUrl);
-
-                            const isFullWidth = project.videos!.length % 2 !== 0 && idx === project.videos!.length - 1;
-                            const thumbSrc = ytId
-                              ? `https://img.youtube.com/vi/${ytId}/hqdefault.webp`
-                              : null;
-
-                            return (
-                              <motion.button
-                                key={idx}
-                                type="button"
-                                onClick={() => setVideoLightboxIndex(idx)}
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.6, delay: idx * 0.08 }}
-                                className={`group relative overflow-hidden rounded-2xl border border-[#E5E7EB] bg-[#111827] shadow-sm aspect-video cursor-pointer ${isFullWidth ? 'sm:col-span-2' : ''}`}
-                                aria-label="Play video"
-                              >
-                                {/* Thumbnail */}
-                                {thumbSrc ? (
-                                  <img
-                                    src={thumbSrc}
-                                    alt={`${project.title} video thumbnail ${idx + 1}`}
-                                    className="h-full w-full object-cover opacity-60 transition-transform duration-700 group-hover:scale-105"
-                                  />
-                                ) : (
-                                  <div className="h-full w-full flex items-center justify-center bg-slate-900">
-                                    <span className="text-white text-[12px] font-bold tracking-wider">Play Video</span>
-                                  </div>
-                                )}
-
-                                {/* Play button */}
-                                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                                  <div className="w-16 h-16 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-2xl transition-transform duration-300 group-hover:scale-110 group-hover:bg-white">
-                                    <svg className="w-7 h-7 text-[#111827] ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                      <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
-                                    </svg>
-                                  </div>
-                                  <span className="text-white text-[12px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm">
-                                    Play Video
-                                  </span>
-                                </div>
-
-                                {/* YouTube badge */}
-                                {ytId && (
-                                  <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded-full">
-                                    <svg className="w-3.5 h-3.5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-                                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                                    </svg>
-                                    <span className="text-white text-[10px] font-bold">YouTube</span>
-                                  </div>
-                                )}
-                              </motion.button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
+                  </div>
+                  <div>
+                    <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#9CA3AF]">
+                      Services
+                    </h4>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {project.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full border border-[#E5E7EB] bg-white px-4 py-2 text-[14px] font-medium text-[#4B5563]"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
+                            {/* Right Side: Description */}
+              <div className="lg:col-span-8">
+                <div className="max-w-2xl">
+                  <h3 className="text-[28px] font-semibold leading-[1.2] text-[#111827] sm:text-[36px]">
+                    The Challenge & Solution
+                  </h3>
+                  <p className="mt-8 text-[18px] leading-[1.6] text-[#4B5563] sm:text-[20px]">
+                    {project.description}
+                  </p>
+                  <p className="mt-8 text-[18px] leading-[1.6] text-[#4B5563] sm:text-[20px]">
+                    We approached this project with a focus on delivering a high-end digital experience that reflects the client's values and vision. Every detail, from the color palette to the typography, was carefully considered to ensure a cohesive and impactful brand identity.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {project.gallery && project.gallery.length > 0 && (
+              <div className="mt-20 space-y-6">
+                <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#9CA3AF] border-b border-[#E5E7EB] pb-3">
+                  Project Gallery
+                </h4>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {project.gallery.map((imgUrl, idx) => {
+                    const isLast = idx === project.gallery!.length - 1;
+                    const isOddTotal = project.gallery!.length % 3 !== 0;
+                    const colSpanClass = isLast && isOddTotal
+                      ? (project.gallery!.length % 3 === 1 ? "sm:col-span-2 lg:col-span-3" : "sm:col-span-2 lg:col-span-1")
+                      : "";
+                    return (
+                      <motion.button
+                        key={idx}
+                        type="button"
+                        onClick={() => setLightboxIndex(idx)}
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: idx * 0.08 }}
+                        className={`group relative overflow-hidden rounded-2xl border border-[#E5E7EB] bg-slate-50 shadow-sm aspect-video cursor-zoom-in ${colSpanClass}`}
+                      >
+                        <img
+                          src={imageMap[imgUrl] || imgUrl}
+                          alt={`${project.title} gallery item ${idx + 1}`}
+                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                        {/* Zoom icon hint */}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-2.5 shadow-lg">
+                            <svg className="w-5 h-5 text-[#111827]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0zm-6-3v6m-3-3h6" />
+                            </svg>
+                          </div>
+                        </div>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {project.videos && project.videos.length > 0 && (
+              <div className="mt-20 space-y-6">
+                <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#9CA3AF] border-b border-[#E5E7EB] pb-3">
+                  Video Showcase
+                </h4>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
+                  {project.videos.map((vidUrl, idx) => {
+                    // Detect YouTube (watch, youtu.be, shorts)
+                    const ytId = getYouTubeId(vidUrl);
+
+                    const isLast = idx === project.videos!.length - 1;
+                    const isOddTotal = project.videos!.length % 2 !== 0;
+                    const colSpanClass = isLast && isOddTotal ? "sm:col-span-2" : "";
+                    const thumbSrc = ytId
+                      ? `https://img.youtube.com/vi/${ytId}/hqdefault.webp`
+                      : null;
+
+                    return (
+                      <motion.button
+                        key={idx}
+                        type="button"
+                        onClick={() => setVideoLightboxIndex(idx)}
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: idx * 0.08 }}
+                        className={`group relative overflow-hidden rounded-2xl border border-[#E5E7EB] shadow-sm aspect-video cursor-pointer bg-[#111827] ${colSpanClass}`}
+                        aria-label="Play video"
+                      >
+                        {/* Thumbnail */}
+                        {thumbSrc ? (
+                          <img
+                            src={thumbSrc}
+                            alt={`${project.title} video ${idx + 1}`}
+                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 brightness-75 group-hover:brightness-90"
+                          />
+                        ) : (
+                          <div className="h-full w-full bg-gradient-to-br from-[#1e293b] to-[#0f172a]" />
+                        )}
+
+                        {/* Play button */}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                          <div className="w-16 h-16 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-2xl transition-transform duration-300 group-hover:scale-110 group-hover:bg-white">
+                            <svg className="w-7 h-7 text-[#111827] ml-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                            </svg>
+                          </div>
+                          <span className="text-white text-[12px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm">
+                            Play Video
+                          </span>
+                        </div>
+
+                        {/* YouTube badge */}
+                        {ytId && (
+                          <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                            <svg className="w-3.5 h-3.5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                            </svg>
+                            <span className="text-white text-[10px] font-bold">YouTube</span>
+                          </div>
+                        )}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
             </div>
           </Container>
         </Section>
@@ -353,14 +357,14 @@ export function ProjectDetailPage() {
               <p className="text-[14px] font-bold tracking-[0.2em] text-[#9CA3AF] uppercase text-center">
                 / Next Projects /
               </p>
-              
+
               {(() => {
                 // Find next two projects
                 if (projects.length === 0) return null;
                 const currentIndex = projects.findIndex(p => p.slug === slug);
                 const nextProject1 = projects[(currentIndex + 1) % projects.length];
-                const nextProject2 = projects.length > 2 
-                  ? projects[(currentIndex + 2) % projects.length] 
+                const nextProject2 = projects.length > 2
+                  ? projects[(currentIndex + 2) % projects.length]
                   : null;
 
                 const displayProjects = [nextProject1, nextProject2].filter((p): p is Project => p !== null);
@@ -398,7 +402,7 @@ export function ProjectDetailPage() {
                   className="group inline-flex items-center gap-3 text-[18px] font-bold text-[#111827] transition-colors hover:text-[#0066FF]"
                 >
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="rotate-180 transition-transform group-hover:-translate-x-2">
-                    <path d="M4.16666 10H15.8333M15.8333 10L10.8333 5M15.8333 10L10.8333 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M4.16666 10H15.8333M15.8333 10L10.8333 5M15.8333 10L10.8333 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   Back to All Projects
                 </Link>
@@ -450,7 +454,7 @@ export function ProjectDetailPage() {
               aria-label="Close lightbox"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
@@ -462,7 +466,7 @@ export function ProjectDetailPage() {
                 aria-label="Previous image"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                 </svg>
               </button>
             )}
@@ -475,7 +479,7 @@ export function ProjectDetailPage() {
                 aria-label="Next image"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                 </svg>
               </button>
             )}
@@ -541,7 +545,7 @@ export function ProjectDetailPage() {
                 aria-label="Close video"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
 
@@ -553,7 +557,7 @@ export function ProjectDetailPage() {
                   aria-label="Previous video"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                   </svg>
                 </button>
               )}
@@ -566,7 +570,7 @@ export function ProjectDetailPage() {
                   aria-label="Next video"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                   </svg>
                 </button>
               )}

@@ -140,20 +140,20 @@ export function BlogDetailPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
-          className="relative w-full h-[65vh] sm:h-[75vh] lg:h-[80vh] flex items-end overflow-hidden bg-zinc-950"
+          className="relative w-full h-screen flex items-end overflow-hidden bg-zinc-950"
         >
           {/* Cover image with group hover zoom */}
           <img
             src={blog.image}
             alt={blog.title}
-            className="absolute inset-0 w-full h-full object-cover opacity-60"
+            className="absolute inset-0 w-full h-full object-cover opacity-60 blur-md scale-[1.05]"
           />
 
           {/* Dark Overlay Gradient to guarantee white text visibility */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/15" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/30" />
 
           {/* Content Overlay */}
-          <Container className="relative z-10 px-6 sm:px-8 lg:px-14 xl:px-20 pb-12 sm:pb-16 w-full">
+          <Container className="relative z-10 px-6 sm:px-8 lg:px-14 xl:px-20 pb-48 sm:pb-64 lg:pb-80 w-full">
             <div className="max-w-5xl space-y-6">
               {/* Back to Blog */}
               <Link
