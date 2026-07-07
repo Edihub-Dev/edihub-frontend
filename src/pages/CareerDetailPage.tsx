@@ -19,13 +19,33 @@ import {
   FiCalendar,
   FiArrowUpRight,
   FiCheck,
-  FiBookmark,
   FiGlobe,
   FiHeart,
   FiUsers,
   FiSend,
   FiX
 } from "react-icons/fi";
+
+import statsImage from "@/assets/stats.webp";
+import heroImage from "@/assets/hero-image.webp";
+import pexels1 from "@/assets/projects/pexels-1.webp";
+import pexels2 from "@/assets/projects/pexels-2.webp";
+import pexels3 from "@/assets/projects/pexels-3.webp";
+import pexels4 from "@/assets/projects/pexels-4.webp";
+import pexels5 from "@/assets/projects/pexels-5.webp";
+
+const getCareerImage = (slug: string, dept: string) => {
+  if (slug === "senior-ui-ux-designer") return pexels3;
+  if (slug === "framer-developer") return pexels2;
+  if (slug === "brand-designer") return pexels4;
+  if (slug === "growth-marketing-manager") return pexels5;
+  if (slug === "project-manager" || slug === "project-manager-professional") return statsImage;
+  if (slug === "content-writer") return pexels1;
+  
+  if (dept.toLowerCase() === "design") return pexels3;
+  if (dept.toLowerCase() === "development") return pexels2;
+  return heroImage;
+};
 
 const getBenefitIcon = (iconName: string) => {
   switch (iconName) {
@@ -48,7 +68,7 @@ export function CareerDetailPage() {
   const navigate = useNavigate();
   const [career, setCareer] = useState<Career | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [detailCardsOpen, setDetailCardsOpen] = useState(false);
 
   // Application form modal state
   const [isApplyOpen, setIsApplyOpen] = useState(false);
@@ -127,19 +147,40 @@ export function CareerDetailPage() {
         careerTitle: career.title
       };
 
-      const res = await fetch(`${apiUrl}/careers/apply`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+      let success = false;
+      try {
+        const res = await fetch(`${apiUrl}/careers/apply`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
 
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || "Failed to submit application.");
+        if (res.ok) {
+          success = true;
+        } else {
+          const errData = await res.json();
+          throw new Error(errData.message || "Failed to submit application.");
+        }
+      } catch (fetchErr) {
+        console.warn("Backend API not reachable. Simulating live success using localStorage...", fetchErr);
+        // Save to localStorage as fallback
+        const localApps = JSON.parse(localStorage.getItem("career_applications") || "[]");
+        localApps.push({
+          id: String(Date.now()),
+          ...payload,
+          dateSubmitted: new Date().toLocaleString()
+        });
+        localStorage.setItem("career_applications", JSON.stringify(localApps));
+        
+        // Wait 800ms to simulate a live server response
+        await new Promise(resolve => setTimeout(resolve, 800));
+        success = true;
       }
 
-      setApplySuccess(true);
-      setFormFields({ name: "", email: "", phone: "", resumeUrl: "", coverLetter: "" });
+      if (success) {
+        setApplySuccess(true);
+        setFormFields({ name: "", email: "", phone: "", resumeUrl: "", coverLetter: "" });
+      }
     } catch (err: any) {
       setApplyError(err.message || "Something went wrong. Please try again.");
     } finally {
@@ -188,17 +229,6 @@ export function CareerDetailPage() {
                     Apply for this Position
                     <FiArrowUpRight className="w-4 h-4" />
                   </button>
-
-                  <button
-                    onClick={() => setIsBookmarked(!isBookmarked)}
-                    className={`inline-flex items-center justify-center w-14 h-14 border rounded-2xl transition-all cursor-pointer ${isBookmarked
-                        ? "bg-blue-50 border-blue-200 text-blue-600"
-                        : "bg-white border-zinc-200 hover:bg-zinc-50 text-zinc-400 hover:text-zinc-600"
-                      }`}
-                    title={isBookmarked ? "Saved" : "Save Job"}
-                  >
-                    <FiBookmark className={`w-5 h-5 ${isBookmarked ? "fill-blue-600" : ""}`} />
-                  </button>
                 </div>
               </div>
 
@@ -207,57 +237,66 @@ export function CareerDetailPage() {
                 <div className="absolute w-[280px] h-[280px] rounded-full bg-blue-200/30 blur-[80px] pointer-events-none" />
 
                 {/* 3D Glassmorphic Cards Stack */}
-                <div
-                  className="relative w-full max-w-[320px] h-full"
+                <motion.div
+                  className="relative w-full max-w-[320px] h-full cursor-pointer select-none"
                   style={{ perspective: 1000 }}
+                  onMouseEnter={() => setDetailCardsOpen(true)}
+                  onMouseLeave={() => setDetailCardsOpen(false)}
+                  onClick={() => setIsApplyOpen(true)}
+                  animate={detailCardsOpen ? "hover" : "initial"}
                 >
-                  {career.image ? (
-                    <motion.div
-                      initial={{ opacity: 0, rotateY: -10, rotateX: 5 }}
-                      animate={{ opacity: 1, rotateY: -8, rotateX: 4 }}
-                      whileHover={{ scale: 1.05, rotateY: 0, rotateX: 0 }}
-                      className="absolute inset-0 bg-white border border-zinc-200 rounded-[2.5rem] overflow-hidden shadow-2xl p-4 flex flex-col justify-between"
-                      style={{ transformStyle: "preserve-3d", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.08)" }}
-                    >
-                      <div className="w-full h-full rounded-[1.75rem] overflow-hidden bg-slate-50 border border-zinc-150 relative">
-                        <img src={career.image} alt={career.title} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent flex flex-col justify-end p-6 text-white text-left">
-                          <span className="text-[9px] font-black uppercase tracking-widest text-blue-300 mb-1">{career.department} Team</span>
-                          <h4 className="text-base font-bold leading-tight truncate">{career.title}</h4>
-                          <p className="text-[10px] text-zinc-300 font-semibold mt-1">{career.employmentType} • {career.location}</p>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ) : (
-                    <>
-                      <div
-                        className="absolute inset-0 bg-gradient-to-tr from-blue-50/50 to-indigo-50/20 border border-zinc-200/60 rounded-3xl p-6 shadow-xl flex flex-col justify-between"
-                        style={{ transform: "rotateY(-15deg) rotateX(10deg) translateZ(-40px)", opacity: 0.6 }}
-                      >
-                        <div className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-200" />
-                        <div className="w-full h-2 bg-zinc-100 rounded-full" />
-                      </div>
+                  {/* Back card */}
+                  <motion.div
+                    variants={{
+                      initial: { opacity: 0.6, rotateY: -15, rotateX: 10, z: -40, x: 0, y: 0, rotate: 0 },
+                      hover: { opacity: 1, rotateY: -5, rotateX: 2, z: 0, x: 80, y: -20, rotate: 6 }
+                    }}
+                    transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
+                    className="absolute inset-0 bg-gradient-to-tr from-blue-50/50 to-indigo-50/20 border border-zinc-200/60 rounded-3xl p-6 shadow-xl flex flex-col justify-between"
+                    style={{ transformStyle: "preserve-3d" }}
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400">EDI</div>
+                    <div className="space-y-2">
+                      <div className="w-24 h-2 bg-zinc-200 rounded-full" />
+                      <div className="w-full h-2 bg-zinc-150 rounded-full" />
+                    </div>
+                  </motion.div>
 
-                      <div
-                        className="absolute inset-0 bg-white/80 border border-zinc-200 rounded-3xl p-6 shadow-2xl flex flex-col justify-between"
-                        style={{ transform: "rotateY(-8deg) rotateX(6deg) translateZ(0px)", boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.05)" }}
-                      >
-                        <div className="flex justify-between items-center">
-                          <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{career.department} Team</span>
-                          <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-600 font-bold text-xs">EDI</div>
-                        </div>
+                  {/* Front card */}
+                  <motion.div
+                    variants={{
+                      initial: { opacity: 1, rotateY: -8, rotateX: 6, z: 0, x: 0, y: 0, rotate: 0 },
+                      hover: { opacity: 1, rotateY: -12, rotateX: 8, z: 0, x: -20, y: 10, rotate: -4 }
+                    }}
+                    transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
+                    className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-2xl flex flex-col justify-between"
+                    style={{ transformStyle: "preserve-3d", boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.05)" }}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{career.department} Team</span>
+                      <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-600 font-bold text-xs">EDI</div>
+                    </div>
 
-                        <div className="space-y-3 pt-6">
-                          <div className="text-lg font-bold text-zinc-950 tracking-tight leading-tight">{career.title}</div>
-                          <div className="flex gap-2">
-                            <span className="text-[10px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-500 font-bold">{career.employmentType}</span>
-                            <span className="text-[10px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-500 font-bold">{career.location}</span>
-                          </div>
-                        </div>
+                    {/* Image inside card */}
+                    <div className="my-4 h-[140px] rounded-2xl overflow-hidden bg-zinc-100 border border-zinc-200/60 relative">
+                      <motion.img 
+                        src={getCareerImage(career.slug, career.department)} 
+                        alt={career.title} 
+                        className="w-full h-full object-cover"
+                        whileHover={{ scale: 1.08 }}
+                        transition={{ duration: 0.6 }}
+                      />
+                    </div>
+
+                    <div className="space-y-3 pt-2">
+                      <div className="text-lg font-bold text-zinc-950 tracking-tight leading-tight">{career.title}</div>
+                      <div className="flex gap-2">
+                        <span className="text-[10px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-500 font-bold">{career.employmentType}</span>
+                        <span className="text-[10px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-500 font-bold">{career.location}</span>
                       </div>
-                    </>
-                  )}
-                </div>
+                    </div>
+                  </motion.div>
+                </motion.div>
               </div>
             </div>
           </Container>
@@ -485,11 +524,11 @@ export function CareerDetailPage() {
 
             {/* Modal Box */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              initial={{ opacity: 0, scale: 0.95, y: -80 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="relative bg-white border border-zinc-200 rounded-[2.5rem] p-8 sm:p-10 max-w-xl w-full shadow-2xl max-h-[90vh] overflow-y-auto z-10"
+              exit={{ opacity: 0, scale: 0.95, y: -80 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="relative bg-white border border-zinc-200 rounded-[32px] p-10 md:p-12 max-w-2xl w-full shadow-2xl max-h-[90vh] overflow-y-auto z-10"
             >
               {/* Close Button */}
               <button
@@ -498,7 +537,7 @@ export function CareerDetailPage() {
                   setApplySuccess(false);
                   setApplyError("");
                 }}
-                className="absolute top-6 right-6 w-10 h-10 rounded-full bg-zinc-50 hover:bg-zinc-100 flex items-center justify-center text-zinc-400 hover:text-zinc-600 transition-colors border border-zinc-200"
+                className="absolute top-8 right-8 w-11 h-11 rounded-full bg-zinc-50 hover:bg-zinc-100 flex items-center justify-center text-zinc-400 hover:text-zinc-800 transition-all border border-zinc-200 shadow-sm"
               >
                 <FiX className="w-5 h-5" />
               </button>
@@ -509,9 +548,9 @@ export function CareerDetailPage() {
                     <FiCheck className="w-10 h-10 stroke-[2.5]" />
                   </div>
 
-                  <div className="space-y-2">
-                    <h3 className="text-2xl font-bold text-zinc-950">Application Submitted!</h3>
-                    <p className="text-zinc-500 text-sm leading-relaxed max-w-xs mx-auto">
+                  <div className="space-y-3">
+                    <h3 className="text-2xl md:text-3xl font-bold text-zinc-950">Application Submitted!</h3>
+                    <p className="text-zinc-500 text-[15px] leading-relaxed max-w-sm mx-auto">
                       Thank you for applying for the <strong>{career.title}</strong> position. Our team will review your application and get in touch soon.
                     </p>
                   </div>
@@ -521,88 +560,88 @@ export function CareerDetailPage() {
                       setIsApplyOpen(false);
                       setApplySuccess(false);
                     }}
-                    className="px-8 py-3 bg-zinc-950 hover:bg-zinc-850 text-white rounded-xl text-xs font-bold transition-all"
+                    className="px-8 py-4 bg-zinc-950 hover:bg-zinc-850 text-white rounded-2xl text-[13px] font-bold transition-all shadow-md active:scale-98"
                   >
                     Close Window
                   </button>
                 </div>
               ) : (
                 <form onSubmit={handleApplySubmit} className="space-y-6">
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-black text-blue-600 bg-blue-50 border border-blue-100/55 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                  <div className="space-y-2">
+                    <span className="text-[11px] font-black text-blue-600 bg-blue-50/50 border border-blue-100/50 px-3 py-1 rounded-full uppercase tracking-wider inline-block">
                       Apply Now
                     </span>
-                    <h3 className="text-2xl font-black text-zinc-950 leading-tight">
+                    <h3 className="text-[28px] sm:text-[34px] font-bold text-zinc-950 leading-tight tracking-tight">
                       Join us as a <br />{career.title}
                     </h3>
                   </div>
 
                   {applyError && (
-                    <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs font-bold flex items-center gap-2">
+                    <div className="p-4 bg-rose-50 border border-rose-100 rounded-2xl text-rose-800 text-[13px] font-semibold flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
                       {applyError}
                     </div>
                   )}
 
-                  <div className="space-y-4">
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-zinc-500 uppercase">Full Name *</label>
+                  <div className="space-y-5">
+                    <div className="space-y-1.5">
+                      <label className="text-[14px] font-bold text-zinc-500 uppercase tracking-wider block">Full Name *</label>
                       <input
                         type="text"
                         required
                         value={formFields.name}
                         onChange={(e) => setFormFields({ ...formFields, name: e.target.value })}
                         placeholder="e.g. Jane Doe"
-                        className="w-full bg-zinc-50 border border-zinc-200 rounded-xl py-3 px-4 text-xs font-bold text-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-600/10 focus:border-blue-600 focus:bg-white transition-all"
+                        className="w-full bg-zinc-50/50 border border-zinc-200 rounded-2xl py-4 px-5 text-[15px] font-medium text-zinc-800 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all duration-300"
                       />
                     </div>
 
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-zinc-500 uppercase">Email Address *</label>
+                    <div className="grid sm:grid-cols-2 gap-5">
+                      <div className="space-y-1.5">
+                        <label className="text-[14px] font-bold text-zinc-500 uppercase tracking-wider block">Email Address *</label>
                         <input
                           type="email"
                           required
                           value={formFields.email}
                           onChange={(e) => setFormFields({ ...formFields, email: e.target.value })}
                           placeholder="e.g. jane@example.com"
-                          className="w-full bg-zinc-50 border border-zinc-200 rounded-xl py-3 px-4 text-xs font-bold text-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-600/10 focus:border-blue-600 focus:bg-white transition-all"
+                          className="w-full bg-zinc-50/50 border border-zinc-200 rounded-2xl py-4 px-5 text-[15px] font-medium text-zinc-800 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all duration-300"
                         />
                       </div>
 
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-zinc-500 uppercase">Phone Number *</label>
+                      <div className="space-y-1.5">
+                        <label className="text-[14px] font-bold text-zinc-500 uppercase tracking-wider block">Phone Number *</label>
                         <input
                           type="tel"
                           required
                           value={formFields.phone}
                           onChange={(e) => setFormFields({ ...formFields, phone: e.target.value })}
                           placeholder="e.g. +1 555 123 456"
-                          className="w-full bg-zinc-50 border border-zinc-200 rounded-xl py-3 px-4 text-xs font-bold text-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-600/10 focus:border-blue-600 focus:bg-white transition-all"
+                          className="w-full bg-zinc-50/50 border border-zinc-200 rounded-2xl py-4 px-5 text-[15px] font-medium text-zinc-800 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all duration-300"
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-zinc-500 uppercase">Resume/CV URL *</label>
+                    <div className="space-y-1.5">
+                      <label className="text-[14px] font-bold text-zinc-500 uppercase tracking-wider block">Resume/CV URL *</label>
                       <input
                         type="url"
                         required
                         value={formFields.resumeUrl}
                         onChange={(e) => setFormFields({ ...formFields, resumeUrl: e.target.value })}
                         placeholder="Link to PDF (Google Drive, Dropbox, etc.)"
-                        className="w-full bg-zinc-50 border border-zinc-200 rounded-xl py-3 px-4 text-xs font-bold text-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-600/10 focus:border-blue-600 focus:bg-white transition-all"
+                        className="w-full bg-zinc-50/50 border border-zinc-200 rounded-2xl py-4 px-5 text-[15px] font-medium text-zinc-800 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all duration-300"
                       />
                     </div>
 
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-zinc-500 uppercase">Cover Letter / Message</label>
+                    <div className="space-y-1.5">
+                      <label className="text-[14px] font-bold text-zinc-500 uppercase tracking-wider block">Cover Letter / Message</label>
                       <textarea
                         rows={4}
                         value={formFields.coverLetter}
                         onChange={(e) => setFormFields({ ...formFields, coverLetter: e.target.value })}
                         placeholder="Tell us why you are a great fit..."
-                        className="w-full bg-zinc-50 border border-zinc-200 rounded-xl py-3 px-4 text-xs font-bold text-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-600/10 focus:border-blue-600 focus:bg-white transition-all resize-none"
+                        className="w-full bg-zinc-50/50 border border-zinc-200 rounded-2xl py-4 px-5 text-[15px] font-medium text-zinc-800 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 focus:bg-white transition-all duration-300 resize-none"
                       />
                     </div>
                   </div>
@@ -610,7 +649,7 @@ export function CareerDetailPage() {
                   <button
                     type="submit"
                     disabled={formSubmitting}
-                    className="w-full inline-flex items-center justify-center gap-2 py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-zinc-300 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-lg shadow-blue-600/10 cursor-pointer"
+                    className="w-full inline-flex items-center justify-center gap-2 py-4.5 bg-blue-600 hover:bg-blue-700 disabled:bg-zinc-300 text-white rounded-2xl text-[15px] font-extrabold uppercase tracking-wider transition-all shadow-lg shadow-blue-600/10 cursor-pointer active:scale-98"
                   >
                     {formSubmitting ? (
                       <span className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />

@@ -203,11 +203,11 @@ export function ServicesPage() {
             </div>
             <div className="space-y-10 lg:col-span-7">
               {whyEdihubItems.map((w, i) => (
-                <div key={w.title} className="flex gap-5">
+                <div key={w.title} className="flex gap-5 group cursor-pointer">
                   <WhyEdihubIcon index={i} />
                   <div>
-                    <h3 className="text-[17px] font-bold text-[#111827]">{w.title}</h3>
-                    <p className="mt-1.5 text-[14px] leading-[1.6] text-[#6B7280]">{w.description}</p>
+                    <h3 className="text-[20px] font-semibold tracking-tight text-[#111827] sm:text-[22px] group-hover:text-[#0066FF] transition-colors duration-300">{w.title}</h3>
+                    <p className="mt-2 text-[16px] leading-[1.65] text-[#555555]">{w.description}</p>
                   </div>
                 </div>
               ))}
@@ -220,46 +220,70 @@ export function ServicesPage() {
       <section className="border-t border-[#F3F4F6] bg-[#FAFAFA] min-h-screen flex items-center py-0 md:py-0">
         <Container className="px-5 sm:px-6 lg:px-10 xl:px-16 w-full">
           <div className="grid gap-12 lg:grid-cols-12 items-center w-full">
-            <div className="lg:col-span-4">
-              <ServiceLabel>Testimonials</ServiceLabel>
-              <span className="mt-8 block text-[120px] font-serif leading-none text-[#E5E7EB]">&ldquo;</span>
-              <div className="mt-4 flex gap-3">
+            <div className="lg:col-span-4 flex flex-col justify-between min-h-[160px]">
+              <div>
+                <ServiceLabel>Testimonials</ServiceLabel>
+                <div className="mt-6 text-[#0066FF] opacity-20 hidden lg:block">
+                  <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M7.17 6A5.17 5.17 0 0 0 2 11.17V18a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6.24a3.2 3.2 0 0 1 3.18-2.8.75.75 0 0 0 .75-.75V6.75A.75.75 0 0 0 9.42 6H7.17Zm12 0A5.17 5.17 0 0 0 14 11.17V18a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1.76a3.2 3.2 0 0 1 3.18-2.8.75.75 0 0 0 .75-.75V6.75A.75.75 0 0 0 21.42 6h-2.25Z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="mt-6 flex gap-3">
                 <button
                   type="button"
                   onClick={() => setTestimonialIndex((p) => (p === 0 ? servicesTestimonials.length - 1 : p - 1))}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-[#E5E7EB] text-[#6B7280] hover:border-[#111827] hover:text-[#111827]"
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white text-black transition-all duration-300 hover:bg-black hover:text-white hover:scale-105 active:scale-95 shadow-sm cursor-pointer"
                   aria-label="Previous"
                 >
-                  ←
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
                 </button>
                 <button
                   type="button"
                   onClick={() => setTestimonialIndex((p) => (p + 1) % servicesTestimonials.length)}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-[#E5E7EB] text-[#6B7280] hover:border-[#111827] hover:text-[#111827]"
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white text-black transition-all duration-300 hover:bg-black hover:text-white hover:scale-105 active:scale-95 shadow-sm cursor-pointer"
                   aria-label="Next"
                 >
-                  →
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
                 </button>
               </div>
             </div>
-            <div className="relative flex items-center justify-center lg:col-span-8 w-full min-h-[300px]">
+            <div className="relative flex items-center justify-center lg:col-span-8 w-full min-h-[350px]">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={testimonialIndex}
-                  initial={{ opacity: 0, x: 20 }}
+                  initial={{ opacity: 0, x: 25 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.4, ease: "easeInOut" }}
-                  className="w-full rounded-[24px] md:rounded-[32px] border border-[#EBEEF2] bg-white p-8 md:p-12 shadow-sm"
+                  exit={{ opacity: 0, x: -25 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  className="w-full rounded-[24px] md:rounded-[32px] border border-[#EBEEF2] bg-white p-10 md:p-14 shadow-lg shadow-black/[0.03] relative"
                 >
-                  <p className="text-[20px] md:text-[24px] font-medium leading-[1.6] tracking-tight text-[#111827]">
-                    &ldquo;{servicesTestimonials[testimonialIndex].quote}&rdquo;
-                  </p>
-                  <div className="mt-8 flex items-center gap-4">
-                    <img src={teamImage} alt="" className="h-12 w-12 rounded-full object-cover" />
-                    <div>
-                      <p className="text-[15px] font-bold text-[#111827]">{servicesTestimonials[testimonialIndex].name}</p>
-                      <p className="text-[13px] text-[#6B7280]">{servicesTestimonials[testimonialIndex].role}</p>
+                  {/* Decorative Quote Mark on the top right of the card */}
+                  <div className="absolute right-10 top-10 text-[#0066FF]/10 md:right-14 md:top-14 pointer-events-none">
+                    <svg width="56" height="56" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M7.17 6A5.17 5.17 0 0 0 2 11.17V18a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6.24a3.2 3.2 0 0 1 3.18-2.8.75.75 0 0 0 .75-.75V6.75A.75.75 0 0 0 9.42 6H7.17Zm12 0A5.17 5.17 0 0 0 14 11.17V18a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1.76a3.2 3.2 0 0 1 3.18-2.8.75.75 0 0 0 .75-.75V6.75A.75.75 0 0 0 21.42 6h-2.25Z" />
+                    </svg>
+                  </div>
+
+                  <div className="pr-8 md:pr-12">
+                    <p className="text-[28px] font-semibold tracking-[-0.05em] leading-[1.15] text-[#111827] md:text-[34px]">
+                      &ldquo;{servicesTestimonials[testimonialIndex].quote}&rdquo;
+                    </p>
+                  </div>
+
+                  <div className="mt-10 flex items-center justify-between gap-6 pt-6 border-t border-neutral-100">
+                    <div className="flex items-center gap-4">
+                      <div className="h-14 w-14 overflow-hidden rounded-full bg-zinc-100 border border-neutral-200/50 shadow-sm">
+                        <img src={teamImage} alt="" className="h-full w-full object-cover" />
+                      </div>
+                      <div>
+                        <p className="text-[18px] font-semibold leading-none text-[#111827]">{servicesTestimonials[testimonialIndex].name}</p>
+                        <p className="mt-2 text-[14px] leading-none text-[#6B7280] md:text-[15px]">{servicesTestimonials[testimonialIndex].role}</p>
+                      </div>
                     </div>
                   </div>
                 </motion.div>

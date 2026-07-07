@@ -2,6 +2,7 @@ import { motion, useInView } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
+import visionImage from "@/assets/vision-image.png";
 
 const ACCENT_BLUE = "#0066FF";
 
@@ -110,15 +111,32 @@ export function Vision() {
     <Section id="vision" className="bg-white  py-10 sm:py-14">
       <Container className="py-8 lg:py-10">
         <div ref={ref} className="grid gap-12 lg:grid-cols-12 lg:gap-16 lg:translate-y-10">
-          <div className="lg:col-span-6">
-            <motion.span
-              initial={{ opacity: 0, y: 8 }}
+          <div className="lg:col-span-6 flex flex-col justify-between">
+            <div>
+              <motion.span
+                initial={{ opacity: 0, y: 8 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.4 }}
+                className="text-[12px] font-black uppercase tracking-[0.2em] text-[#333333]"
+              >
+                / Our vision
+              </motion.span>
+            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.4 }}
-              className="text-[12px] font-black uppercase tracking-[0.2em] text-[#333333]"
+              transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+              className="mt-8 overflow-hidden rounded-2xl border border-neutral-100 shadow-2xl lg:mt-12 group cursor-pointer relative"
+              whileHover={{ y: -6, scale: 1.01 }}
             >
-              / Our vision
-            </motion.span>
+              {/* Overlay glow */}
+              <div className="absolute inset-0 bg-gradient-to-t from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10" />
+              <motion.img
+                src={visionImage}
+                alt="Modern digital agency abstract network"
+                className="w-full h-[250px] sm:h-[350px] md:h-[400px] lg:h-[450px] object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              />
+            </motion.div>
           </div>
           <div className="lg:col-span-6">
             <motion.h2

@@ -90,24 +90,19 @@ export function BlogPage() {
         {topBlogs.length > 0 && (
           <Section className="pb-24 pt-0">
             <Container>
-              <div className="grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-4 lg:gap-8">
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:gap-8">
                 {topBlogs.map((blog, index) => {
-                  const isFeatured = index === 0;
                   return (
                     <motion.div
                       key={blog.slug}
                       initial={{ opacity: 0, y: 30 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.6, delay: index * 0.1 }}
-                      className={`group ${
-                        isFeatured 
-                          ? "md:col-span-2 xl:col-span-2" 
-                          : "col-span-1 md:col-span-1 xl:col-span-1"
-                      }`}
+                      className="group col-span-1"
                     >
                       <Link to={`/blog/${blog.slug}`} className="block h-full">
                         {/* Image Container with Zoom effect */}
-                        <div className={`overflow-hidden rounded-[20px] bg-zinc-50 relative shadow-sm transition-all duration-500 group-hover:shadow-md ${isFeatured ? "aspect-[16/10]" : "aspect-[1.4]"}`}>
+                        <div className="overflow-hidden rounded-[20px] bg-zinc-50 relative shadow-sm transition-all duration-500 group-hover:shadow-md aspect-[16/10]">
                           <img
                             src={blog.image}
                             alt={blog.title}
@@ -158,11 +153,11 @@ export function BlogPage() {
                       <Link
                         key={blog.slug}
                         to={`/blog/${blog.slug}`}
-                        className="group flex items-center justify-between py-6 sm:py-8 border-b border-zinc-200/80 transition-colors"
+                        className="group flex flex-col sm:flex-row items-start sm:items-center justify-between py-8 sm:py-10 border-b border-zinc-200/80 transition-colors gap-6"
                       >
-                        <div className="flex items-center gap-6 flex-1 pr-6">
-                          {/* Thumbnail */}
-                          <div className="h-16 w-24 shrink-0 overflow-hidden rounded-xl bg-zinc-50 relative shadow-sm">
+                        <div className="flex items-start gap-6 sm:gap-8 flex-1">
+                          {/* Larger Thumbnail with Zoom effect */}
+                          <div className="w-[120px] sm:w-[180px] lg:w-[220px] aspect-[16/10] shrink-0 overflow-hidden rounded-2xl bg-zinc-50 relative shadow-sm border border-neutral-100">
                             <img
                               src={blog.image}
                               alt={blog.title}
@@ -170,20 +165,31 @@ export function BlogPage() {
                             />
                           </div>
 
-                          {/* Date */}
-                          <p className="text-[13px] font-semibold text-zinc-400 w-24 sm:w-32 shrink-0">
-                            {blog.date}
-                          </p>
+                          <div className="flex-1 min-w-0">
+                            {/* Meta: Date & Read Time */}
+                            <div className="flex items-center gap-3 text-[12px] font-bold uppercase tracking-wider text-[#0066FF]">
+                              <span>{blog.date}</span>
+                              <span className="h-1 w-1 rounded-full bg-zinc-300" />
+                              <span className="text-zinc-400 font-medium normal-case tracking-normal">{blog.readTime || "5 min read"}</span>
+                            </div>
 
-                          {/* Title */}
-                          <h3 className="text-[16px] sm:text-[18px] font-semibold leading-snug text-black group-hover:text-[#0066FF] transition-colors duration-300 line-clamp-1 flex-1">
-                            {blog.title}
-                          </h3>
+                            {/* Large Title */}
+                            <h3 className="mt-3 text-[22px] sm:text-[28px] lg:text-[34px] font-semibold leading-[1.15] tracking-tight text-black group-hover:text-[#0066FF] transition-colors duration-300">
+                              {blog.title}
+                            </h3>
+
+                            {/* Excerpt */}
+                            {blog.excerpt && (
+                              <p className="mt-3 text-[14px] sm:text-[15px] leading-relaxed text-zinc-500 line-clamp-2 max-w-[55ch] font-medium hidden md:block">
+                                {blog.excerpt}
+                              </p>
+                            )}
+                          </div>
                         </div>
 
                         {/* Arrow Link Indicator */}
-                        <div className="h-10 w-10 shrink-0 rounded-full flex items-center justify-center bg-zinc-150/40 text-black group-hover:bg-[#0066FF]/10 group-hover:text-[#0066FF] transition-all duration-300">
-                          <svg className="h-4.5 w-4.5 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <div className="h-12 w-12 shrink-0 rounded-full flex items-center justify-center bg-zinc-100 text-black group-hover:bg-[#0066FF] group-hover:text-white transition-all duration-300 shadow-sm self-end sm:self-center">
+                          <svg className="h-5 w-5 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7m0 0H7m10 0v10" />
                           </svg>
                         </div>
@@ -193,12 +199,15 @@ export function BlogPage() {
 
                   {/* Load More Button */}
                   {visibleCount < listBlogs.length && (
-                    <div className="mt-8">
+                    <div className="mt-12 text-left">
                       <button
                         onClick={() => setVisibleCount((prev) => prev + 3)}
-                        className="text-[15px] font-bold text-black hover:text-[#0066FF] transition-colors duration-300 border-b border-black hover:border-[#0066FF] pb-0.5"
+                        className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-6 py-3 text-[14px] font-bold uppercase tracking-wider text-black transition-all duration-300 hover:bg-black hover:text-white hover:border-black hover:scale-105 active:scale-95 shadow-sm cursor-pointer"
                       >
-                        Load More +
+                        Load More Articles
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
                       </button>
                     </div>
                   )}

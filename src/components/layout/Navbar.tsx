@@ -1,5 +1,6 @@
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { BiMenuAltRight } from "react-icons/bi";
+import { FiFacebook, FiInstagram } from "react-icons/fi";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import logoSrc from "@/assets/edihubBLCK.webp";
@@ -117,7 +118,7 @@ export function Navbar() {
             <motion.aside
               role="dialog"
               aria-modal="true"
-              className="absolute right-0 top-0 h-full w-[78vw] max-w-[720px] bg-[#0052FF] text-white overflow-y-auto"
+              className="absolute right-0 top-0 h-full w-[78vw] max-w-[720px] bg-[#0052FF] text-white overflow-hidden"
               style={{ willChange: "transform" }}
               variants={{
                 open: {
@@ -133,7 +134,7 @@ export function Navbar() {
               animate="open"
               exit="closed"
             >
-              <div className="flex min-h-full flex-col px-12 pb-12 pt-12 justify-between">
+              <div className="flex min-h-full flex-col px-10 md:px-12 pb-10 pt-5 justify-between">
                 <div className="flex items-start justify-between shrink-0">
                   <div className="h-10 w-10" />
                   <button
@@ -148,7 +149,7 @@ export function Navbar() {
                   </button>
                 </div>
 
-                <nav className="mt-8 sm:mt-14 mb-10 shrink-0">
+                <nav className="mt-4 sm:mt-8 mb-8 shrink-0">
                   <ul className="space-y-2 sm:space-y-4 text-[34px] sm:text-[48px] md:text-[52px] lg:text-[56px] font-semibold leading-[1.02] tracking-[-0.05em]">
                     <li>
                       <Link
@@ -216,37 +217,23 @@ export function Navbar() {
                   </ul>
                 </nav>
 
-                <div className="grid grid-cols-2 gap-x-10 gap-y-4 text-white/90 mt-auto pt-8 border-t border-white/10 shrink-0">
-                  <div className="flex flex-col gap-1">
-                    <a href="#" className="text-[16px] sm:text-[20px] md:text-[24px] transition-opacity hover:opacity-80" onClick={() => setMenuOpen(false)}>
-                      Facebook
-                    </a>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <a href="#" className="text-[16px] sm:text-[20px] md:text-[24px] transition-opacity hover:opacity-80" onClick={() => setMenuOpen(false)}>
-                      Instagram
-                    </a>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <a href="#" className="text-[16px] sm:text-[20px] md:text-[24px] transition-opacity hover:opacity-80" onClick={() => setMenuOpen(false)}>
-                      Dribbble
-                    </a>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <a href="#" className="text-[16px] sm:text-[20px] md:text-[24px] transition-opacity hover:opacity-80" onClick={() => setMenuOpen(false)}>
-                      Behance
-                    </a>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <a href="#" className="text-[14px] sm:text-[16px] md:text-[18px] transition-opacity hover:opacity-80" onClick={() => setMenuOpen(false)}>
-                      Privacy Policy
-                    </a>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <a href="#" className="text-[14px] sm:text-[16px] md:text-[18px] transition-opacity hover:opacity-80" onClick={() => setMenuOpen(false)}>
-                      Terms of Service
-                    </a>
-                  </div>
+                <div className="flex flex-col gap-4 text-white/90 mt-auto pt-6 border-t border-white/10 shrink-0">
+                  <a 
+                    href="#" 
+                    className="inline-flex items-center gap-2.5 text-[16px] sm:text-[18px] md:text-[20px] font-bold transition-opacity hover:opacity-85" 
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <FiFacebook className="w-5 h-5" />
+                    <span>Facebook</span>
+                  </a>
+                  <a 
+                    href="#" 
+                    className="inline-flex items-center gap-2.5 text-[16px] sm:text-[18px] md:text-[20px] font-bold transition-opacity hover:opacity-85" 
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <FiInstagram className="w-5 h-5" />
+                    <span>Instagram</span>
+                  </a>
                 </div>
               </div>
             </motion.aside>

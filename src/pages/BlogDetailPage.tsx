@@ -7,6 +7,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CtaSection } from "@/components/sections/CtaSection";
 import { getApiUrl, getYouTubeId } from "@/utils/api";
+import { FiArrowLeft, FiShare2 } from "react-icons/fi";
 
 type Blog = {
   title: string;
@@ -133,236 +134,245 @@ export function BlogDetailPage() {
     <div className="bg-white">
       <Navbar />
       
-      <main className="pt-20 md:pt-[6rem]">
-        {/* Full-bleed Featured Image at the absolute top */}
+      <main className="pt-0">
+        {/* Tall Hero Section with background cover image */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
-          className="w-full overflow-hidden bg-zinc-50 border-b border-zinc-150 relative group cursor-zoom-in"
-          onClick={() => setLightboxIndex(0)}
+          className="relative w-full h-[65vh] sm:h-[75vh] lg:h-[80vh] flex items-end overflow-hidden bg-zinc-950"
         >
+          {/* Cover image with group hover zoom */}
           <img
             src={blog.image}
             alt={blog.title}
-            className="w-full h-[50vh] sm:h-[60vh] lg:h-[70vh] xl:h-[80vh] object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+            className="absolute inset-0 w-full h-full object-cover opacity-60"
           />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full px-5 py-3 shadow-lg flex items-center gap-2">
-              <svg className="w-5 h-5 text-[#111827]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0zm-6-3v6m-3-3h6"/>
-              </svg>
-              <span className="text-[13px] font-bold text-[#111827]">View Full Screen</span>
-            </div>
-          </div>
-        </motion.div>
 
-        {/* Blog Header (Category, Title, Author) - rendered elegantly below the image */}
-        <Section className="pb-8 pt-16">
-          <Container>
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="max-w-4xl"
-            >
-              {/* Back to Blog Button */}
+          {/* Dark Overlay Gradient to guarantee white text visibility */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/15" />
+
+          {/* Content Overlay */}
+          <Container className="relative z-10 px-6 sm:px-8 lg:px-14 xl:px-20 pb-12 sm:pb-16 w-full">
+            <div className="max-w-5xl space-y-6">
+              {/* Back to Blog */}
               <Link
                 to="/blog"
-                className="inline-flex items-center gap-2 text-[14px] font-bold text-[#0066FF] hover:text-[#0052CC] transition-colors mb-6"
+                className="inline-flex items-center gap-2 text-[14px] font-bold text-zinc-300 hover:text-white transition-colors"
               >
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-                  <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+                <FiArrowLeft className="w-4 h-4" />
                 Back to Blog
               </Link>
 
-              {/* Category, Date & Read Time */}
-              <div className="flex flex-wrap items-center gap-4 text-[12px] font-bold uppercase tracking-wider text-black/50">
-                <span className="rounded-full bg-[#0066FF]/10 text-[#0066FF] px-3.5 py-1.5">
+              {/* Tag/Category */}
+              <div>
+                <span className="rounded-full bg-[#0066FF] text-white px-4 py-1.5 text-xs font-black uppercase tracking-wider inline-block">
                   {blog.category}
                 </span>
-                <span>{blog.date}</span>
-                <span>•</span>
-                <span>{blog.readTime}</span>
               </div>
 
               {/* Title */}
-              <h1 className="mt-6 text-[36px] font-semibold leading-[1.08] tracking-[-0.05em] text-[#111827] sm:text-[48px] md:text-[60px] lg:text-[76px]">
+              <h1 className="text-white text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.08] max-w-4xl">
                 {blog.title}
               </h1>
 
-              {/* Author Row */}
-              <div className="mt-8 flex items-center gap-4 border-t border-black/10 pt-6">
-                <div>
-                  <p className="text-[14px] font-bold text-black">Written by</p>
-                  <p className="text-[16px] font-semibold text-[#0066FF]">{blog.author}</p>
+              {/* Author & Share Row */}
+              <div className="mt-8 flex flex-wrap items-center justify-between gap-6 pt-6 border-t border-white/10">
+                <div className="flex items-center gap-3">
+                  {/* Letter Avatar */}
+                  <div className="w-12 h-12 rounded-full bg-[#0066FF] text-white flex items-center justify-center font-bold text-lg border border-white/10 shadow-lg">
+                    {blog.author.charAt(0).toUpperCase()}
+                  </div>
+
+                  <div className="flex flex-col">
+                    <span className="text-white font-bold text-[15px] sm:text-base leading-tight">
+                      {blog.author}
+                    </span>
+                    <span className="text-zinc-400 text-xs sm:text-[13px] font-bold uppercase tracking-wider mt-0.5">
+                      ADMIN • {blog.date} • {blog.readTime}
+                    </span>
+                  </div>
                 </div>
+
+                {/* Share Button */}
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    alert("Article link copied to clipboard!");
+                  }}
+                  className="w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-lg"
+                  title="Share Article"
+                >
+                  <FiShare2 className="w-5 h-5" />
+                </button>
               </div>
-            </motion.div>
+            </div>
           </Container>
-        </Section>
+        </motion.div>
 
         {/* Main Content Layout */}
-        <Section className="py-20 lg:py-28">
-          <Container>
-            <div className="grid gap-16 lg:grid-cols-12 lg:gap-24">
-              {/* Left Side: Empty space or quick stats */}
-              <div className="hidden lg:block lg:col-span-3">
-                <div className="sticky top-44 border-l-2 border-[#0066FF]/20 pl-6 py-2 space-y-8">
-                  <div>
-                    <h4 className="text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">
-                      Category
-                    </h4>
-                    <p className="mt-2 text-[16px] font-semibold text-black">
-                      {blog.category}
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">
-                      Share
-                    </h4>
-                    <div className="mt-3 flex gap-4">
-                      {["Twitter", "LinkedIn", "Copy Link"].map((platform) => (
-                        <button
-                          key={platform}
-                          onClick={() => alert(`${platform} sharing is coming soon!`)}
-                          className="text-[13px] font-bold text-black/50 hover:text-[#0066FF] transition-colors"
-                        >
-                          {platform}
-                        </button>
-                      ))}
+        <Section className="relative z-20 -mt-36 md:-mt-48 lg:-mt-60 pb-24 pt-0">
+          <Container className="max-w-5xl px-4 sm:px-6">
+            {/* 80% Width Overlapping Premium Box */}
+            <div className="bg-white border border-zinc-200/80 rounded-[32px] p-8 sm:p-12 md:p-16 shadow-2xl relative z-10">
+              <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+                {/* Left Side: Empty space or quick stats */}
+                <div className="hidden lg:block lg:col-span-3">
+                  <div className="sticky top-44 border-l-2 border-[#0066FF]/20 pl-6 py-2 space-y-8">
+                    <div>
+                      <h4 className="text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">
+                        Category
+                      </h4>
+                      <p className="mt-2 text-[16px] font-semibold text-black">
+                        {blog.category}
+                      </p>
                     </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Side: Article Body & Tags */}
-              <div className="lg:col-span-9">
-                <div className="prose prose-lg">
-                  {renderContent(blog.content)}
-                </div>
-
-                {/* Blog Gallery */}
-                {blog.gallery && blog.gallery.length > 0 && (
-                  <div className="mt-16 border-t border-black/10 pt-12 space-y-6">
-                    <h3 className="text-[22px] font-bold tracking-tight text-[#111827] sm:text-[28px] text-left">
-                      Article Gallery
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      {blog.gallery.map((imgUrl, idx) => (
-                        <motion.button
-                          key={idx}
-                          type="button"
-                          onClick={() => setLightboxIndex(idx + 1)}
-                          className="aspect-[16/10] w-full overflow-hidden rounded-[20px] bg-zinc-50 border border-zinc-150 shadow-sm transition-all duration-300 hover:shadow-md hover:scale-[1.01] cursor-zoom-in group relative"
-                        >
-                          <img
-                            src={imgUrl}
-                            alt={`Gallery ${idx + 1}`}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            loading="lazy"
-                          />
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-2.5 shadow-lg">
-                              <svg className="w-5 h-5 text-[#111827]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0zm-6-3v6m-3-3h6"/>
-                              </svg>
-                            </div>
-                          </div>
-                        </motion.button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Blog Videos */}
-                {blog.videos && blog.videos.length > 0 && (
-                  <div className="mt-16 border-t border-black/10 pt-12 space-y-8">
-                    <h3 className="text-[22px] font-bold tracking-tight text-[#111827] sm:text-[28px] text-left">
-                      Featured Videos
-                    </h3>
-                    <div className="grid gap-6 sm:grid-cols-2">
-                      {blog.videos.map((vid, idx) => {
-                        const ytId = vid.type === 'youtube' ? getYouTubeId(vid.url) : null;
-                        const thumbSrc = ytId
-                          ? `https://img.youtube.com/vi/${ytId}/maxresdefault.webp`
-                          : null;
-
-                        return (
-                          <motion.button
-                            key={idx}
-                            type="button"
-                            onClick={() => setVideoLightboxIndex(idx)}
-                            className="group relative overflow-hidden rounded-[20px] border border-zinc-150 shadow-sm aspect-video cursor-pointer bg-[#111827] w-full text-left"
-                            aria-label="Play video"
+                    <div>
+                      <h4 className="text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">
+                        Share
+                      </h4>
+                      <div className="mt-3 flex gap-4">
+                        {["Twitter", "LinkedIn", "Copy Link"].map((platform) => (
+                          <button
+                            key={platform}
+                            onClick={() => alert(`${platform} sharing is coming soon!`)}
+                            className="text-[13px] font-bold text-black/50 hover:text-[#0066FF] transition-colors"
                           >
-                            {/* Thumbnail */}
-                            {thumbSrc ? (
-                              <img
-                                src={thumbSrc}
-                                alt={`Video thumbnail ${idx + 1}`}
-                                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 brightness-75 group-hover:brightness-90"
-                              />
-                            ) : vid.type === 'upload' ? (
-                              <div className="h-full w-full relative overflow-hidden bg-black">
-                                <video
-                                  src={vid.url}
-                                  className="h-full w-full object-cover opacity-60"
-                                  muted
-                                />
-                              </div>
-                            ) : (
-                              <div className="h-full w-full bg-gradient-to-br from-[#1e293b] to-[#0f172a]" />
-                            )}
-
-                            {/* Play Button Overlay */}
-                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                              <div className="w-16 h-16 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-2xl transition-transform duration-300 group-hover:scale-110 group-hover:bg-white">
-                                <svg className="w-7 h-7 text-[#111827] ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                  <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
-                                </svg>
-                              </div>
-                              <span className="text-white text-[12px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm">
-                                Play Video
-                              </span>
-                            </div>
-
-                            {/* Badges */}
-                            <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded-full">
-                              {vid.type === 'youtube' ? (
-                                <>
-                                  <svg className="w-3.5 h-3.5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                                  </svg>
-                                  <span className="text-white text-[10px] font-bold">YouTube</span>
-                                </>
-                              ) : (
-                                <>
-                                  <svg className="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/>
-                                  </svg>
-                                  <span className="text-white text-[10px] font-bold">Upload</span>
-                                </>
-                              )}
-                            </div>
-                          </motion.button>
-                        );
-                      })}
+                            {platform}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                )}
+                </div>
 
-                {/* Tag Chips */}
-                <div className="mt-16 flex flex-wrap gap-2 border-t border-black/10 pt-10">
-                  {blog.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full border border-black/10 bg-white px-4 py-2 text-[13px] font-medium text-black/60 hover:border-black/20 hover:text-black transition-colors"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
+                {/* Right Side: Article Body & Tags */}
+                <div className="lg:col-span-9">
+                  <div className="prose prose-lg">
+                    {renderContent(blog.content)}
+                  </div>
+
+                  {/* Blog Gallery */}
+                  {blog.gallery && blog.gallery.length > 0 && (
+                    <div className="mt-16 border-t border-black/10 pt-12 space-y-6">
+                      <h3 className="text-[22px] font-bold tracking-tight text-[#111827] sm:text-[28px] text-left">
+                        Article Gallery
+                      </h3>
+                      <div className="grid gap-6 sm:grid-cols-2">
+                        {blog.gallery.map((imgUrl, idx) => {
+                          const isFullWidth = blog.gallery!.length % 2 !== 0 && idx === blog.gallery!.length - 1;
+                          return (
+                            <motion.button
+                              key={idx}
+                              type="button"
+                              onClick={() => setLightboxIndex(idx + 1)}
+                              initial={{ opacity: 0, y: 30 }}
+                              whileInView={{ opacity: 1, y: 0 }}
+                              viewport={{ once: true }}
+                              transition={{ duration: 0.6, delay: idx * 0.08 }}
+                              className={`group relative overflow-hidden rounded-[20px] border border-zinc-150 bg-zinc-50 shadow-sm aspect-video cursor-zoom-in ${isFullWidth ? 'sm:col-span-2' : ''}`}
+                            >
+                              <img
+                                src={imgUrl}
+                                alt={`${blog.title} gallery image ${idx + 1}`}
+                                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                              />
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
+                                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-2.5 shadow-lg">
+                                  <svg className="w-5 h-5 text-[#111827]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0zm-6-3v6m-3-3h6"/>
+                                  </svg>
+                                </div>
+                              </div>
+                            </motion.button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Videos */}
+                  {blog.videos && blog.videos.length > 0 && (
+                    <div className="mt-16 border-t border-black/10 pt-12 space-y-6">
+                      <h3 className="text-[22px] font-bold tracking-tight text-[#111827] sm:text-[28px] text-left">
+                        Featured Videos
+                      </h3>
+                      <div className="grid gap-6 sm:grid-cols-2">
+                        {blog.videos.map((vid, idx) => {
+                          const ytId = vid.type === 'youtube' ? getYouTubeId(vid.url) : null;
+                          const thumbSrc = ytId
+                            ? `https://img.youtube.com/vi/${ytId}/hqdefault.webp`
+                            : null;
+
+                          return (
+                            <motion.button
+                              key={idx}
+                              type="button"
+                              onClick={() => setVideoLightboxIndex(idx)}
+                              className="group relative overflow-hidden rounded-[20px] border border-zinc-150 shadow-sm aspect-video cursor-pointer bg-[#111827] w-full text-left"
+                              aria-label="Play video"
+                            >
+                              {/* Thumbnail */}
+                              {thumbSrc ? (
+                                <img
+                                  src={thumbSrc}
+                                  alt={`${blog.title} video thumbnail ${idx + 1}`}
+                                  className="h-full w-full object-cover opacity-60 transition-transform duration-700 group-hover:scale-105"
+                                />
+                              ) : (
+                                <div className="h-full w-full flex items-center justify-center bg-slate-900">
+                                  <span className="text-white text-[12px] font-bold tracking-wider">Play Video</span>
+                                </div>
+                              )}
+
+                              {/* Play button */}
+                              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                                <div className="w-16 h-16 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-2xl transition-transform duration-300 group-hover:scale-110 group-hover:bg-white">
+                                  <svg className="w-7 h-7 text-[#111827] ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                                  </svg>
+                                </div>
+                                <span className="text-white text-[12px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm">
+                                  Play Video
+                                </span>
+                              </div>
+
+                              {/* Badges */}
+                              <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                                {vid.type === 'youtube' ? (
+                                  <>
+                                    <svg className="w-3.5 h-3.5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                    </svg>
+                                    <span className="text-white text-[10px] font-bold">YouTube</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <svg className="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/>
+                                    </svg>
+                                    <span className="text-white text-[10px] font-bold">Upload</span>
+                                  </>
+                                )}
+                              </div>
+                            </motion.button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tag Chips */}
+                  <div className="mt-16 flex flex-wrap gap-2 border-t border-black/10 pt-10">
+                    {blog.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full border border-black/10 bg-white px-4 py-2 text-[13px] font-medium text-black/60 hover:border-black/20 hover:text-black transition-colors"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

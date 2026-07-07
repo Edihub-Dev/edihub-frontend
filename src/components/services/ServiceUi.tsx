@@ -210,7 +210,7 @@ export function WhyEdihubIcon({ index }: { index: number }) {
   const colors = ["#0066FF", "#6366F1", "#8B5CF6", "#0066FF"];
   return (
     <div
-      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[#E8EEF8]"
+      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#E8EEF8] bg-white transition-all duration-300 group-hover:scale-110 group-hover:border-transparent group-hover:shadow-[0_4px_20px_rgba(0,102,255,0.12)]"
       style={{ color: colors[index % colors.length] }}
     >
       <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
@@ -222,15 +222,15 @@ export function WhyEdihubIcon({ index }: { index: number }) {
 
 export function ProcessTimeline({ steps }: { steps: { number: string; title: string; description: string }[] }) {
   return (
-    <div className="relative mt-16">
+    <div className="relative mt-16 lg:mt-24">
       <div className="absolute left-0 right-0 top-[7px] hidden h-px bg-[#E5E7EB] lg:block" />
-      <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+      <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-10">
         {steps.map((step) => (
-          <div key={step.number} className="relative">
-            <div className="mb-8 flex h-4 w-4 items-center justify-center rounded-full bg-[#0066FF] ring-[6px] ring-white" />
-            <p className="text-[11px] font-bold tracking-[0.08em] text-[#0066FF]">{step.number}</p>
-            <h3 className="mt-2 text-[18px] font-bold text-[#111827]">{step.title}</h3>
-            <p className="mt-3 text-[14px] leading-[1.6] text-[#6B7280]">{step.description}</p>
+          <div key={step.number} className="relative group">
+            <div className="mb-8 flex h-4 w-4 items-center justify-center rounded-full bg-[#0066FF] ring-[6px] ring-white transition-all duration-300 group-hover:scale-125 group-hover:ring-[#0066FF]/20" />
+            <p className="text-[13px] font-bold uppercase tracking-[0.15em] text-[#0066FF]">{step.number}</p>
+            <h3 className="mt-3 text-[22px] font-semibold tracking-tight text-[#111827] sm:text-[24px] group-hover:text-[#0066FF] transition-colors duration-300">{step.title}</h3>
+            <p className="mt-4 text-[16px] leading-[1.65] text-[#555555]">{step.description}</p>
           </div>
         ))}
       </div>

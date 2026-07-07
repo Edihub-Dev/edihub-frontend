@@ -31,6 +31,8 @@ import teamImage from "@/assets/team.webp";
 import statsImage from "@/assets/stats.webp";
 import heroImage from "@/assets/hero-image.webp";
 import pexels1 from "@/assets/projects/pexels-1.webp";
+import pexels2 from "@/assets/projects/pexels-2.webp";
+import pexels3 from "@/assets/projects/pexels-3.webp";
 
 // Map key string to React icon
 const getJobIcon = (iconName: string) => {
@@ -88,13 +90,14 @@ const itemVariants = {
 export function CareersPage() {
   const [careers, setCareers] = useState<Career[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Filters
   const [activeDept, setActiveDept] = useState("All Departments");
   const [activeLoc, setActiveLoc] = useState("All Locations");
   const [searchQuery, setSearchQuery] = useState("");
   const [isLocDropdownOpen, setIsLocDropdownOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(6);
+  const [cardsOpen, setCardsOpen] = useState(false);
 
   const positionsRef = useRef<HTMLDivElement>(null);
 
@@ -125,8 +128,8 @@ export function CareersPage() {
   const filteredCareers = careers.filter((job) => {
     const matchesDept = activeDept === "All Departments" || job.department.toLowerCase() === activeDept.toLowerCase();
     const matchesLoc = activeLoc === "All Locations" || job.location.toLowerCase() === activeLoc.toLowerCase();
-    const matchesSearch = job.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          job.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesDept && matchesLoc && matchesSearch;
   });
 
@@ -206,66 +209,98 @@ export function CareersPage() {
               {/* Blur Glowing Background */}
               <div className="absolute w-[350px] h-[350px] rounded-full bg-blue-400/20 blur-[100px] pointer-events-none" />
 
-              <div 
-                className="relative w-full max-w-[420px] h-full"
+              <motion.div
+                className="relative w-full max-w-[420px] h-full cursor-pointer select-none"
                 style={{ perspective: 1200 }}
+                onMouseEnter={() => setCardsOpen(true)}
+                onMouseLeave={() => setCardsOpen(false)}
+                onClick={handleScrollToPositions}
+                animate={cardsOpen ? "hover" : "initial"}
               >
                 {/* 3D stacked cards */}
-                {/* Back card */}
+                {/* Back card (Design) */}
                 <motion.div
-                  initial={{ opacity: 0, rotateY: -35, rotateX: 18, z: -100, x: 80, y: -20 }}
-                  animate={{ opacity: 0.35, rotateY: -25, rotateX: 12, z: -80, x: 60, y: 0 }}
-                  transition={{ duration: 0.9, delay: 0.4 }}
-                  className="absolute inset-0 bg-white border border-zinc-150 rounded-3xl p-8 shadow-xl flex flex-col justify-between"
+                  variants={{
+                    initial: { opacity: 0.35, rotateY: -25, rotateX: 12, z: -80, x: 60, y: 0, rotate: 0 },
+                    hover: { opacity: 1, rotateY: -10, rotateX: 5, z: 0, x: 100, y: -25, rotate: 6 }
+                  }}
+                  transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
+                  className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-xl flex flex-col justify-between"
                   style={{ transformStyle: "preserve-3d" }}
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400">03</div>
-                  <div className="text-xl font-bold text-zinc-300">Design</div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Design Team</span>
+                    <div className="w-8 h-8 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400 text-xs">03</div>
+                  </div>
+
+                  {/* Image container */}
+                  <div className="my-3 h-[180px] rounded-2xl overflow-hidden bg-zinc-50 border border-zinc-150 relative">
+                    <img src={pexels3} alt="Design" className="w-full h-full object-cover" />
+                  </div>
+
+                  <div className="text-lg font-bold text-zinc-900 leading-tight">Design & Creative</div>
                 </motion.div>
 
-                {/* Middle card */}
+                {/* Middle card (Development) */}
                 <motion.div
-                  initial={{ opacity: 0, rotateY: -35, rotateX: 18, z: -50, x: 40, y: -10 }}
-                  animate={{ opacity: 0.7, rotateY: -25, rotateX: 12, z: -40, x: 30, y: 0 }}
-                  transition={{ duration: 0.9, delay: 0.3 }}
-                  className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-8 shadow-xl flex flex-col justify-between"
+                  variants={{
+                    initial: { opacity: 0.7, rotateY: -25, rotateX: 12, z: -40, x: 30, y: 0, rotate: 0 },
+                    hover: { opacity: 1, rotateY: -10, rotateX: 5, z: 0, x: -100, y: 20, rotate: -6 }
+                  }}
+                  transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
+                  className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-xl flex flex-col justify-between"
                   style={{ transformStyle: "preserve-3d" }}
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400">02</div>
-                  <div className="text-xl font-bold text-zinc-400">Development</div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Dev Team</span>
+                    <div className="w-8 h-8 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400 text-xs">02</div>
+                  </div>
+
+                  {/* Image container */}
+                  <div className="my-3 h-[180px] rounded-2xl overflow-hidden bg-zinc-50 border border-zinc-150 relative">
+                    <img src={pexels2} alt="Development" className="w-full h-full object-cover" />
+                  </div>
+
+                  <div className="text-lg font-bold text-zinc-900 leading-tight">Tech & Development</div>
                 </motion.div>
 
-                {/* Front card */}
+                {/* Front card (General / We're Hiring) */}
                 <motion.div
-                  initial={{ opacity: 0, rotateY: -30, rotateX: 15, z: 0, x: 0, y: 0 }}
-                  animate={{ opacity: 1, rotateY: -20, rotateX: 10, z: 0, x: 0, y: 0 }}
-                  whileHover={{ scale: 1.05, rotateY: -15, rotateX: 5 }}
-                  transition={{ duration: 0.7, delay: 0.2 }}
-                  className="absolute inset-0 bg-white/70 backdrop-blur-md border border-white/80 rounded-3xl p-8 shadow-2xl flex flex-col justify-between select-none"
+                  variants={{
+                    initial: { opacity: 1, rotateY: -20, rotateX: 10, z: 0, x: 0, y: 0, scale: 1 },
+                    hover: { opacity: 1, rotateY: -12, rotateX: 6, z: 0, x: 0, y: 5, scale: 1.02 }
+                  }}
+                  transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
+                  className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-2xl flex flex-col justify-between select-none"
                   style={{ transformStyle: "preserve-3d", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.08)" }}
                 >
                   <div className="flex justify-between items-start">
                     <div className="px-3 py-1 bg-blue-50 border border-blue-100 rounded-full text-[10px] font-black text-blue-600 uppercase tracking-widest">
                       We're Hiring
                     </div>
-                    <div className="w-12 h-12 rounded-2xl bg-blue-600/10 flex items-center justify-center font-extrabold text-blue-600 text-lg">01</div>
+                    <div className="w-10 h-10 rounded-xl bg-blue-600/10 flex items-center justify-center font-extrabold text-blue-600 text-sm">01</div>
                   </div>
-                  
-                  <div className="space-y-4">
-                    <p className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 leading-tight">
+
+                  {/* Image container */}
+                  <div className="my-3 h-[180px] rounded-2xl overflow-hidden bg-zinc-50 border border-zinc-150 relative">
+                    <img src={heroImage} alt="Hiring" className="w-full h-full object-cover" />
+                  </div>
+
+                  <div className="space-y-3">
+                    <p className="text-xl font-bold tracking-tight text-zinc-900 leading-tight">
                       We're hiring creative minds and problem solvers.
                     </p>
                     <div className="w-full h-1 bg-blue-100 rounded-full overflow-hidden">
-                      <motion.div 
+                      <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: "70%" }}
                         transition={{ duration: 1.5, delay: 0.8 }}
-                        className="h-full bg-blue-600 rounded-full" 
+                        className="h-full bg-blue-600 rounded-full"
                       />
                     </div>
                   </div>
                 </motion.div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </Container>
@@ -283,7 +318,7 @@ export function CareersPage() {
                 Find your next opportunity.
               </h2>
             </div>
-            
+
             <p className="text-zinc-500 max-w-sm leading-relaxed text-sm md:text-[15px]">
               Join a remote-first team that values creativity, ownership, and continuous growth.
             </p>
@@ -314,11 +349,10 @@ export function CareersPage() {
                       setActiveDept(dept);
                       setVisibleCount(6);
                     }}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                      activeDept === dept
+                    className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${activeDept === dept
                         ? "bg-white text-zinc-950 shadow-sm border border-zinc-200/50"
                         : "text-zinc-500 hover:text-zinc-800"
-                    }`}
+                      }`}
                   >
                     {dept}
                   </button>
@@ -347,9 +381,8 @@ export function CareersPage() {
                             setIsLocDropdownOpen(false);
                             setVisibleCount(6);
                           }}
-                          className={`w-full text-left px-4 py-2.5 text-xs transition-colors hover:bg-zinc-50 cursor-pointer block ${
-                            activeLoc === loc ? "text-blue-600 font-bold bg-blue-50/40" : "text-zinc-600"
-                          }`}
+                          className={`w-full text-left px-4 py-2.5 text-xs transition-colors hover:bg-zinc-50 cursor-pointer block ${activeLoc === loc ? "text-blue-600 font-bold bg-blue-50/40" : "text-zinc-600"
+                            }`}
                         >
                           {loc}
                         </button>
@@ -386,46 +419,46 @@ export function CareersPage() {
                 >
                   <Link
                     to={`/career/${job.slug}`}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-6 sm:p-8 bg-white border border-zinc-200 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-500/[0.02] rounded-3xl transition-all duration-300 gap-6"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-8 md:p-10 bg-white border border-zinc-200 hover:border-blue-300 hover:shadow-[0_20px_50px_rgba(0,102,255,0.05)] rounded-[24px] sm:rounded-[32px] transition-all duration-300 gap-6"
                   >
                     {/* Icon & Title info */}
-                    <div className="flex items-center gap-5">
-                      <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-600/10 transition-colors">
+                    <div className="flex items-center gap-6 flex-1 min-w-0">
+                      <div className="w-14 h-14 shrink-0 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center group-hover:bg-blue-600/10 group-hover:scale-105 transition-all duration-300">
                         {getJobIcon(job.icon)}
                       </div>
                       
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-3">
-                          <h3 className="text-lg font-bold text-zinc-900 group-hover:text-blue-600 transition-colors">
+                      <div className="space-y-2 min-w-0">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <h3 className="text-[20px] sm:text-[24px] font-semibold tracking-tight text-zinc-950 group-hover:text-blue-600 transition-colors duration-300 line-clamp-1">
                             {job.title}
                           </h3>
                           {job.isNew && (
-                            <span className="px-2 py-0.5 rounded-full bg-blue-500 text-white font-extrabold text-[9px] uppercase tracking-wider">
+                            <span className="px-2.5 py-1 rounded-full bg-blue-600 text-white font-extrabold text-[9px] uppercase tracking-widest leading-none shadow-sm">
                               NEW
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 text-xs font-semibold text-zinc-400">
-                          <span>{job.department}</span>
-                          <span>•</span>
+                        <div className="flex items-center gap-2.5 text-[14px] font-medium text-zinc-400">
+                          <span className="text-blue-600 font-bold uppercase text-[11px] tracking-wider">{job.department}</span>
+                          <span className="text-zinc-300">•</span>
                           <span>{job.employmentType}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Location & Details Action */}
-                    <div className="flex items-center justify-between sm:justify-end gap-12 border-t sm:border-0 border-zinc-100 pt-4 sm:pt-0">
-                      <span className="text-sm font-semibold text-zinc-500">
+                    <div className="flex items-center justify-between sm:justify-end gap-10 border-t sm:border-0 border-zinc-100 pt-6 sm:pt-0 shrink-0">
+                      <span className="text-[16px] font-medium text-zinc-500">
                         {job.location}
                       </span>
                       
-                      <div className="flex items-center gap-3">
-                        <span className="px-4 py-2 rounded-xl bg-zinc-50 border border-zinc-200 text-[10px] font-black text-zinc-500 uppercase group-hover:bg-blue-50 group-hover:border-blue-200 group-hover:text-blue-600 transition-all tracking-wider">
+                      <div className="flex items-center gap-4">
+                        <span className="px-4 py-2.5 rounded-xl bg-zinc-50 border border-zinc-150 text-[11px] font-extrabold text-zinc-500 uppercase tracking-wider group-hover:bg-blue-600/5 group-hover:border-blue-200 group-hover:text-blue-600 transition-all">
                           {job.employmentType}
                         </span>
                         
-                        <div className="w-10 h-10 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-400 group-hover:bg-zinc-950 group-hover:text-white group-hover:border-zinc-950 transition-colors shadow-sm">
-                          <FiArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                        <div className="w-12 h-12 rounded-full border border-zinc-200 bg-white flex items-center justify-center text-zinc-400 group-hover:bg-zinc-950 group-hover:text-white group-hover:border-transparent transition-all duration-300 shadow-sm">
+                          <FiArrowUpRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                         </div>
                       </div>
                     </div>
@@ -461,36 +494,53 @@ export function CareersPage() {
                 More than a job. <br />A place to grow.
               </h2>
             </div>
-            
+
             <p className="text-zinc-500 max-w-md leading-relaxed text-sm md:text-base">
               We empower our team to solve meaningful challenges, providing an environment that fosters continuous learning, autonomy, and cross-functional collaboration.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-            {whyJoinEdihub.map((item, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.08 }}
-                className="p-6 bg-zinc-50 border border-zinc-200/60 rounded-3xl flex flex-col justify-between h-56 hover:shadow-lg hover:border-zinc-200 transition-all duration-300"
-              >
-                <div className="w-12 h-12 bg-white rounded-2xl border border-zinc-200 flex items-center justify-center shadow-sm">
-                  {getBenefitIcon(item.icon)}
-                </div>
-                
-                <div className="space-y-2">
-                  <h3 className="text-[15px] font-bold text-zinc-900 tracking-tight">
-                    {item.title}
-                  </h3>
-                  <p className="text-xs text-zinc-400 leading-normal">
-                    {item.description}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
+            {whyJoinEdihub.map((item, idx) => {
+              const getGridSpan = (i: number) => {
+                switch (i) {
+                  case 0:
+                  case 1:
+                  case 2:
+                    return "lg:col-span-2 md:col-span-1 col-span-1";
+                  case 3:
+                    return "lg:col-span-3 md:col-span-1 col-span-1";
+                  case 4:
+                    return "lg:col-span-3 md:col-span-2 col-span-1";
+                  default:
+                    return "lg:col-span-2 col-span-1";
+                }
+              };
+
+              return (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: idx * 0.08 }}
+                  className={`p-8 md:p-10 bg-white border border-zinc-200 rounded-[32px] flex flex-col justify-between min-h-[280px] hover:shadow-[0_30px_70px_rgba(0,102,255,0.06)] hover:border-blue-300 hover:-translate-y-2 transition-all duration-400 ease-out group ${getGridSpan(idx)}`}
+                >
+                  <div className="w-14 h-14 bg-zinc-50 border border-zinc-100 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-105 group-hover:bg-blue-600/5 group-hover:border-blue-200/50 transition-all duration-300">
+                    {getBenefitIcon(item.icon)}
+                  </div>
+                  
+                  <div className="space-y-3 mt-8">
+                    <h3 className="text-[20px] sm:text-[24px] font-semibold text-zinc-950 tracking-tight group-hover:text-blue-600 transition-colors duration-300">
+                      {item.title}
+                    </h3>
+                    <p className="text-[15px] text-zinc-500 leading-relaxed">
+                      {item.description}
+                    </p>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </Container>
       </Section>
@@ -507,7 +557,7 @@ export function CareersPage() {
                 A culture built on trust and creativity.
               </h2>
             </div>
-            
+
             <a
               href="#positions"
               onClick={handleScrollToPositions}
