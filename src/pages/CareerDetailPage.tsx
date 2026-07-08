@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CtaSection } from "@/components/sections/CtaSection";
@@ -11,7 +11,6 @@ import { defaultCareers, whyJoinEdihub } from "@/data/careers";
 import type { Career } from "@/data/careers";
 
 import {
-  FiArrowLeft,
   FiBriefcase,
   FiClock,
   FiMapPin,

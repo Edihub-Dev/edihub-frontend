@@ -7,7 +7,7 @@ import { CtaSection } from "@/components/sections/CtaSection";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { getApiUrl } from "@/utils/api";
-import { defaultCareers, whyJoinEdihub } from "@/data/careers";
+import { defaultCareers } from "@/data/careers";
 import type { Career } from "@/data/careers";
 
 import {
@@ -55,21 +55,6 @@ const getJobIcon = (iconName: string) => {
 
 
 
-const getBenefitIconWhite = (iconName: string) => {
-  switch (iconName) {
-    case "globe":
-      return <FiGlobe className="w-6 h-6 text-white" />;
-    case "heart":
-      return <FiHeart className="w-6 h-6 text-white" />;
-    case "trending":
-      return <FiTrendingUp className="w-6 h-6 text-white" />;
-    case "calendar":
-      return <FiCalendar className="w-6 h-6 text-white" />;
-    case "users":
-    default:
-      return <FiUsers className="w-6 h-6 text-white" />;
-  }
-};
 
 const listVariants = {
   hidden: {},

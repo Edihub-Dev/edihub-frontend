@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import type { ReactNode } from "react";
 import { WavyCtaBg } from "./ServiceVisuals";
 
-const ACCENT = "#0066FF";
 
 export function ServicesTopBar() {
   return (

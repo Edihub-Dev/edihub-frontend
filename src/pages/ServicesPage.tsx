@@ -7,7 +7,6 @@ import { Container } from "@/components/ui/Container";
 import {
   mergeApiServicesWithStatic,
   servicesProcessSteps,
-  whyEdihubItems,
   selectedWork,
   servicesFaq,
   type ApiService,
@@ -16,9 +15,7 @@ import { getApiUrl } from "@/utils/api";
 import { ServicePageHero } from "@/components/services/ServicePageHero";
 import {
   ServiceLabel,
-  ServiceCardIcon,
   ArrowIcon,
-  WhyEdihubIcon,
   ProcessTimeline,
   SecondaryButton,
 } from "@/components/services/ServiceUi";
