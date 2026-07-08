@@ -135,7 +135,7 @@ export function ProjectDetailPage() {
               src={customImageMap[project.slug] || imageMap[project.image] || project.image}
               alt={project.title}
               className="w-full h-full object-cover scale-[1.05] opacity-60"
-              style={{ filter: "blur(12px)" }}
+              style={{ filter: "blur(4px)" }}
             />
             {/* Dark gradient overlay — dark at top for navbar, fades to dark at bottom */}
             <div
@@ -151,16 +151,6 @@ export function ProjectDetailPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.15 }}
               >
-                {/* Back link */}
-                <Link
-                  to="/projects"
-                  className="inline-flex items-center gap-2 text-[13px] font-bold text-white/70 hover:text-white transition-colors mb-6 uppercase tracking-widest"
-                >
-                  <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-                    <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  Back to Projects
-                </Link>
 
                 {/* Category badge */}
                 <div className="mb-5">
@@ -179,7 +169,7 @@ export function ProjectDetailPage() {
         </div>
 
         {/* Content Section */}
-        <Section className="relative z-20 -mt-36 md:-mt-48 lg:-mt-60 pb-24 pt-0">
+        <Section className="relative z-20 -mt-48 md:-mt-64 lg:-mt-80 pb-24 pt-0">
           <Container className="max-w-5xl px-4 sm:px-6">
             {/* 80% Width Overlapping Premium Box */}
             <div className="bg-white border border-zinc-200/80 rounded-[32px] p-8 sm:p-12 md:p-16 shadow-2xl relative z-10">

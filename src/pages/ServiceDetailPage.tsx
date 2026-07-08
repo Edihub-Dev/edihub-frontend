@@ -405,20 +405,20 @@ export function ServiceDetailPage() {
             <div className="grid gap-14 lg:grid-cols-12 lg:gap-16">
               <div className="lg:col-span-4">
                 <ServiceLabel>Our process</ServiceLabel>
-                <h2 className="mt-4 text-[32px] font-semibold leading-[1.1] tracking-[-0.06em] text-[#111827] sm:text-[40px]">
+                <h2 className="mt-4 text-[40px] font-semibold leading-[1.1] tracking-[-0.06em] text-[#111827] sm:text-[52px] lg:text-[64px]">
                   A simple process for powerful {service.shortTitle.toLowerCase()}.
                 </h2>
               </div>
-              <div className="lg:col-span-8">
+              <div className="lg:col-span-8 mt-8 lg:mt-0">
                 <div className="relative">
                   <div className="absolute left-0 right-0 top-[6px] hidden h-px bg-[#D1D5DB] md:block" />
                   <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4 md:gap-4">
                     {service.processSteps.map((step) => (
                       <div key={step.number} className="relative bg-[#FAFAFA] md:bg-transparent">
                         <div className="mb-6 h-3 w-3 rounded-full bg-[#0066FF] ring-4 ring-[#FAFAFA] md:ring-white" />
-                        <p className="text-[11px] font-bold text-[#0066FF]">{step.number}</p>
-                        <h3 className="mt-2 text-[16px] font-bold text-[#111827]">{step.title}</h3>
-                        <p className="mt-2 text-[13px] leading-[1.6] text-[#6B7280]">{step.description}</p>
+                        <p className="text-[13px] font-bold text-[#0066FF]">{step.number}</p>
+                        <h3 className="mt-3 text-[18px] sm:text-[20px] font-bold text-[#111827]">{step.title}</h3>
+                        <p className="mt-2 text-[15px] leading-[1.6] text-[#6B7280]">{step.description}</p>
                       </div>
                     ))}
                   </div>

@@ -120,6 +120,14 @@ export function CareerDetailPage() {
     window.scrollTo(0, 0);
   }, [slug, navigate]);
 
+  useEffect(() => {
+    if (detailCardsOpen) return;
+    const interval = setInterval(() => {
+      setActiveCardIndex((prev) => (prev === 0 ? 1 : 0));
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [detailCardsOpen]);
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-white">
@@ -198,19 +206,11 @@ export function CareerDetailPage() {
     }
   };
 
-  const getDetailCardVariants = (cardIdx: number) => {
-    const isFront = activeCardIndex === cardIdx;
-    if (isFront) {
-      return {
-        initial: { zIndex: 30, opacity: 1, rotateY: -8, rotateX: 6, z: 0, x: 0, y: 0, rotate: 0 },
-        hover: { zIndex: 30, opacity: 1, rotateY: -12, rotateX: 8, z: 0, x: -20, y: 10, rotate: -4 }
-      };
-    } else {
-      return {
-        initial: { zIndex: 10, opacity: 0.6, rotateY: -15, rotateX: 10, z: -40, x: 0, y: 0, rotate: 0 },
-        hover: { zIndex: 10, opacity: 1, rotateY: -5, rotateX: 2, z: 0, x: 80, y: -20, rotate: 6 }
-      };
-    }
+  const detailCardVariants = {
+    "front-initial": { zIndex: 30, opacity: 1, rotateY: -8, rotateX: 6, z: 0, x: 0, y: 0, rotate: 0 },
+    "front-hover": { zIndex: 30, opacity: 1, rotateY: -12, rotateX: 8, z: 0, x: -20, y: 10, rotate: -4 },
+    "back-initial": { zIndex: 10, opacity: 0.6, rotateY: -15, rotateX: 10, z: -40, x: 0, y: 0, rotate: 0 },
+    "back-hover": { zIndex: 10, opacity: 1, rotateY: -5, rotateX: 2, z: 0, x: 80, y: -20, rotate: 6 }
   };
 
   return (
@@ -224,13 +224,7 @@ export function CareerDetailPage() {
             <div className="grid lg:grid-cols-12 gap-12 items-start">
               {/* Info Column */}
               <div className="lg:col-span-7 space-y-6">
-                <Link
-                  to="/career"
-                  className="inline-flex items-center gap-2 text-[16px] font-black text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest"
-                >
-                  <FiArrowLeft className="w-4 h-4" />
-                  Back to All Positions
-                </Link>
+
 
                 <div className="flex flex-wrap gap-2 text-[15px] font-black tracking-widest text-blue-600 uppercase">
                   <span>{career.department}</span>
@@ -267,16 +261,17 @@ export function CareerDetailPage() {
                   style={{ perspective: 1000 }}
                   onMouseEnter={() => setDetailCardsOpen(true)}
                   onMouseLeave={() => setDetailCardsOpen(false)}
-                  animate={detailCardsOpen ? "hover" : "initial"}
                 >
                   {/* Back card */}
                   <motion.div
-                    variants={getDetailCardVariants(1)}
+                    variants={detailCardVariants}
+                    animate={activeCardIndex === 1 ? (detailCardsOpen ? "front-hover" : "front-initial") : (detailCardsOpen ? "back-hover" : "back-initial")}
                     onClick={(e) => handleCardClick(1, e)}
                     transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
                     className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-xl flex flex-col justify-between cursor-pointer"
                     style={{ transformStyle: "preserve-3d" }}
-                  >                    <div className="flex justify-between items-center">
+                  >
+                    <div className="flex justify-between items-center">
                       <span className="text-[13px] font-black text-zinc-400 uppercase tracking-widest">Life at Edihub</span>
                       <div className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400 text-[13px]">EDI</div>
                     </div>
@@ -287,7 +282,7 @@ export function CareerDetailPage() {
                     </div>
 
                     <div className="space-y-1">
-                      <div className="text-[18px] font-bold text-zinc-950">Join our team.</div>
+                      <div className="text-[18px] font-bold text-zinc-955">Join our team.</div>
                       <div className="flex gap-2">
                         <span className="text-[12px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-400 font-bold">Remote-first</span>
                         <span className="text-[12px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-400 font-bold">Global</span>
@@ -297,7 +292,8 @@ export function CareerDetailPage() {
 
                   {/* Front card */}
                   <motion.div
-                    variants={getDetailCardVariants(0)}
+                    variants={detailCardVariants}
+                    animate={activeCardIndex === 0 ? (detailCardsOpen ? "front-hover" : "front-initial") : (detailCardsOpen ? "back-hover" : "back-initial")}
                     onClick={(e) => handleCardClick(0, e)}
                     transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
                     className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-2xl flex flex-col justify-between cursor-pointer"

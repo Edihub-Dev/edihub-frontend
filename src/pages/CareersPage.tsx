@@ -124,6 +124,14 @@ export function CareersPage() {
     window.scrollTo(0, 0);
   }, []);
 
+  useEffect(() => {
+    if (cardsOpen) return;
+    const interval = setInterval(() => {
+      setActiveCardIndex((prev) => (prev + 1) % 3);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [cardsOpen]);
+
   // Extract unique locations dynamically
   const uniqueLocations = ["All Locations", ...Array.from(new Set(careers.map((c) => c.location)))];
 
@@ -150,27 +158,20 @@ export function CareersPage() {
     }
   };
 
-  const getCardVariants = (cardIdx: number) => {
+  const cardVariants = {
+    "front-initial": { zIndex: 30, opacity: 1, rotateY: -15, rotateX: 8, z: 0, x: 0, y: 0, scale: 1 },
+    "front-hover": { zIndex: 30, opacity: 1, rotateY: -8, rotateX: 4, z: 0, x: 0, y: 5, scale: 1.02 },
+    "right-initial": { zIndex: 10, opacity: 0.35, rotateY: -25, rotateX: 12, z: -80, x: 60, y: 0, rotate: 0 },
+    "right-hover": { zIndex: 10, opacity: 0.95, rotateY: -10, rotateX: 5, z: 0, x: 100, y: -25, rotate: 6 },
+    "left-initial": { zIndex: 20, opacity: 0.7, rotateY: -25, rotateX: 12, z: -40, x: -30, y: 0, rotate: 0 },
+    "left-hover": { zIndex: 20, opacity: 0.95, rotateY: -10, rotateX: 5, z: 0, x: -100, y: 20, rotate: -6 }
+  };
+
+  const getCardAnimateState = (cardIdx: number) => {
     const rel = (cardIdx - activeCardIndex + 3) % 3;
-    if (rel === 0) {
-      // Front active card position
-      return {
-        initial: { zIndex: 30, opacity: 1, rotateY: -15, rotateX: 8, z: 0, x: 0, y: 0, scale: 1 },
-        hover: { zIndex: 30, opacity: 1, rotateY: -8, rotateX: 4, z: 0, x: 0, y: 5, scale: 1.02 }
-      };
-    } else if (rel === 1) {
-      // Right/back card position
-      return {
-        initial: { zIndex: 10, opacity: 0.35, rotateY: -25, rotateX: 12, z: -80, x: 60, y: 0, rotate: 0 },
-        hover: { zIndex: 10, opacity: 0.95, rotateY: -10, rotateX: 5, z: 0, x: 100, y: -25, rotate: 6 }
-      };
-    } else {
-      // Left/back card position
-      return {
-        initial: { zIndex: 20, opacity: 0.7, rotateY: -25, rotateX: 12, z: -40, x: -30, y: 0, rotate: 0 },
-        hover: { zIndex: 20, opacity: 0.95, rotateY: -10, rotateX: 5, z: 0, x: -100, y: 20, rotate: -6 }
-      };
-    }
+    if (rel === 0) return cardsOpen ? "front-hover" : "front-initial";
+    if (rel === 1) return cardsOpen ? "right-hover" : "right-initial";
+    return cardsOpen ? "left-hover" : "left-initial";
   };
 
   return (
@@ -249,12 +250,12 @@ export function CareersPage() {
                 style={{ perspective: 1200 }}
                 onMouseEnter={() => setCardsOpen(true)}
                 onMouseLeave={() => setCardsOpen(false)}
-                animate={cardsOpen ? "hover" : "initial"}
               >
                 {/* 3D stacked cards */}
                 {/* Back card (Design) */}
                 <motion.div
-                  variants={getCardVariants(2)}
+                  variants={cardVariants}
+                  animate={getCardAnimateState(2)}
                   onClick={(e) => handleCardClick(2, e)}
                   transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
                   className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-xl flex flex-col justify-between cursor-pointer"
@@ -275,7 +276,8 @@ export function CareersPage() {
 
                 {/* Middle card (Development) */}
                 <motion.div
-                  variants={getCardVariants(1)}
+                  variants={cardVariants}
+                  animate={getCardAnimateState(1)}
                   onClick={(e) => handleCardClick(1, e)}
                   transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
                   className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-xl flex flex-col justify-between cursor-pointer"
@@ -296,7 +298,8 @@ export function CareersPage() {
 
                 {/* Front card (General / We're Hiring) */}
                 <motion.div
-                  variants={getCardVariants(0)}
+                  variants={cardVariants}
+                  animate={getCardAnimateState(0)}
                   onClick={(e) => handleCardClick(0, e)}
                   transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
                   className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-2xl flex flex-col justify-between select-none cursor-pointer"
@@ -335,92 +338,122 @@ export function CareersPage() {
       </Section>
 
       {/* Filter and Job List Section */}
-      <Section id="positions" ref={positionsRef} className="bg-zinc-50 border-t border-zinc-100 py-24">
+      <Section id="positions" ref={positionsRef} className="bg-[#F8F8FA] border-t border-zinc-100 py-20 md:py-28">
         <Container className="px-6 sm:px-8 lg:px-14 xl:px-20">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
-            <div className="space-y-4">
-              <span className="text-[11px] font-black tracking-widest text-blue-600 uppercase">
-                • Open Positions
+
+          {/* Section header â€” 2-col with stats on right */}
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10 mb-14">
+            <div>
+              <span className="inline-flex items-center gap-2 text-[12px] font-black tracking-[0.18em] text-blue-600 uppercase mb-4">
+                <span className="h-[2px] w-6 bg-blue-600 rounded-full inline-block" />
+                Open Positions
               </span>
-              <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-zinc-950">
-                Find your next opportunity.
+              <h2 className="text-[40px] sm:text-[52px] md:text-[64px] font-extrabold tracking-[-0.04em] leading-[1.05] text-zinc-950">
+                Find your next<br />opportunity.
               </h2>
+              <p className="mt-5 text-[17px] leading-relaxed text-zinc-500 max-w-[45ch]">
+                Join a remote-first team that values creativity, ownership, and continuous growth.
+              </p>
             </div>
 
-            <p className="text-zinc-500 max-w-sm leading-relaxed text-sm md:text-[15px]">
-              Join a remote-first team that values creativity, ownership, and continuous growth.
-            </p>
+            {/* Live stats */}
+            <div className="flex gap-8 shrink-0">
+              <div className="text-center">
+                <div className="text-[40px] font-extrabold tracking-tight text-zinc-950">{careers.length}</div>
+                <div className="text-[12px] font-bold uppercase tracking-widest text-zinc-400 mt-1">Open Roles</div>
+              </div>
+              <div className="w-[1px] bg-zinc-200" />
+              <div className="text-center">
+                <div className="text-[40px] font-extrabold tracking-tight text-zinc-950">100%</div>
+                <div className="text-[12px] font-bold uppercase tracking-widest text-zinc-400 mt-1">Remote</div>
+              </div>
+              <div className="w-[1px] bg-zinc-200" />
+              <div className="text-center">
+                <div className="text-[40px] font-extrabold tracking-tight text-zinc-950">5</div>
+                <div className="text-[12px] font-bold uppercase tracking-widest text-zinc-400 mt-1">Teams</div>
+              </div>
+            </div>
           </div>
 
           {/* Filtering Tools Bar */}
-          <div className="flex flex-col lg:flex-row gap-4 justify-between items-stretch lg:items-center mb-8">
+          <div className="bg-white border border-zinc-200 rounded-2xl p-3 flex flex-col lg:flex-row gap-3 items-stretch lg:items-center mb-8 shadow-sm">
             {/* Search Input */}
-            <div className="relative flex-1 max-w-md">
-              <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-4.5 h-4.5" />
+            <div className="relative flex-1">
+              <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search jobs..."
-                className="w-full bg-white border border-zinc-200 rounded-2xl py-3.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600/10 focus:border-blue-600 transition-all text-zinc-800"
+                placeholder="Search by role, skill, or keywordâ€¦"
+                className="w-full bg-zinc-50 border border-zinc-200 rounded-xl py-3.5 pl-12 pr-4 text-[15px] font-medium focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-600/10 focus:border-blue-600 transition-all text-zinc-800 placeholder:text-zinc-400"
               />
             </div>
 
-            {/* Dropdowns and active filter list */}
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Department Tabs */}
-              <div className="flex bg-zinc-100 p-1.5 rounded-2xl overflow-x-auto border border-zinc-200">
-                {["All Departments", "Design", "Development", "Marketing", "Operations"].map((dept) => (
-                  <button
-                    key={dept}
-                    onClick={() => {
-                      setActiveDept(dept);
-                      setVisibleCount(6);
-                    }}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${activeDept === dept
-                        ? "bg-white text-zinc-950 shadow-sm border border-zinc-200/50"
-                        : "text-zinc-500 hover:text-zinc-800"
-                      }`}
-                  >
-                    {dept}
-                  </button>
-                ))}
-              </div>
+            {/* Divider */}
+            <div className="hidden lg:block w-[1px] h-10 bg-zinc-200 self-center" />
 
-              {/* Location Selector Dropdown */}
-              <div className="relative">
+            {/* Department Tabs */}
+            <div className="flex gap-1 overflow-x-auto flex-wrap">
+              {["All Departments", "Design", "Development", "Marketing", "Operations"].map((dept) => (
                 <button
-                  onClick={() => setIsLocDropdownOpen(!isLocDropdownOpen)}
-                  className="flex items-center gap-2 px-4 py-3 bg-white border border-zinc-200 hover:bg-zinc-50 rounded-2xl text-xs font-bold text-zinc-800 transition-all cursor-pointer"
+                  key={dept}
+                  onClick={() => {
+                    setActiveDept(dept);
+                    setVisibleCount(6);
+                  }}
+                  className={`px-4 py-2.5 rounded-xl text-[13px] font-bold whitespace-nowrap transition-all cursor-pointer ${activeDept === dept
+                      ? "bg-zinc-950 text-white shadow-sm"
+                      : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
+                    }`}
                 >
-                  {activeLoc}
-                  <FiChevronDown className={`w-3.5 h-3.5 text-zinc-400 transition-transform ${isLocDropdownOpen ? "rotate-180" : ""}`} />
+                  {dept}
                 </button>
+              ))}
+            </div>
 
-                {isLocDropdownOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setIsLocDropdownOpen(false)} />
-                    <div className="absolute right-0 mt-2 w-48 bg-white border border-zinc-200 rounded-2xl shadow-xl z-50 py-1.5">
-                      {uniqueLocations.map((loc) => (
-                        <button
-                          key={loc}
-                          onClick={() => {
-                            setActiveLoc(loc);
-                            setIsLocDropdownOpen(false);
-                            setVisibleCount(6);
-                          }}
-                          className={`w-full text-left px-4 py-2.5 text-xs transition-colors hover:bg-zinc-50 cursor-pointer block ${activeLoc === loc ? "text-blue-600 font-bold bg-blue-50/40" : "text-zinc-600"
-                            }`}
-                        >
-                          {loc}
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
+            {/* Divider */}
+            <div className="hidden lg:block w-[1px] h-10 bg-zinc-200 self-center" />
+
+            {/* Location Selector Dropdown */}
+            <div className="relative shrink-0">
+              <button
+                onClick={() => setIsLocDropdownOpen(!isLocDropdownOpen)}
+                className="flex items-center gap-2 px-4 py-2.5 bg-zinc-50 border border-zinc-200 hover:bg-white rounded-xl text-[13px] font-bold text-zinc-800 transition-all cursor-pointer w-full lg:w-auto"
+              >
+                <FiGlobe className="w-4 h-4 text-zinc-400" />
+                {activeLoc}
+                <FiChevronDown className={`w-4 h-4 text-zinc-400 transition-transform ml-auto ${isLocDropdownOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {isLocDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsLocDropdownOpen(false)} />
+                  <div className="absolute right-0 mt-2 w-52 bg-white border border-zinc-200 rounded-2xl shadow-xl z-50 py-2">
+                    {uniqueLocations.map((loc) => (
+                      <button
+                        key={loc}
+                        onClick={() => {
+                          setActiveLoc(loc);
+                          setIsLocDropdownOpen(false);
+                          setVisibleCount(6);
+                        }}
+                        className={`w-full text-left px-5 py-3 text-[14px] font-semibold transition-colors hover:bg-zinc-50 cursor-pointer block ${activeLoc === loc ? "text-blue-600 font-bold bg-blue-50/50" : "text-zinc-600"}`}
+                      >
+                        {loc}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </div>
+
+          {/* Results count */}
+          {!loading && (
+            <p className="text-[13px] text-zinc-400 font-medium mb-5">
+              {filteredCareers.length} position{filteredCareers.length !== 1 ? "s" : ""} found
+            </p>
+          )}
 
           {/* Positions List */}
           {loading ? (
@@ -437,9 +470,9 @@ export function CareersPage() {
               variants={listVariants}
               initial="hidden"
               animate="show"
-              className="space-y-4"
+              className="space-y-3"
             >
-              {filteredCareers.slice(0, visibleCount).map((job) => (
+              {filteredCareers.slice(0, visibleCount).map((job, idx) => (
                 <motion.div
                   key={job.slug}
                   variants={itemVariants}
@@ -447,47 +480,47 @@ export function CareersPage() {
                 >
                   <Link
                     to={`/career/${job.slug}`}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-8 md:p-10 bg-white border border-zinc-200 hover:border-blue-300 hover:shadow-[0_20px_50px_rgba(0,102,255,0.05)] rounded-[24px] sm:rounded-[32px] transition-all duration-300 gap-6"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between bg-white border border-zinc-200 hover:border-blue-400 hover:shadow-[0_8px_40px_rgba(0,102,255,0.08)] rounded-2xl transition-all duration-300 overflow-hidden"
                   >
-                    {/* Icon & Title info */}
-                    <div className="flex items-center gap-6 flex-1 min-w-0">
-                      <div className="w-14 h-14 shrink-0 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center group-hover:bg-blue-600/10 group-hover:scale-105 transition-all duration-300">
+                    {/* Left accent bar */}
+                    <div className="flex items-center gap-5 flex-1 min-w-0 p-6 md:p-7">
+                      {/* Colored left bar */}
+                      <div className={`w-1 self-stretch rounded-full shrink-0 ${["bg-blue-500", "bg-violet-500", "bg-emerald-500", "bg-amber-500", "bg-rose-500"][idx % 5]
+                        }`} />
+
+                      {/* Icon box */}
+                      <div className="w-12 h-12 shrink-0 rounded-xl bg-zinc-50 border border-zinc-100 flex items-center justify-center group-hover:bg-blue-600/10 group-hover:border-blue-200 transition-all duration-300">
                         {getJobIcon(job.icon)}
                       </div>
-                      
-                      <div className="space-y-2 min-w-0">
-                        <div className="flex flex-wrap items-center gap-3">
-                          <h3 className="text-[20px] sm:text-[24px] font-semibold tracking-tight text-zinc-950 group-hover:text-blue-600 transition-colors duration-300 line-clamp-1">
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
+                          <h3 className="text-[18px] sm:text-[20px] font-bold tracking-tight text-zinc-950 group-hover:text-blue-600 transition-colors duration-300 line-clamp-1">
                             {job.title}
                           </h3>
                           {job.isNew && (
-                            <span className="px-2.5 py-1 rounded-full bg-blue-600 text-white font-extrabold text-[9px] uppercase tracking-widest leading-none shadow-sm">
+                            <span className="px-2.5 py-1 rounded-full bg-blue-600 text-white font-black text-[10px] uppercase tracking-widest leading-none">
                               NEW
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-2.5 text-[14px] font-medium text-zinc-400">
-                          <span className="text-blue-600 font-bold uppercase text-[11px] tracking-wider">{job.department}</span>
-                          <span className="text-zinc-300">•</span>
-                          <span>{job.employmentType}</span>
+                        <div className="flex items-center gap-2 text-[13px] font-semibold">
+                          <span className="text-blue-600 uppercase tracking-wider">{job.department}</span>
+                          <span className="text-zinc-300">â€¢</span>
+                          <span className="text-zinc-400">{job.employmentType}</span>
+                          <span className="text-zinc-300">â€¢</span>
+                          <span className="text-zinc-400">{job.location}</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Location & Details Action */}
-                    <div className="flex items-center justify-between sm:justify-end gap-10 border-t sm:border-0 border-zinc-100 pt-6 sm:pt-0 shrink-0">
-                      <span className="text-[16px] font-medium text-zinc-500">
-                        {job.location}
+                    {/* Right action */}
+                    <div className="flex items-center gap-4 px-6 py-4 sm:py-0 border-t sm:border-0 border-zinc-100 shrink-0">
+                      <span className="px-4 py-2 rounded-xl bg-zinc-50 border border-zinc-200 text-[12px] font-extrabold text-zinc-500 uppercase tracking-wider group-hover:bg-blue-600/5 group-hover:border-blue-200 group-hover:text-blue-600 transition-all">
+                        {job.employmentType}
                       </span>
-                      
-                      <div className="flex items-center gap-4">
-                        <span className="px-4 py-2.5 rounded-xl bg-zinc-50 border border-zinc-150 text-[11px] font-extrabold text-zinc-500 uppercase tracking-wider group-hover:bg-blue-600/5 group-hover:border-blue-200 group-hover:text-blue-600 transition-all">
-                          {job.employmentType}
-                        </span>
-                        
-                        <div className="w-12 h-12 rounded-full border border-zinc-200 bg-white flex items-center justify-center text-zinc-400 group-hover:bg-zinc-950 group-hover:text-white group-hover:border-transparent transition-all duration-300 shadow-sm">
-                          <FiArrowUpRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                        </div>
+                      <div className="w-10 h-10 rounded-full border border-zinc-200 bg-white flex items-center justify-center text-zinc-400 group-hover:bg-zinc-950 group-hover:text-white group-hover:border-transparent transition-all duration-300">
+                        <FiArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                       </div>
                     </div>
                   </Link>
@@ -498,12 +531,12 @@ export function CareersPage() {
 
           {/* Load More Button */}
           {!loading && filteredCareers.length > visibleCount && (
-            <div className="text-center mt-12">
+            <div className="text-center mt-10">
               <button
                 onClick={() => setVisibleCount((prev) => prev + 3)}
-                className="inline-flex items-center gap-2 px-8 py-3.5 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-800 rounded-2xl text-[13px] font-extrabold transition-all cursor-pointer active:scale-98"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-800 rounded-2xl text-[14px] font-bold transition-all cursor-pointer hover:border-zinc-300 shadow-sm"
               >
-                Load More Positions +
+                Load more positions
               </button>
             </div>
           )}
@@ -511,113 +544,119 @@ export function CareersPage() {
       </Section>
 
       {/* Why Join Us Section */}
-      <Section id="why-join" className="bg-white py-24 md:py-32">
+      <Section id="why-join" className="bg-white py-20 md:py-28">
         <Container className="px-6 sm:px-8 lg:px-14 xl:px-20">
-          <div className="flex flex-col lg:flex-row justify-between gap-12 mb-20">
-            <div className="space-y-4 max-w-xl">
-              <span className="text-[11px] font-black tracking-widest text-blue-600 uppercase">
-                • Why Join Edihub
+          <div className="grid lg:grid-cols-2 gap-16 items-center mb-16">
+            <div>
+              <span className="inline-flex items-center gap-2 text-[12px] font-black tracking-[0.18em] text-blue-600 uppercase mb-4">
+                <span className="h-[2px] w-6 bg-blue-600 rounded-full inline-block" />
+                Why Join Edihub
               </span>
-              <h2 className="text-4xl sm:text-5xl font-bold tracking-tight leading-tight text-zinc-950">
-                More than a job. <br />A place to grow.
+              <h2 className="text-[40px] sm:text-[52px] font-extrabold tracking-[-0.04em] leading-[1.05] text-zinc-950">
+                More than a job.<br />A place to grow.
               </h2>
             </div>
-
-            <p className="text-zinc-500 max-w-md leading-relaxed text-sm md:text-base">
+            <p className="text-[22px] leading-[1.75] text-zinc-500 max-w-[38ch]">
               We empower our team to solve meaningful challenges, providing an environment that fosters continuous learning, autonomy, and cross-functional collaboration.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
-            {whyJoinEdihub.map((item, idx) => {
-              const cardBgImages = [pexels1, pexels2, pexels3, teamImage, statsImage];
-              const getGridSpan = (i: number) => {
-                switch (i) {
-                  case 0:
-                  case 1:
-                  case 2:
-                    return "lg:col-span-2 md:col-span-1 col-span-1";
-                  case 3:
-                    return "lg:col-span-3 md:col-span-1 col-span-1";
-                  case 4:
-                    return "lg:col-span-3 md:col-span-2 col-span-1";
-                  default:
-                    return "lg:col-span-2 col-span-1";
-                }
-              };
-
-              return (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: idx * 0.08 }}
-                  className={`relative rounded-[32px] overflow-hidden flex flex-col justify-between min-h-[300px] border border-zinc-200/80 hover:border-blue-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 ease-out group ${getGridSpan(idx)}`}
-                >
-                  {/* Background Image with Hover Zoom */}
-                  <div className="absolute inset-0 z-0 overflow-hidden">
-                    <img 
-                      src={cardBgImages[idx % cardBgImages.length]} 
-                      alt="" 
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    />
-                    {/* Dark gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/95 via-zinc-950/70 to-black/20" />
-                  </div>
-
-                  {/* Card Content Overlay */}
-                  <div className="relative z-10 p-8 md:p-10 flex flex-col justify-between h-full min-h-[300px] w-full">
-                    {/* Icon container - Glassmorphic design */}
-                    <div className="w-14 h-14 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center shadow-lg text-white group-hover:scale-110 group-hover:bg-blue-600 group-hover:border-blue-500 transition-all duration-300">
-                      {getBenefitIconWhite(item.icon)}
-                    </div>
-                    
-                    <div className="space-y-3 mt-12">
-                      <h3 className="text-[20px] sm:text-[24px] font-bold text-white tracking-tight group-hover:text-blue-400 transition-colors duration-300">
-                        {item.title}
-                      </h3>
-                      <p className="text-[15px] text-zinc-300 leading-relaxed">
-                        {item.description}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
+          {/* Benefits grid â€” clean colored cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[
+              {
+                icon: <FiGlobe className="w-6 h-6" />,
+                title: "Work from anywhere",
+                description: "Fully remote team with flexibility that fits your life.",
+                accent: "bg-blue-50 text-blue-600 border-blue-100",
+                iconBg: "bg-blue-600",
+              },
+              {
+                icon: <FiHeart className="w-6 h-6" />,
+                title: "Health & wellness",
+                description: "Comprehensive health coverage for you and your family.",
+                accent: "bg-rose-50 text-rose-600 border-rose-100",
+                iconBg: "bg-rose-500",
+              },
+              {
+                icon: <FiTrendingUp className="w-6 h-6" />,
+                title: "Growth & learning",
+                description: "Annual learning budget and clear paths for advancement.",
+                accent: "bg-emerald-50 text-emerald-600 border-emerald-100",
+                iconBg: "bg-emerald-600",
+              },
+              {
+                icon: <FiCalendar className="w-6 h-6" />,
+                title: "Flexible schedule",
+                description: "Flexible hours that help you do your best work.",
+                accent: "bg-amber-50 text-amber-600 border-amber-100",
+                iconBg: "bg-amber-500",
+              },
+              {
+                icon: <FiUsers className="w-6 h-6" />,
+                title: "Great team",
+                description: "Collaborate with talented, kind, and ambitious people.",
+                accent: "bg-violet-50 text-violet-600 border-violet-100",
+                iconBg: "bg-violet-600",
+              },
+              {
+                icon: <FiArrowUpRight className="w-6 h-6" />,
+                title: "Real impact",
+                description: "Work on projects that shape brands and move businesses forward.",
+                accent: "bg-cyan-50 text-cyan-600 border-cyan-100",
+                iconBg: "bg-cyan-600",
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.07 }}
+                className="flex gap-5 items-start p-7 rounded-2xl border border-zinc-100 bg-zinc-50 hover:bg-white hover:border-zinc-200 hover:shadow-md transition-all duration-300 group"
+              >
+                <div className={`w-12 h-12 shrink-0 rounded-xl ${item.iconBg} text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-300`}>
+                  {item.icon}
+                </div>
+                <div>
+                  <h3 className="text-[16px] font-bold text-zinc-950 mb-1.5">{item.title}</h3>
+                  <p className="text-[14px] leading-relaxed text-zinc-500">{item.description}</p>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </Container>
       </Section>
 
-      {/* Life at Edihub Section */}
-      <Section className="bg-zinc-50 border-y border-zinc-100 py-24 md:py-32">
+      <Section className="bg-[#F8F8FA] pt-8 md:pt-10 pb-20 md:pb-28">
         <Container className="px-6 sm:px-8 lg:px-14 xl:px-20">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-16">
-            <div className="space-y-4">
-              <span className="text-[11px] font-black tracking-widest text-blue-600 uppercase">
-                • Life at Edihub
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-14">
+            <div>
+              <span className="inline-flex items-center gap-2 text-[12px] font-black tracking-[0.18em] text-blue-600 uppercase mb-4">
+                <span className="h-[2px] w-6 bg-blue-600 rounded-full inline-block" />
+                Life at Edihub
               </span>
-              <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-zinc-950">
-                A culture built on trust and creativity.
+              <h2 className="text-[40px] sm:text-[52px] font-extrabold tracking-[-0.04em] leading-[1.05] text-zinc-950">
+                A culture built on<br />trust and creativity.
               </h2>
             </div>
 
             <a
               href="#positions"
               onClick={handleScrollToPositions}
-              className="inline-flex items-center gap-1.5 text-sm font-bold text-zinc-900 hover:text-blue-600 transition-colors cursor-pointer group"
+              className="inline-flex items-center gap-2 px-6 py-3.5 bg-zinc-950 hover:bg-zinc-850 text-white rounded-xl text-[14px] font-bold transition-all cursor-pointer group shrink-0 shadow-sm"
             >
-              Explore Life at Edihub
+              See open roles
               <FiArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </a>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { img: teamImage, caption: "Collaborative sprints" },
-              { img: heroImage, caption: "Modern workspace environments" },
-              { img: statsImage, caption: "Impactful milestones" },
-              { img: pexels1, caption: "Design and strategy alignment" }
+              { img: teamImage, caption: "Collaborative sprints", span: "col-span-1" },
+              { img: heroImage, caption: "Modern workspace", span: "col-span-1" },
+              { img: statsImage, caption: "Impactful milestones", span: "col-span-1" },
+              { img: pexels1, caption: "Design & strategy", span: "col-span-1" },
             ].map((card, idx) => (
               <motion.div
                 key={idx}
@@ -625,17 +664,15 @@ export function CareersPage() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: idx * 0.08 }}
-                className="group relative overflow-hidden aspect-[4/5] rounded-[2.5rem] bg-zinc-200 border border-zinc-300/40 shadow-sm cursor-zoom-in"
+                className={`group relative overflow-hidden aspect-[3/4] rounded-2xl bg-zinc-200 ${card.span} border border-zinc-200`}
               >
                 <img
                   src={card.img}
                   alt={card.caption}
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition-all duration-300 flex items-end p-6">
-                  <p className="text-white text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    {card.caption}
-                  </p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex items-end p-5">
+                  <p className="text-white text-[13px] font-bold">{card.caption}</p>
                 </div>
               </motion.div>
             ))}
