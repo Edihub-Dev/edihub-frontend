@@ -1,11 +1,10 @@
-import teamImage from "@/assets/team.webp";
 
 export const team = [
   {
     id: "markus-chen",
     name: "Markus Chen",
     role: "CEO & Co-founder",
-    image: teamImage,
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?fit=crop&w=500&h=625&q=80",
     bio: "With over 15 years in digital transformation, Markus leads Edihub with a vision to bridge the gap between creative design and cutting-edge technology.",
     skills: ["Strategic Leadership", "Business Growth", "Digital Transformation", "AI Implementation"],
     achievements: [
@@ -22,7 +21,7 @@ export const team = [
     id: "sarah-rodriguez",
     name: "Sarah Rodriguez",
     role: "Head of Development",
-    image: teamImage,
+    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?fit=crop&w=500&h=625&q=80",
     bio: "Sarah is a technical powerhouse specializing in scalable architecture and high-performance web applications. She ensures our technical standards are world-class.",
     skills: ["React & Next.js", "Node.js", "System Architecture", "Cloud Infrastructure"],
     achievements: [
@@ -39,7 +38,7 @@ export const team = [
     id: "david-park",
     name: "David Park",
     role: "Creative Director",
-    image: teamImage,
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?fit=crop&w=500&h=625&q=80",
     bio: "David brings a unique perspective to every project, blending minimalist aesthetics with functional design to create memorable brand experiences.",
     skills: ["Brand Identity", "UI/UX Design", "Motion Graphics", "Art Direction"],
     achievements: [
@@ -56,7 +55,7 @@ export const team = [
     id: "emily-thompson",
     name: "Emily Thompson",
     role: "Head of PM",
-    image: teamImage,
+    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?fit=crop&w=500&h=625&q=80",
     bio: "Emily keeps our engines running smoothly. Her expertise in agile methodologies ensures projects are delivered on time and beyond expectations.",
     skills: ["Agile Project Management", "Client Relations", "Operations", "Team Leadership"],
     achievements: [
@@ -72,7 +71,7 @@ export const team = [
     id: "michael-obrien",
     name: "Michael O'Brien",
     role: "Technical Lead",
-    image: teamImage,
+    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?fit=crop&w=500&h=625&q=80",
     bio: "Michael is our go-to expert for complex backend solutions and data-driven applications. He loves solving the 'unsolvable' problems.",
     skills: ["Full Stack Development", "Database Optimization", "Cybersecurity", "API Design"],
     achievements: [
@@ -89,7 +88,7 @@ export const team = [
     id: "lisa-wong",
     name: "Lisa Wong",
     role: "UX Research Lead",
-    image: teamImage,
+    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?fit=crop&w=500&h=625&q=80",
     bio: "Lisa's work is centered on understanding human behavior. She ensures every product we build is rooted in user needs and scientific research.",
     skills: ["User Research", "Usability Testing", "Information Architecture", "Product Strategy"],
     achievements: [
@@ -106,7 +105,7 @@ export const team = [
     id: "jean-grey",
     name: "Jean Grey",
     role: "Web Designer",
-    image: teamImage,
+    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?fit=crop&w=500&h=625&q=80",
     bio: "Jean specializes in interactive web experiences. Her designs aren't just beautiful; they're designed to convert and engage.",
     skills: ["Web Design", "Figma", "Accessibility", "Interaction Design"],
     achievements: [
@@ -123,7 +122,7 @@ export const team = [
     id: "oscar-mendez",
     name: "Oscar Mendez",
     role: "Full Stack Developer",
-    image: teamImage,
+    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?fit=crop&w=500&h=625&q=80",
     bio: "Oscar is a versatile developer who bridges the gap between frontend beauty and backend logic. He's passionate about clean, maintainable code.",
     skills: ["TypeScript", "GraphQL", "DevOps", "Testing Frameworks"],
     achievements: [

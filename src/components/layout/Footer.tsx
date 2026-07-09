@@ -24,7 +24,7 @@ export function Footer() {
   ];
 
   return (
-    <footer className="relative overflow-hidden bg-[#0A0B0F] border-t border-zinc-900/80 pt-16 pb-36 md:py-24 text-white">
+    <footer className="relative overflow-hidden bg-[#0A0B0F] border-t border-zinc-900/80 pt-16 pb-16 md:py-24 text-white z-[2200]">
       {/* Premium Ambient Background Glows */}
       <div className="pointer-events-none absolute bottom-0 right-0 h-[350px] w-[350px] rounded-full bg-blue-600/[0.03] blur-[100px]" />
       <div className="pointer-events-none absolute bottom-0 left-0 h-[300px] w-[300px] rounded-full bg-violet-600/[0.03] blur-[100px]" />
@@ -75,10 +75,10 @@ export function Footer() {
         {/* Bottom Section: Socials + Navigation */}
         <div className="mt-10 grid grid-cols-1 gap-8 md:flex md:items-start md:justify-between md:gap-0">
           
-          {/* Social Links Column */}
-          <div className="space-y-4">
-            <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500">Connect</h4>
-            <div className="flex flex-wrap items-center gap-3">
+          {/* Social Links Row */}
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+            <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500 shrink-0">Connect</h4>
+            <div className="flex items-center gap-3">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
@@ -125,7 +125,7 @@ export function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="mt-12 text-left text-[13px] font-medium text-zinc-500">
+        <div className="mt-12 text-center text-[13px] font-medium text-zinc-500">
           &copy; {currentYear} EDIHUB. All rights reserved.
         </div>
       </Container>

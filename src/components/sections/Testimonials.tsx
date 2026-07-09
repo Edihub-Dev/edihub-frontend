@@ -88,9 +88,9 @@ export function Testimonials() {
   }, [testimonials]);
 
   const slideVariants = {
-    enter: (d: 1 | -1) => ({ opacity: 0, x: d * 36 }),
+    enter: (d: 1 | -1) => ({ opacity: 0, x: d * 160 }),
     center: { opacity: 1, x: 0 },
-    exit: (d: 1 | -1) => ({ opacity: 0, x: d * -36 }),
+    exit: (d: 1 | -1) => ({ opacity: 0, x: d * -160 }),
   };
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -168,8 +168,8 @@ export function Testimonials() {
             </div>
             <div className="absolute inset-0 hidden bg-black/10 md:block" />
 
-            <div className="relative mx-auto w-[min(360px,90%)] md:absolute md:left-1/2 md:top-1/2 md:w-[min(620px,92%)] md:-translate-x-1/2 md:-translate-y-1/2">
-              <AnimatePresence mode="wait" initial={false} custom={direction}>
+            <div className="relative mx-auto w-[min(360px,90%)] min-h-[440px] md:min-h-0 md:absolute md:left-1/2 md:top-1/2 md:w-[min(620px,92%)] md:-translate-x-1/2 md:-translate-y-1/2">
+              <AnimatePresence mode="popLayout" initial={false} custom={direction}>
                 <motion.div
                   key={activeIndex}
                   custom={direction}
@@ -178,7 +178,18 @@ export function Testimonials() {
                   animate="center"
                   exit="exit"
                   transition={{ duration: 0.28, ease: "easeOut" }}
-                  className="relative flex min-h-[440px] flex-col rounded-2xl bg-[#F5F5F3] px-10 pb-10 pt-14 shadow-[0_24px_60px_rgba(0,0,0,0.18)] md:px-14 md:pb-14 md:pt-20"
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.5}
+                  onDragEnd={(_, info) => {
+                    const swipeThreshold = 50;
+                    if (info.offset.x < -swipeThreshold) {
+                      goNext();
+                    } else if (info.offset.x > swipeThreshold) {
+                      goPrev();
+                    }
+                  }}
+                  className="relative flex min-h-[440px] flex-col rounded-2xl bg-[#F5F5F3] px-10 pb-10 pt-14 shadow-[0_24px_60px_rgba(0,0,0,0.18)] md:px-14 md:pb-14 md:pt-20 cursor-grab active:cursor-grabbing select-none touch-pan-y"
                 >
                   <div className="absolute right-10 top-10 text-[#0066FF] md:right-14 md:top-14">
                     <svg width="56" height="56" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

@@ -41,7 +41,7 @@ export function Services() {
   if (services.length === 0) return null;
 
   return (
-    <Section id="services" className="bg-white">
+    <Section id="services" className="bg-white pt-2 pb-12 sm:py-20">
       <Container>
         <motion.div
           ref={ref}
@@ -52,7 +52,8 @@ export function Services() {
           <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
             <motion.p
               variants={item}
-              className="max-w-3xl text-[28px] font-bold leading-[1.05] tracking-[-1.2px] text-[#1A1A1A] sm:text-[34px] md:text-[40px]"
+              className="max-w-3xl text-[25px] font-bold leading-[1.1] tracking-[-0.8px] text-[#1A1A1A] sm:text-[34px] md:text-[40px] text-balance"
+              style={{ textWrap: "balance" }}
             >
               This is how we help ambitious companies succeed.
             </motion.p>

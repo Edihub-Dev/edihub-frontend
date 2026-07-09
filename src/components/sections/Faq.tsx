@@ -77,19 +77,21 @@ export function Faq({ items, title = "Common Qs", label }: FaqProps) {
             >
               Get quick answers about working with us and our approach to digital solutions. Can't find what you're looking for? Reach out below!
             </motion.p>
-            <Link to="/contact">
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.4, delay: 0.1 }}
-                className="group mt-8 inline-flex items-center gap-2 text-[18px] font-medium text-[#1A1A1A] underline decoration-[#1A1A1A]/60 underline-offset-4 hover:decoration-[#1A1A1A] sm:text-[20px] cursor-pointer"
-              >
-                Contact us
-                <svg className="h-5 w-5 shrink-0 text-[#0066FF] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
-                </svg>
-              </motion.div>
-            </Link>
+            <div className="mt-8 flex justify-end lg:justify-start">
+              <Link to="/contact">
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.4, delay: 0.1 }}
+                  className="group inline-flex items-center gap-2 text-[18px] font-medium text-[#1A1A1A] underline decoration-[#1A1A1A]/60 underline-offset-4 hover:decoration-[#1A1A1A] sm:text-[20px] cursor-pointer"
+                >
+                  Contact us
+                  <svg className="h-5 w-5 shrink-0 text-[#0066FF] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
+                  </svg>
+                </motion.div>
+              </Link>
+            </div>
           </div>
           <div className="lg:col-span-7">
             <div className="space-y-0 border-t border-[#EFEFEF]">

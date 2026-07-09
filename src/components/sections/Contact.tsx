@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { getApiUrl } from "@/utils/api";
+import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
 
 const countryCodes = [
   { code: "+91", label: "IN (+91)" },
@@ -73,47 +74,65 @@ export function Contact() {
                 EDIHUB
               </h2>
 
-              <div className="mt-16 space-y-12">
-                <div>
-                  <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#9CA3AF]">
-                    E-mail
-                  </h4>
-                  <a
-                    href="mailto:contact@edihub.com"
-                    className="mt-3 block text-[18px] font-medium text-[#111827] hover:text-[#0066FF] transition-colors"
-                  >
-                    contact@edihub.com
-                  </a>
+              <div className="mt-10 sm:mt-16 space-y-5 sm:space-y-6">
+                {/* Email Card */}
+                <div className="group/item flex items-start gap-4 p-4.5 rounded-2xl border border-zinc-100 bg-zinc-50/50 hover:bg-white hover:shadow-xl hover:shadow-zinc-200/50 hover:border-[#0066FF]/25 transition-all duration-300">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white border border-zinc-200 text-[#4B5563] group-hover/item:bg-[#0066FF] group-hover/item:text-white group-hover/item:border-[#0066FF] shadow-sm transition-all duration-300">
+                    <FiMail className="h-5.5 w-5.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">
+                      E-mail
+                    </h4>
+                    <a
+                      href="mailto:contact@edihub.com"
+                      className="mt-1 block text-[16px] sm:text-[18px] font-semibold text-[#111827] hover:text-[#0066FF] transition-colors break-all"
+                    >
+                      contact@edihub.com
+                    </a>
+                  </div>
                 </div>
 
-                <div>
-                  <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#9CA3AF]">
-                    Phone
-                  </h4>
-                  <a
-                    href="tel:+15551234567"
-                    className="mt-3 block text-[18px] font-medium text-[#111827] hover:text-[#0066FF] transition-colors"
-                  >
-                    +1 (555) 123-4567
-                  </a>
+                {/* Phone Card */}
+                <div className="group/item flex items-start gap-4 p-4.5 rounded-2xl border border-zinc-100 bg-zinc-50/50 hover:bg-white hover:shadow-xl hover:shadow-zinc-200/50 hover:border-[#0066FF]/25 transition-all duration-300">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white border border-zinc-200 text-[#4B5563] group-hover/item:bg-[#0066FF] group-hover/item:text-white group-hover/item:border-[#0066FF] shadow-sm transition-all duration-300">
+                    <FiPhone className="h-5.5 w-5.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">
+                      Phone
+                    </h4>
+                    <a
+                      href="tel:+15551234567"
+                      className="mt-1 block text-[16px] sm:text-[18px] font-semibold text-[#111827] hover:text-[#0066FF] transition-colors"
+                    >
+                      +1 (555) 123-4567
+                    </a>
+                  </div>
                 </div>
 
-                <div>
-                  <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#9CA3AF]">
-                    Address
-                  </h4>
-                  <a
-                    href="https://maps.google.com/maps?q=26.90553351017583,75.70276965802596"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-3 block text-[18px] font-medium leading-relaxed text-[#111827] hover:text-[#0066FF] transition-colors"
-                  >
-                    Vaishali Estate,<br />
-                    Jaipur, Rajasthan, India
-                  </a>
+                {/* Address Card */}
+                <div className="group/item flex items-start gap-4 p-4.5 rounded-2xl border border-zinc-100 bg-zinc-50/50 hover:bg-white hover:shadow-xl hover:shadow-zinc-200/50 hover:border-[#0066FF]/25 transition-all duration-300">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white border border-zinc-200 text-[#4B5563] group-hover/item:bg-[#0066FF] group-hover/item:text-white group-hover/item:border-[#0066FF] shadow-sm transition-all duration-300">
+                    <FiMapPin className="h-5.5 w-5.5" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">
+                      Address
+                    </h4>
+                    <a
+                      href="https://maps.google.com/maps?q=26.90553351017583,75.70276965802596"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 block text-[16px] sm:text-[18px] font-semibold leading-relaxed text-[#111827] hover:text-[#0066FF] transition-colors"
+                    >
+                      <span className="text-[#111827] block font-bold text-[17px] sm:text-[19px] mb-0.5 group-hover/item:text-[#0066FF] transition-colors">Vaishali Estate</span>
+                      <span className="text-zinc-500 block font-normal text-[14px] sm:text-[15px]">Jaipur, Rajasthan, India</span>
+                    </a>
+                  </div>
                 </div>
-
-                 <div className="group relative overflow-hidden rounded-[2.5rem] border border-zinc-200 bg-white shadow-2xl transition-all duration-500 hover:border-[#0066FF]/40">
+              </div>
+                 <div className="mt-12 group relative overflow-hidden rounded-[2.5rem] border border-zinc-200 bg-white shadow-2xl transition-all duration-500 hover:border-[#0066FF]/40">
                   {/* Grid Overlay for high-tech architectural vibe */}
                   <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000004_1px,transparent_1px),linear-gradient(to_bottom,#00000004_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-10" />
 
@@ -148,16 +167,16 @@ export function Contact() {
                   </div>
 
                   {/* Floating Glassmorphic Top Controls Panel */}
-                  <div className="absolute top-5 left-5 right-5 z-20 flex items-center justify-between pointer-events-none">
+                  <div className="absolute top-4 left-4 right-4 sm:top-5 sm:left-5 sm:right-5 z-20 flex items-center justify-between gap-2 pointer-events-none">
                     <a
                       href="https://maps.google.com/maps?q=26.90553351017583,75.70276965802596"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 rounded-full bg-white/90 px-4.5 py-2.5 text-[12px] font-bold text-zinc-950 backdrop-blur-md border border-white/60 shadow-lg pointer-events-auto hover:text-[#0066FF] transition-colors"
+                      className="flex items-center gap-2 rounded-full bg-white/90 px-3 py-2 text-[10px] sm:px-4.5 sm:py-2.5 sm:text-[12px] font-bold text-zinc-950 backdrop-blur-md border border-white/60 shadow-lg pointer-events-auto hover:text-[#0066FF] transition-colors whitespace-nowrap"
                     >
-                      <span className="relative flex h-2.5 w-2.5">
+                      <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5 shrink-0">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0066FF] opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#0066FF]"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 sm:h-2.5 sm:w-2.5 bg-[#0066FF]"></span>
                       </span>
                       EDIHUB — JAIPUR HQ
                     </a>
@@ -166,16 +185,16 @@ export function Contact() {
                       href="https://maps.google.com/maps?q=26.90553351017583,75.70276965802596"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-full bg-white/90 px-4 py-2.5 text-[11px] font-mono font-bold tracking-widest text-[#4B5563] backdrop-blur-md border border-white/60 shadow-lg pointer-events-auto hover:text-[#0066FF] transition-colors"
+                      className="hidden sm:inline-block rounded-full bg-white/90 px-4 py-2.5 text-[11px] font-mono font-bold tracking-widest text-[#4B5563] backdrop-blur-md border border-white/60 shadow-lg pointer-events-auto hover:text-[#0066FF] transition-colors whitespace-nowrap"
                     >
                       26.9055° N, 75.7028° E
                     </a>
                   </div>
 
                   {/* Floating Bottom Navigation Bar */}
-                  <div className="absolute bottom-5 left-5 right-5 z-20 flex items-center justify-between pointer-events-none">
-                    <div className="flex items-center gap-2 rounded-full bg-white/90 px-4 py-2.5 text-[11px] font-semibold text-zinc-600 backdrop-blur-md border border-white/60 shadow-lg pointer-events-auto">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <div className="absolute bottom-4 left-4 right-4 sm:bottom-5 sm:left-5 sm:right-5 z-20 flex items-center justify-between gap-2 pointer-events-none">
+                    <div className="flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-2 text-[9px] sm:px-4 sm:py-2.5 sm:text-[11px] font-semibold text-zinc-600 backdrop-blur-md border border-white/60 shadow-lg pointer-events-auto whitespace-nowrap">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                       SYSTEM ONLINE
                     </div>
 
@@ -183,10 +202,10 @@ export function Contact() {
                       href="https://maps.google.com/maps?q=26.90553351017583,75.70276965802596"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group/btn flex items-center gap-2 rounded-full bg-[#0066FF] hover:bg-black px-5 py-2.5 text-[12px] font-bold text-white transition-all duration-300 shadow-lg shadow-[#0066FF]/20 pointer-events-auto"
+                      className="group/btn flex items-center gap-1.5 rounded-full bg-[#0066FF] hover:bg-black px-3.5 py-2 text-[10px] sm:px-5 sm:py-2.5 sm:text-[12px] font-bold text-white transition-all duration-300 shadow-lg shadow-[#0066FF]/20 pointer-events-auto whitespace-nowrap"
                     >
                       NAVIGATE
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-transform duration-300 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5">
+                      <svg width="11" height="11" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-transform duration-300 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 shrink-0">
                         <path d="M3 9L9 3M9 3H4.5M9 3V7.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </a>
@@ -204,9 +223,8 @@ export function Contact() {
                     className="opacity-80 transition-all duration-700 ease-out grayscale-[0.9] brightness-[1.04] contrast-[1.02] group-hover:grayscale-[0.2] group-hover:brightness-[1.0] group-hover:contrast-[1.05] group-hover:opacity-100"
                   />
                 </div>
-              </div>
-            </motion.div>
-          </div>
+              </motion.div>
+            </div>
 
           {/* Right Column: Contact Form */}
           <div className="lg:col-span-7">

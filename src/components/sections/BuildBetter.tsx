@@ -88,11 +88,11 @@ export function BuildBetter() {
           >
             <motion.h2
               variants={item}
-              className="text-[40px] font-semibold leading-[1.02] tracking-[-0.06em] text-[#1A1A1A] sm:text-[48px] md:text-[56px] lg:text-[64px]"
+              className="text-[28px] font-semibold leading-[1.05] tracking-[-0.02em] sm:tracking-[-0.06em] text-[#1A1A1A] sm:text-[48px] md:text-[56px] lg:text-[64px]"
             >
               Want to build
-              <br />
-              something better?
+              <br className="hidden sm:block" />
+              {" "}something better?
             </motion.h2>
 
             <motion.p
@@ -102,7 +102,7 @@ export function BuildBetter() {
               Our team brings together design, development, and strategic thinking to help you grow.
             </motion.p>
 
-            <motion.div variants={item} className="mt-10 sm:mt-12">
+            <motion.div variants={item} className="mt-10 flex justify-end sm:mt-12 sm:justify-start">
               <ArrowLink to="/contact">Start now</ArrowLink>
             </motion.div>
           </motion.div>

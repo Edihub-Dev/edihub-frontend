@@ -108,8 +108,8 @@ export function Vision() {
   }, [inView, parsedStats]);
 
   return (
-    <Section id="vision" className="bg-white  py-10 sm:py-14">
-      <Container className="py-8 lg:py-10">
+    <Section id="vision" className="bg-white pt-6 pb-2 sm:py-14">
+      <Container className="pt-8 pb-0 lg:py-10">
         <div ref={ref} className="grid gap-12 lg:grid-cols-12 lg:gap-16 lg:translate-y-10">
           <div className="lg:col-span-6 flex flex-col justify-between">
             <div>
@@ -143,12 +143,12 @@ export function Vision() {
               initial={{ opacity: 0, y: 16 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.4, delay: 0.05 }}
-              className="text-[32px] font-semibold leading-tight tracking-[-2.00px] text-[#1A1A1A] sm:text-[40px] md:text-[48px] lg:text-[56px]"
+              className="text-[28px] font-semibold leading-tight tracking-[-0.8px] sm:tracking-[-2.00px] text-[#1A1A1A] sm:text-[40px] md:text-[48px] lg:text-[56px] text-balance"
             >
               We’re a digital agency built for the modern internet.
             </motion.h2>
             <motion.p
-              initial={{ opacity: 0, y: 12 }} 
+              initial={{ opacity: 0, y: 12 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.4, delay: 0.1 }}
               className="mt-6 max-w-full text-[14px] leading-[1.45] text-[#666666] sm:text-[22px]"

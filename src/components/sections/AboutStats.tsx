@@ -48,22 +48,22 @@ export function AboutStats() {
               variants={list}
               initial="hidden"
               animate={inView ? "show" : "hidden"}
-              className="relative z-10 flex flex-col lg:col-span-6 lg:min-h-[520px]"
+              className="relative z-10 flex flex-col items-center lg:items-start lg:col-span-6 lg:min-h-[520px]"
             >
               <motion.h3
                 variants={item}
-                className="text-[34px] font-semibold leading-[1.02] tracking-[-2.4px] text-[#1A1A1A] sm:text-[40px] md:text-[44px] lg:text-[44px]"
+                className="text-[28px] font-semibold leading-[1.15] tracking-[-0.6px] sm:tracking-[-2px] lg:tracking-[-2.4px] text-[#1A1A1A] sm:text-[36px] md:text-[44px] lg:text-[44px] text-balance text-center lg:text-left"
               >
                 We are a group of positive thinkers, dedicated to making a difference in the digital world.
               </motion.h3>
               <motion.p
                 variants={item}
-                className="mt-24 max-w-[50ch] text-[14px] leading-[1.6] text-[#6A6A6A] sm:text-[18px]"
+                className="mt-24 max-w-[50ch] text-[14px] leading-[1.6] text-[#6A6A6A] sm:text-[18px] text-center lg:text-left"
               >
                 We combine creative vision with technical expertise to help businesses thrive in the digital space, turning ambitious goals into remarkable results.
               </motion.p>
 
-              <div className="mt-12 lg:mt-auto">
+              <div className="mt-12 lg:mt-auto w-full flex justify-center lg:justify-start">
                 <motion.div variants={item}>
                   <Link
                     to="/about#team"

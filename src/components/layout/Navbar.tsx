@@ -135,23 +135,23 @@ export function Navbar() {
               animate="open"
               exit="closed"
             >
-              <div className="flex min-h-full flex-col px-10 md:px-12 pb-10 pt-5 justify-between">
+              <div className="flex h-full min-h-[100dvh] flex-col px-8 sm:px-12 py-8 justify-between">
                 <div className="flex items-start justify-between shrink-0">
                   <div className="h-10 w-10" />
                   <button
                     type="button"
-                    className="inline-flex h-16 w-16 items-center justify-center text-white/90 transition-opacity hover:opacity-80"
+                    className="inline-flex h-12 w-12 items-center justify-center text-white/95 transition-opacity hover:opacity-85"
                     onClick={() => setMenuOpen(false)}
                     aria-label="Close"
                   >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-12 w-12">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="h-8 w-8">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
                     </svg>
                   </button>
                 </div>
 
-                <nav className="mt-4 sm:mt-8 mb-8 shrink-0">
-                  <ul className="space-y-2 sm:space-y-4 text-[34px] sm:text-[48px] md:text-[52px] lg:text-[56px] font-semibold leading-[1.02] tracking-[-0.05em]">
+                <nav className="my-auto py-6 shrink-0 flex flex-col justify-center">
+                  <ul className="space-y-4 sm:space-y-5.5 text-[32px] sm:text-[44px] md:text-[50px] font-bold leading-[1.12] tracking-[-0.04em]">
                     <li>
                       <Link
                         to="/"
@@ -218,40 +218,40 @@ export function Navbar() {
                   </ul>
                 </nav>
 
-                <div className="grid grid-cols-2 gap-x-10 gap-y-4 text-white/90 mt-auto pt-6 border-t border-white/10 shrink-0">
-                  <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-white/95 pt-6 border-t border-white/15 shrink-0">
+                  <div className="flex flex-col gap-3.5">
                     <a
                       href="#"
-                      className="inline-flex items-center gap-2.5 text-[16px] sm:text-[18px] md:text-[20px] font-bold transition-opacity hover:opacity-85"
+                      className="inline-flex items-center gap-2.5 text-[15px] sm:text-[17px] md:text-[18px] font-bold transition-opacity hover:opacity-85"
                       onClick={() => setMenuOpen(false)}
                     >
-                      <FiFacebook className="w-5 h-5" />
+                      <FiFacebook className="w-4.5 h-4.5" />
                       <span>Facebook</span>
                     </a>
                     <a
                       href="#"
-                      className="inline-flex items-center gap-2.5 text-[16px] sm:text-[18px] md:text-[20px] font-bold transition-opacity hover:opacity-85"
+                      className="inline-flex items-center gap-2.5 text-[15px] sm:text-[17px] md:text-[18px] font-bold transition-opacity hover:opacity-85"
                       onClick={() => setMenuOpen(false)}
                     >
-                      <FiInstagram className="w-5 h-5" />
+                      <FiInstagram className="w-4.5 h-4.5" />
                       <span>Instagram</span>
                     </a>
                   </div>
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-3.5">
                     <a
                       href="#"
-                      className="inline-flex items-center gap-2.5 text-[16px] sm:text-[18px] md:text-[20px] font-bold transition-opacity hover:opacity-85"
+                      className="inline-flex items-center gap-2.5 text-[15px] sm:text-[17px] md:text-[18px] font-bold transition-opacity hover:opacity-85"
                       onClick={() => setMenuOpen(false)}
                     >
-                      <FaDribbble className="w-5 h-5" />
+                      <FaDribbble className="w-4.5 h-4.5" />
                       <span>Dribbble</span>
                     </a>
                     <a
                       href="#"
-                      className="inline-flex items-center gap-2.5 text-[16px] sm:text-[18px] md:text-[20px] font-bold transition-opacity hover:opacity-85"
+                      className="inline-flex items-center gap-2.5 text-[15px] sm:text-[17px] md:text-[18px] font-bold transition-opacity hover:opacity-85"
                       onClick={() => setMenuOpen(false)}
                     >
-                      <FaBehance className="w-5 h-5" />
+                      <FaBehance className="w-4.5 h-4.5" />
                       <span>Behance</span>
                     </a>
                   </div>

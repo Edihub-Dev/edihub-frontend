@@ -6,6 +6,12 @@ import pexels2 from "@/assets/projects/pexels-2.webp";
 import pexels3 from "@/assets/projects/pexels-3.webp";
 import pexels4 from "@/assets/projects/pexels-4.webp";
 import pexels5 from "@/assets/projects/pexels-5.webp";
+import arrowsImg from "@/assets/projects/arrows.webp";
+import chantalleImg from "@/assets/projects/chantalle.webp";
+import papyrusImg from "@/assets/projects/papyrus.webp";
+import londonMuseumImg from "@/assets/projects/london-museum.webp";
+import bullseyeImg from "@/assets/projects/bullseye.webp";
+import interferenceImg from "@/assets/projects/interference.webp";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { getApiUrl } from "@/utils/api";
@@ -43,6 +49,15 @@ const imageMap: Record<string, string> = {
   "pexels-5.webp": pexels5,
 };
 
+const customImageMap: Record<string, string> = {
+  "arrows": arrowsImg,
+  "chantalle": chantalleImg,
+  "papyrus": papyrusImg,
+  "london-museum": londonMuseumImg,
+  "bullseye": bullseyeImg,
+  "interference": interferenceImg,
+};
+
 function ProjectCard({
   project,
   i,
@@ -69,7 +84,7 @@ function ProjectCard({
           className={`relative w-full overflow-hidden rounded-[28px] bg-zinc-200 ${media}`}
         >
           <motion.img
-            src={imageMap[project.image] || project.image}
+            src={customImageMap[project.slug] || imageMap[project.image] || project.image}
             alt={project.title}
             loading="lazy"
             className="h-full w-full object-cover object-center"
@@ -191,7 +206,8 @@ export function Projects() {
               </motion.span>
               <motion.h2
                 variants={headerItem}
-                className="mt-6 text-[52px] font-semibold leading-[0.98] tracking-[-3.8px] text-black sm:text-[64px] lg:text-[76px]"
+                className="mt-6 text-[36px] font-semibold leading-[1.05] tracking-[-1.5px] sm:tracking-[-3.8px] text-black sm:text-[64px] lg:text-[76px] text-balance"
+                style={{ textWrap: "balance" }}
               >
                 Our recent projects
               </motion.h2>

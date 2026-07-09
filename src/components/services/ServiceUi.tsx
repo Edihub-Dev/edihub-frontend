@@ -221,15 +221,37 @@ export function WhyEdihubIcon({ index }: { index: number }) {
 
 export function ProcessTimeline({ steps }: { steps: { number: string; title: string; description: string }[] }) {
   return (
-    <div className="relative mt-16 lg:mt-24">
+    <div className="relative mt-12 lg:mt-24">
+      {/* Horizontal Line for Desktop */}
       <div className="absolute left-0 right-0 top-[11px] hidden h-px bg-[#E5E7EB] lg:block" />
-      <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-10">
+      
+      {/* Vertical Line for Mobile */}
+      <div className="absolute left-[11px] top-[24px] bottom-[48px] w-[1.5px] bg-gradient-to-b from-[#0066FF]/40 via-[#E5E7EB] to-[#E5E7EB] lg:hidden" />
+      
+      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-10">
         {steps.map((step) => (
-          <div key={step.number} className="relative group">
-            <div className="mb-10 flex h-6 w-6 items-center justify-center rounded-full bg-[#0066FF] ring-[10px] ring-white transition-all duration-300 group-hover:scale-125 group-hover:ring-[#0066FF]/20" />
-            <p className="text-[16px] font-extrabold uppercase tracking-[0.18em] text-[#0066FF]">{step.number}</p>
-            <h3 className="mt-4 text-[28px] font-extrabold tracking-tight text-[#111827] sm:text-[32px] md:text-[36px] group-hover:text-[#0066FF] transition-colors duration-300">{step.title}</h3>
-            <p className="mt-5 text-[18px] sm:text-[20px] md:text-[22px] leading-[1.75] text-[#4B5563] font-medium">{step.description}</p>
+          <div key={step.number} className="relative pl-10 lg:pl-0 group">
+            {/* Mobile: Interactive Glowing Indicator Dot */}
+            <div className="absolute left-0 top-[20px] lg:static lg:mb-10 flex h-6 w-6 items-center justify-center rounded-full bg-white border border-[#0066FF] shadow-md shadow-blue-500/10 ring-[5px] ring-blue-50/50 transition-all duration-300 group-hover:scale-110 group-hover:border-[#0066FF] group-hover:ring-blue-100/60 lg:ring-[10px] lg:ring-white">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#0066FF] animate-pulse" />
+            </div>
+            
+            {/* Content Wrapper Card for Mobile / Column Content for Desktop */}
+            <div className="border border-zinc-100/80 bg-zinc-50/30 lg:border-0 lg:bg-transparent rounded-2xl p-5.5 lg:p-0 shadow-[0_8px_30px_rgb(0,0,0,0.015)] lg:shadow-none transition-all duration-300 group-hover:border-[#0066FF]/20 group-hover:bg-white group-hover:shadow-[0_12px_40px_rgba(0,102,255,0.03)] lg:group-hover:bg-transparent lg:group-hover:shadow-none">
+              {/* Number Badge */}
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center rounded-full bg-blue-50/60 lg:bg-transparent px-2.5 py-0.5 text-[10px] lg:text-[14px] lg:px-0 lg:py-0 font-mono font-bold tracking-widest text-[#0066FF]">
+                  STEP {step.number}
+                </span>
+              </div>
+              
+              <h3 className="mt-3 lg:mt-4 text-[20px] lg:text-[28px] font-extrabold tracking-tight text-[#111827] sm:text-[24px] group-hover:text-[#0066FF] transition-colors duration-300">
+                {step.title}
+              </h3>
+              <p className="mt-2.5 lg:mt-5 text-[14px] lg:text-[18px] leading-[1.65] lg:leading-[1.75] text-[#4B5563] font-medium">
+                {step.description}
+              </p>
+            </div>
           </div>
         ))}
       </div>

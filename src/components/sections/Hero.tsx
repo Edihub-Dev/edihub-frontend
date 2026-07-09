@@ -31,7 +31,7 @@ export function Hero() {
                   fontFamily: '"Manrope", "Manrope Placeholder", sans-serif',
                   fontFeatureSettings:
                     '"blwf" on, "cv09" on, "cv03" on, "cv04" on, "cv11" on',
-                  fontSize: "clamp(68px, 9.5vw, 96px)",
+                  fontSize: "clamp(40px, 8.5vw, 96px)",
                   fontStyle: "normal",
                   fontWeight: 600,
                   letterSpacing: "-0.06em",

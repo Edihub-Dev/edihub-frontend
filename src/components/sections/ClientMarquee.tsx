@@ -20,8 +20,8 @@ export function ClientMarquee() {
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <Section id="clients" className="bg-white">
-      <Container className="py-12 lg:py-16">
+    <Section id="clients" className="bg-white py-0 sm:py-8">
+      <Container className="py-1 lg:py-8">
         <div ref={ref}>
           <motion.div
             initial={{ opacity: 0 }}
