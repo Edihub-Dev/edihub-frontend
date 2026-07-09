@@ -1,6 +1,6 @@
 import { Container } from "@/components/ui/Container";
 import { Link } from "react-router-dom";
-import { FiFacebook, FiInstagram, FiMail } from "react-icons/fi";
+import { FiFacebook, FiInstagram } from "react-icons/fi";
 import { FaDribbble, FaBehance } from "react-icons/fa";
 import logoSrc from "@/assets/edihubBLCK.webp";
 
