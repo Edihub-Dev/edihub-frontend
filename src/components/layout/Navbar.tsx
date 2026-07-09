@@ -220,17 +220,17 @@ export function Navbar() {
 
                 <div className="grid grid-cols-2 gap-x-10 gap-y-4 text-white/90 mt-auto pt-6 border-t border-white/10 shrink-0">
                   <div className="flex flex-col gap-4">
-                    <a 
-                      href="#" 
-                      className="inline-flex items-center gap-2.5 text-[16px] sm:text-[18px] md:text-[20px] font-bold transition-opacity hover:opacity-85" 
+                    <a
+                      href="#"
+                      className="inline-flex items-center gap-2.5 text-[16px] sm:text-[18px] md:text-[20px] font-bold transition-opacity hover:opacity-85"
                       onClick={() => setMenuOpen(false)}
                     >
                       <FiFacebook className="w-5 h-5" />
                       <span>Facebook</span>
                     </a>
-                    <a 
-                      href="#" 
-                      className="inline-flex items-center gap-2.5 text-[16px] sm:text-[18px] md:text-[20px] font-bold transition-opacity hover:opacity-85" 
+                    <a
+                      href="#"
+                      className="inline-flex items-center gap-2.5 text-[16px] sm:text-[18px] md:text-[20px] font-bold transition-opacity hover:opacity-85"
                       onClick={() => setMenuOpen(false)}
                     >
                       <FiInstagram className="w-5 h-5" />
@@ -238,17 +238,17 @@ export function Navbar() {
                     </a>
                   </div>
                   <div className="flex flex-col gap-4">
-                    <a 
-                      href="#" 
-                      className="inline-flex items-center gap-2.5 text-[16px] sm:text-[18px] md:text-[20px] font-bold transition-opacity hover:opacity-85" 
+                    <a
+                      href="#"
+                      className="inline-flex items-center gap-2.5 text-[16px] sm:text-[18px] md:text-[20px] font-bold transition-opacity hover:opacity-85"
                       onClick={() => setMenuOpen(false)}
                     >
                       <FaDribbble className="w-5 h-5" />
                       <span>Dribbble</span>
                     </a>
-                    <a 
-                      href="#" 
-                      className="inline-flex items-center gap-2.5 text-[16px] sm:text-[18px] md:text-[20px] font-bold transition-opacity hover:opacity-85" 
+                    <a
+                      href="#"
+                      className="inline-flex items-center gap-2.5 text-[16px] sm:text-[18px] md:text-[20px] font-bold transition-opacity hover:opacity-85"
                       onClick={() => setMenuOpen(false)}
                     >
                       <FaBehance className="w-5 h-5" />

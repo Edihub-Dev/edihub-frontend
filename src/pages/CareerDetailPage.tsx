@@ -67,8 +67,8 @@ export function CareerDetailPage() {
   const navigate = useNavigate();
   const [career, setCareer] = useState<Career | null>(null);
   const [loading, setLoading] = useState(true);
-  const [detailCardsOpen, setDetailCardsOpen] = useState(false);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Application form modal state
   const [isApplyOpen, setIsApplyOpen] = useState(false);
@@ -120,12 +120,29 @@ export function CareerDetailPage() {
   }, [slug, navigate]);
 
   useEffect(() => {
-    if (detailCardsOpen) return;
+    if (!loading) {
+      const globalWindow = window as any;
+      if (globalWindow.lenis) {
+        globalWindow.lenis.scrollTo(0, { immediate: true });
+      } else {
+        window.scrollTo(0, 0);
+      }
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
     const interval = setInterval(() => {
       setActiveCardIndex((prev) => (prev === 0 ? 1 : 0));
-    }, 3000);
+    }, 2500);
     return () => clearInterval(interval);
-  }, [detailCardsOpen]);
+  }, []);
 
   if (loading) {
     return (
@@ -206,10 +223,8 @@ export function CareerDetailPage() {
   };
 
   const detailCardVariants = {
-    "front-initial": { zIndex: 30, opacity: 1, rotateY: -8, rotateX: 6, z: 0, x: 0, y: 0, rotate: 0 },
-    "front-hover": { zIndex: 30, opacity: 1, rotateY: -12, rotateX: 8, z: 0, x: -20, y: 10, rotate: -4 },
-    "back-initial": { zIndex: 10, opacity: 0.6, rotateY: -15, rotateX: 10, z: -40, x: 0, y: 0, rotate: 0 },
-    "back-hover": { zIndex: 10, opacity: 1, rotateY: -5, rotateX: 2, z: 0, x: 80, y: -20, rotate: 6 }
+    front: { zIndex: 30, opacity: 1, rotateY: -12, rotateX: 8, z: 0, x: isMobile ? -10 : -20, y: isMobile ? 5 : 10, rotate: -4, scale: isMobile ? 0.8 : 1 },
+    back: { zIndex: 10, opacity: 1, rotateY: -5, rotateX: 2, z: 0, x: isMobile ? 35 : 80, y: isMobile ? -10 : -20, rotate: 6, scale: isMobile ? 0.8 : 1 }
   };
 
   return (
@@ -251,40 +266,38 @@ export function CareerDetailPage() {
               </div>
 
               {/* Right Mockup Graphics */}
-              <div className="lg:col-span-5 relative h-[280px] sm:h-[350px] w-full flex items-center justify-center">
+              <div className="lg:col-span-5 relative h-[220px] sm:h-[300px] md:h-[350px] w-full flex items-center justify-center">
                 <div className="absolute w-[280px] h-[280px] rounded-full bg-blue-200/30 blur-[80px] pointer-events-none" />
 
                 {/* 3D Glassmorphic Cards Stack */}
                 <motion.div
                   className="relative w-full max-w-[320px] h-full cursor-pointer select-none"
                   style={{ perspective: 1000 }}
-                  onMouseEnter={() => setDetailCardsOpen(true)}
-                  onMouseLeave={() => setDetailCardsOpen(false)}
                 >
                   {/* Back card */}
                   <motion.div
                     variants={detailCardVariants}
-                    animate={activeCardIndex === 1 ? (detailCardsOpen ? "front-hover" : "front-initial") : (detailCardsOpen ? "back-hover" : "back-initial")}
+                    animate={activeCardIndex === 1 ? "front" : "back"}
                     onClick={(e) => handleCardClick(1, e)}
                     transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
-                    className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-xl flex flex-col justify-between cursor-pointer"
+                    className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-4 sm:p-6 shadow-xl flex flex-col justify-between cursor-pointer"
                     style={{ transformStyle: "preserve-3d" }}
                   >
                     <div className="flex justify-between items-center">
-                      <span className="text-[13px] font-black text-zinc-400 uppercase tracking-widest">Life at Edihub</span>
-                      <div className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400 text-[13px]">EDI</div>
+                      <span className="text-[11px] sm:text-[13px] font-black text-zinc-400 uppercase tracking-widest">Life at Edihub</span>
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400 text-[11px] sm:text-[13px]">EDI</div>
                     </div>
 
                     {/* Image inside back card */}
-                    <div className="my-3 h-[140px] rounded-2xl overflow-hidden bg-zinc-100 border border-zinc-200/60 relative">
+                    <div className="my-2 sm:my-3 h-[90px] sm:h-[140px] rounded-2xl overflow-hidden bg-zinc-100 border border-zinc-200/60 relative">
                       <img src={heroImage} alt="Life at Edihub" className="w-full h-full object-cover" />
                     </div>
 
                     <div className="space-y-1">
-                      <div className="text-[18px] font-bold text-zinc-955">Join our team.</div>
+                      <div className="text-[15px] sm:text-[18px] font-bold text-zinc-955">Join our team.</div>
                       <div className="flex gap-2">
-                        <span className="text-[12px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-400 font-bold">Remote-first</span>
-                        <span className="text-[12px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-400 font-bold">Global</span>
+                        <span className="text-[10px] sm:text-[12px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-400 font-bold">Remote-first</span>
+                        <span className="text-[10px] sm:text-[12px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-400 font-bold">Global</span>
                       </div>
                     </div>
                   </motion.div>
@@ -292,19 +305,19 @@ export function CareerDetailPage() {
                   {/* Front card */}
                   <motion.div
                     variants={detailCardVariants}
-                    animate={activeCardIndex === 0 ? (detailCardsOpen ? "front-hover" : "front-initial") : (detailCardsOpen ? "back-hover" : "back-initial")}
+                    animate={activeCardIndex === 0 ? "front" : "back"}
                     onClick={(e) => handleCardClick(0, e)}
                     transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
-                    className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-2xl flex flex-col justify-between cursor-pointer"
+                    className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col justify-between cursor-pointer"
                     style={{ transformStyle: "preserve-3d", boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.05)" }}
                   >
                     <div className="flex justify-between items-center">
-                      <span className="text-[13px] font-black text-zinc-400 uppercase tracking-widest">{career.department} Team</span>
-                      <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-600 font-bold text-[13px]">EDI</div>
+                      <span className="text-[11px] sm:text-[13px] font-black text-zinc-400 uppercase tracking-widest">{career.department} Team</span>
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-600 font-bold text-[11px] sm:text-[13px]">EDI</div>
                     </div>
 
                     {/* Image inside card */}
-                    <div className="my-4 h-[140px] rounded-2xl overflow-hidden bg-zinc-100 border border-zinc-200/60 relative">
+                    <div className="my-2 sm:my-4 h-[90px] sm:h-[140px] rounded-2xl overflow-hidden bg-zinc-100 border border-zinc-200/60 relative">
                       <motion.img 
                         src={getCareerImage(career.slug, career.department)} 
                         alt={career.title} 
@@ -314,11 +327,11 @@ export function CareerDetailPage() {
                       />
                     </div>
 
-                    <div className="space-y-3 pt-2">
-                      <div className="text-[22px] font-bold text-zinc-955 tracking-tight leading-tight">{career.title}</div>
+                    <div className="space-y-2 sm:space-y-3 pt-1">
+                      <div className="text-[16px] sm:text-[22px] font-bold text-zinc-955 tracking-tight leading-tight">{career.title}</div>
                       <div className="flex gap-2">
-                        <span className="text-[12px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-500 font-bold">{career.employmentType}</span>
-                        <span className="text-[12px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-500 font-bold">{career.location}</span>
+                        <span className="text-[10px] sm:text-[12px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-500 font-bold">{career.employmentType}</span>
+                        <span className="text-[10px] sm:text-[12px] bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-500 font-bold">{career.location}</span>
                       </div>
                     </div>
                   </motion.div>

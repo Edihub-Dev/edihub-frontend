@@ -84,8 +84,8 @@ export function CareersPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLocDropdownOpen, setIsLocDropdownOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(6);
-  const [cardsOpen, setCardsOpen] = useState(false);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   const positionsRef = useRef<HTMLDivElement>(null);
 
@@ -110,12 +110,29 @@ export function CareersPage() {
   }, []);
 
   useEffect(() => {
-    if (cardsOpen) return;
+    if (!loading) {
+      const globalWindow = window as any;
+      if (globalWindow.lenis) {
+        globalWindow.lenis.scrollTo(0, { immediate: true });
+      } else {
+        window.scrollTo(0, 0);
+      }
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
     const interval = setInterval(() => {
       setActiveCardIndex((prev) => (prev + 1) % 3);
-    }, 3000);
+    }, 2500);
     return () => clearInterval(interval);
-  }, [cardsOpen]);
+  }, []);
 
   // Extract unique locations dynamically
   const uniqueLocations = ["All Locations", ...Array.from(new Set(careers.map((c) => c.location)))];
@@ -134,29 +151,17 @@ export function CareersPage() {
     positionsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const handleCardClick = (idx: number, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (activeCardIndex === idx) {
-      handleScrollToPositions(e);
-    } else {
-      setActiveCardIndex(idx);
-    }
-  };
-
   const cardVariants = {
-    "front-initial": { zIndex: 30, opacity: 1, rotateY: -15, rotateX: 8, z: 0, x: 0, y: 0, scale: 1 },
-    "front-hover": { zIndex: 30, opacity: 1, rotateY: -8, rotateX: 4, z: 0, x: 0, y: 5, scale: 1.02 },
-    "right-initial": { zIndex: 10, opacity: 0.35, rotateY: -25, rotateX: 12, z: -80, x: 60, y: 0, rotate: 0 },
-    "right-hover": { zIndex: 10, opacity: 0.95, rotateY: -10, rotateX: 5, z: 0, x: 100, y: -25, rotate: 6 },
-    "left-initial": { zIndex: 20, opacity: 0.7, rotateY: -25, rotateX: 12, z: -40, x: -30, y: 0, rotate: 0 },
-    "left-hover": { zIndex: 20, opacity: 0.95, rotateY: -10, rotateX: 5, z: 0, x: -100, y: 20, rotate: -6 }
+    front: { zIndex: 30, opacity: 1, rotateY: -8, rotateX: 4, z: 0, x: 0, y: 5, scale: isMobile ? 0.8 : 1.02 },
+    right: { zIndex: 10, opacity: 0.95, rotateY: -10, rotateX: 5, z: 0, x: isMobile ? 35 : 100, y: isMobile ? -10 : -25, rotate: 6, scale: isMobile ? 0.75 : 0.95 },
+    left: { zIndex: 20, opacity: 0.95, rotateY: -10, rotateX: 5, z: 0, x: isMobile ? -35 : -100, y: isMobile ? 10 : 20, rotate: -6, scale: isMobile ? 0.75 : 0.95 }
   };
 
   const getCardAnimateState = (cardIdx: number) => {
     const rel = (cardIdx - activeCardIndex + 3) % 3;
-    if (rel === 0) return cardsOpen ? "front-hover" : "front-initial";
-    if (rel === 1) return cardsOpen ? "right-hover" : "right-initial";
-    return cardsOpen ? "left-hover" : "left-initial";
+    if (rel === 0) return "front";
+    if (rel === 1) return "right";
+    return "left";
   };
 
   return (
@@ -225,85 +230,80 @@ export function CareersPage() {
               </motion.div>
             </div>
 
-            {/* Right overlapping animated cards */}
-            <div className="lg:col-span-6 relative h-[450px] w-full flex items-center justify-center">
+            {/* Right fanned out cards */}
+            <div className="lg:col-span-6 relative h-[320px] sm:h-[400px] md:h-[450px] w-full flex items-center justify-center">
               {/* Blur Glowing Background */}
               <div className="absolute w-[350px] h-[350px] rounded-full bg-blue-400/20 blur-[100px] pointer-events-none" />
 
-              <motion.div
-                className="relative w-full max-w-[420px] h-full cursor-pointer select-none"
+              <div
+                className="relative w-full max-w-[420px] h-full select-none"
                 style={{ perspective: 1200 }}
-                onMouseEnter={() => setCardsOpen(true)}
-                onMouseLeave={() => setCardsOpen(false)}
               >
-                {/* 3D stacked cards */}
-                {/* Back card (Design) */}
+                {/* 3D stacked cards (fanned out statically and cycling automatically) */}
+                {/* Back card (Design Team - Tilted Left) */}
                 <motion.div
                   variants={cardVariants}
                   animate={getCardAnimateState(2)}
-                  onClick={(e) => handleCardClick(2, e)}
                   transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
-                  className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-xl flex flex-col justify-between cursor-pointer"
+                  onClick={handleScrollToPositions}
+                  className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-4 sm:p-6 shadow-xl flex flex-col justify-between cursor-pointer"
                   style={{ transformStyle: "preserve-3d" }}
                 >
                   <div className="flex justify-between items-center">
-                    <span className="text-[13px] font-black text-zinc-400 uppercase tracking-widest">Design Team</span>
-                    <div className="w-8 h-8 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400 text-[13px]">03</div>
+                    <span className="text-[11px] sm:text-[13px] font-black text-zinc-400 uppercase tracking-widest">Design Team</span>
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400 text-[11px] sm:text-[13px]">03</div>
                   </div>
 
-                  {/* Image container */}
-                  <div className="my-3 h-[180px] rounded-2xl overflow-hidden bg-zinc-50 border border-zinc-150 relative">
+                  <div className="my-2 sm:my-3 h-[110px] sm:h-[150px] md:h-[180px] rounded-2xl overflow-hidden bg-zinc-50 border border-zinc-150 relative">
                     <img src={pexels3} alt="Design" className="w-full h-full object-cover" />
                   </div>
 
-                  <div className="text-[22px] font-bold text-zinc-900 leading-tight">Design & Creative</div>
+                  <div className="text-[16px] sm:text-[22px] font-bold text-zinc-900 leading-tight">Design & Creative</div>
                 </motion.div>
 
-                {/* Middle card (Development) */}
+                {/* Middle card (Dev Team - Tilted Right) */}
                 <motion.div
                   variants={cardVariants}
                   animate={getCardAnimateState(1)}
-                  onClick={(e) => handleCardClick(1, e)}
                   transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
-                  className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-xl flex flex-col justify-between cursor-pointer"
+                  onClick={handleScrollToPositions}
+                  className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-4 sm:p-6 shadow-xl flex flex-col justify-between cursor-pointer"
                   style={{ transformStyle: "preserve-3d" }}
                 >
                   <div className="flex justify-between items-center">
-                    <span className="text-[13px] font-black text-zinc-400 uppercase tracking-widest">Dev Team</span>
-                    <div className="w-8 h-8 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400 text-[13px]">02</div>
+                    <span className="text-[11px] sm:text-[13px] font-black text-zinc-400 uppercase tracking-widest">Dev Team</span>
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400 text-[11px] sm:text-[13px]">02</div>
                   </div>
 
-                  {/* Image container */}
-                  <div className="my-3 h-[180px] rounded-2xl overflow-hidden bg-zinc-50 border border-zinc-150 relative">
+                  <div className="my-2 sm:my-3 h-[110px] sm:h-[150px] md:h-[180px] rounded-2xl overflow-hidden bg-zinc-50 border border-zinc-150 relative">
                     <img src={pexels2} alt="Development" className="w-full h-full object-cover" />
                   </div>
 
-                  <div className="text-[22px] font-bold text-zinc-900 leading-tight">Tech & Development</div>
+                  <div className="text-[16px] sm:text-[22px] font-bold text-zinc-900 leading-tight">Tech & Development</div>
                 </motion.div>
 
-                {/* Front card (General / We're Hiring) */}
+                {/* Front card (We're Hiring - Center) */}
                 <motion.div
                   variants={cardVariants}
                   animate={getCardAnimateState(0)}
-                  onClick={(e) => handleCardClick(0, e)}
                   transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
-                  className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-6 shadow-2xl flex flex-col justify-between select-none cursor-pointer"
+                  onClick={handleScrollToPositions}
+                  className="absolute inset-0 bg-white border border-zinc-200 rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col justify-between cursor-pointer"
                   style={{ transformStyle: "preserve-3d", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.08)" }}
                 >
                   <div className="flex justify-between items-start">
-                    <div className="px-3 py-1 bg-blue-50 border border-blue-100 rounded-full text-[13px] font-black text-blue-600 uppercase tracking-widest">
+                    <div className="px-2 sm:px-3 py-0.5 sm:py-1 bg-blue-50 border border-blue-100 rounded-full text-[11px] sm:text-[13px] font-black text-blue-600 uppercase tracking-widest">
                       We're Hiring
                     </div>
-                    <div className="w-10 h-10 rounded-xl bg-blue-600/10 flex items-center justify-center font-extrabold text-blue-600 text-[13px]">01</div>
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-600/10 flex items-center justify-center font-extrabold text-blue-600 text-[11px] sm:text-[13px]">01</div>
                   </div>
 
-                  {/* Image container */}
-                  <div className="my-3 h-[180px] rounded-2xl overflow-hidden bg-zinc-50 border border-zinc-150 relative">
+                  <div className="my-2 sm:my-3 h-[110px] sm:h-[150px] md:h-[180px] rounded-2xl overflow-hidden bg-zinc-50 border border-zinc-150 relative">
                     <img src={heroImage} alt="Hiring" className="w-full h-full object-cover" />
                   </div>
 
-                  <div className="space-y-3">
-                    <p className="text-[22px] font-bold tracking-tight text-zinc-900 leading-tight">
+                  <div className="space-y-2 sm:space-y-3">
+                    <p className="text-[16px] sm:text-[22px] font-bold tracking-tight text-zinc-900 leading-tight">
                       We're hiring creative minds and problem solvers.
                     </p>
                     <div className="w-full h-1 bg-blue-100 rounded-full overflow-hidden">
@@ -316,7 +316,7 @@ export function CareersPage() {
                     </div>
                   </div>
                 </motion.div>
-              </motion.div>
+              </div>
             </div>
           </div>
         </Container>

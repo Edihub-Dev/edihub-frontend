@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import pexels1 from "@/assets/projects/pexels-1.webp";
@@ -56,15 +56,6 @@ function ProjectCard({
   media: string;
   stagger: string;
 }) {
-  const mediaRef = useRef<HTMLDivElement | null>(null);
-  const { scrollYProgress } = useScroll({
-    target: mediaRef,
-    offset: ["start end", "end start"],
-    layoutEffect: false,
-  });
-
-  const y = useTransform(scrollYProgress, [0, 0.6], [0, -100]);
-
   return (
     <motion.div
       key={project.slug}
@@ -75,15 +66,13 @@ function ProjectCard({
     >
       <Link to={`/projects/${project.slug}`}>
         <div
-          ref={mediaRef}
           className={`relative w-full overflow-hidden rounded-[28px] bg-zinc-200 ${media}`}
         >
           <motion.img
             src={imageMap[project.image] || project.image}
             alt={project.title}
             loading="lazy"
-            className="absolute left-0 top-[-120px] h-[calc(100%+240px)] w-full object-cover object-center"
-            style={{ y, willChange: "transform" }}
+            className="h-full w-full object-cover object-center"
             whileHover={{ scale: 1.08 }}
             transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
           />
