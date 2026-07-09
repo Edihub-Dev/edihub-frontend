@@ -52,9 +52,13 @@ export function ServicePageHero({
             >
               {description}
             </motion.p>
-            <motion.div variants={item} className="mt-10 flex flex-wrap gap-4">
-              <PrimaryButton to={primaryCta.to}>{primaryCta.label}</PrimaryButton>
-              <SecondaryButton to={secondaryCta.to}>{secondaryCta.label}</SecondaryButton>
+            <motion.div variants={item} className="mt-10 flex gap-3 sm:gap-4">
+              <PrimaryButton to={primaryCta.to} className="flex-1 sm:flex-none justify-center text-center">
+                {primaryCta.label}
+              </PrimaryButton>
+              <SecondaryButton to={secondaryCta.to} className="flex-1 sm:flex-none justify-center text-center">
+                {secondaryCta.label}
+              </SecondaryButton>
             </motion.div>
             <motion.div variants={item}>
               <ScrollExploreIndicator />

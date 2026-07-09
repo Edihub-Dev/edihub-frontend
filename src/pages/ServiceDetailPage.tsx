@@ -400,28 +400,56 @@ export function ServiceDetailPage() {
         </section>
 
         {/* Process */}
-        <section className="border-t border-[#F3F4F6] bg-[#FAFAFA] min-h-screen flex items-center py-0 md:py-0">
+        <section className="border-t border-[#F3F4F6] bg-slate-50/50 py-20 md:py-28 lg:py-32">
           <Container className="px-5 sm:px-6 lg:px-10 xl:px-16 w-full">
-            <div className="grid gap-14 lg:grid-cols-12 lg:gap-16">
-              <div className="lg:col-span-4">
+            <div className="grid gap-12 lg:grid-cols-12 lg:gap-16 items-start">
+              <div className="lg:col-span-4 lg:sticky lg:top-36">
                 <ServiceLabel>Our process</ServiceLabel>
-                <h2 className="mt-4 text-[40px] font-semibold leading-[1.1] tracking-[-0.06em] text-[#111827] sm:text-[52px] lg:text-[64px]">
+                <h2 className="mt-4 text-[40px] font-bold leading-[1.08] tracking-[-0.05em] text-[#111827] sm:text-[52px] lg:text-[60px]">
                   A simple process for powerful {service.shortTitle.toLowerCase()}.
                 </h2>
+                <p className="mt-6 text-[15px] leading-[1.7] text-[#6B7280] max-w-[36ch]">
+                  How we take your projects from initial concept and design to flawless deployment and continuous optimization.
+                </p>
               </div>
-              <div className="lg:col-span-8 mt-8 lg:mt-0">
-                <div className="relative">
-                  <div className="absolute left-0 right-0 top-[6px] hidden h-px bg-[#D1D5DB] md:block" />
-                  <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4 md:gap-4">
-                    {service.processSteps.map((step) => (
-                      <div key={step.number} className="relative bg-[#FAFAFA] md:bg-transparent">
-                        <div className="mb-6 h-3 w-3 rounded-full bg-[#0066FF] ring-4 ring-[#FAFAFA] md:ring-white" />
-                        <p className="text-[13px] font-bold text-[#0066FF]">{step.number}</p>
-                        <h3 className="mt-3 text-[18px] sm:text-[20px] font-bold text-[#111827]">{step.title}</h3>
-                        <p className="mt-2 text-[15px] leading-[1.6] text-[#6B7280]">{step.description}</p>
+              <div className="lg:col-span-8 mt-10 lg:mt-0">
+                <div className="relative flex flex-col gap-8">
+                  {/* Vertical connection line */}
+                  <div className="absolute left-[11px] top-20 bottom-20 w-[1.5px] bg-[#E5E7EB]" />
+                  
+                  {service.processSteps.map((step, idx) => (
+                    <motion.div
+                      key={step.number}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-100px" }}
+                      transition={{ duration: 0.5, delay: idx * 0.1 }}
+                      className="group relative flex items-center pl-12 sm:pl-16"
+                    >
+                      {/* Timeline Dot (always centered vertically with the card) */}
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10 flex h-6 w-6 items-center justify-center rounded-full border-[2.5px] border-[#0066FF] bg-white shadow-sm transition-transform duration-300 group-hover:scale-110">
+                        <span className="h-2 w-2 rounded-full bg-[#0066FF]" />
                       </div>
-                    ))}
-                  </div>
+
+                      {/* Content Card */}
+                      <div className="w-full rounded-[24px] border border-slate-100 bg-white p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.01)] transition-all duration-300 hover:-translate-y-1 hover:border-[#0066FF]/20 hover:shadow-[0_20px_40px_rgba(0,102,255,0.04)]">
+                        {/* Pill Badge */}
+                        <span className="inline-block rounded-full bg-blue-50/70 px-3.5 py-1 text-[11px] font-bold tracking-widest text-[#0066FF] font-mono">
+                          STEP {step.number}
+                        </span>
+                        
+                        {/* Title */}
+                        <h3 className="mt-4 text-[22px] sm:text-[26px] font-bold tracking-tight text-[#111827] group-hover:text-[#0066FF] transition-colors duration-300">
+                          {step.title}
+                        </h3>
+                        
+                        {/* Description */}
+                        <p className="mt-3 text-[15px] sm:text-[16px] leading-[1.65] text-[#4B5563] font-normal">
+                          {step.description}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
             </div>

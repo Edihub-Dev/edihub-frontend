@@ -169,7 +169,7 @@ export function CareersPage() {
       <Navbar />
 
       {/* Hero Section */}
-      <Section className="pt-32 md:pt-44 pb-16 overflow-hidden">
+      <Section className="pt-32 md:pt-44 pb-8 md:pb-12 lg:pb-16 overflow-hidden">
         <Container className="px-6 sm:px-8 lg:px-14 xl:px-20">
           <div className="grid lg:grid-cols-12 gap-12 items-center">
             {/* Left Info Column */}
@@ -206,15 +206,15 @@ export function CareersPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
-                className="flex flex-wrap gap-4 pt-4"
+                className="flex gap-2.5 sm:gap-4 pt-4"
               >
                 <a
                   href="#positions"
                   onClick={handleScrollToPositions}
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-zinc-950 hover:bg-zinc-850 text-white rounded-2xl text-[15px] font-bold transition-all shadow-lg shadow-zinc-950/10 cursor-pointer active:scale-98"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 sm:px-8 py-4 bg-zinc-950 hover:bg-zinc-850 text-white rounded-2xl text-[12px] sm:text-[15px] font-bold transition-all shadow-lg shadow-zinc-950/10 cursor-pointer active:scale-98 text-center"
                 >
-                  View Open Positions
-                  <FiArrowUpRight className="w-4 h-4" />
+                  <span className="truncate">View Open Positions</span>
+                  <FiArrowUpRight className="w-4 h-4 shrink-0" />
                 </a>
                 <a
                   href="#why-join"
@@ -222,10 +222,10 @@ export function CareersPage() {
                     e.preventDefault();
                     document.getElementById("why-join")?.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-800 rounded-2xl text-[15px] font-bold transition-all cursor-pointer active:scale-98"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 sm:px-8 py-4 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-800 rounded-2xl text-[12px] sm:text-[15px] font-bold transition-all cursor-pointer active:scale-98 text-center"
                 >
-                  Life at Edihub
-                  <FiArrowUpRight className="w-4 h-4" />
+                  <span className="truncate">Life at Edihub</span>
+                  <FiArrowUpRight className="w-4 h-4 shrink-0" />
                 </a>
               </motion.div>
             </div>
@@ -323,7 +323,7 @@ export function CareersPage() {
       </Section>
 
       {/* Filter and Job List Section */}
-      <Section id="positions" ref={positionsRef} className="bg-[#F8F8FA] border-t border-zinc-100 py-20 md:py-28">
+      <Section id="positions" ref={positionsRef} className="bg-[#F8F8FA] border-t border-zinc-100 pt-10 md:pt-16 lg:pt-20 pb-20 md:pb-28">
         <Container className="px-6 sm:px-8 lg:px-14 xl:px-20">
 
           {/* Section header â€” 2-col with stats on right */}
@@ -369,7 +369,7 @@ export function CareersPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by role, skill, or keywordâ€¦"
+                placeholder="Search by role, skill, or keyword..."
                 className="w-full bg-zinc-50 border border-zinc-200 rounded-xl py-3.5 pl-12 pr-4 text-[15px] font-medium focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-600/10 focus:border-blue-600 transition-all text-zinc-800 placeholder:text-zinc-400"
               />
             </div>

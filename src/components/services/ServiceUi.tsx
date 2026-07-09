@@ -51,7 +51,7 @@ export function PrimaryButton({
   return (
     <Link
       to={to}
-      className={`group inline-flex items-center gap-2.5 rounded-lg bg-[#111827] px-7 py-4 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-black ${className}`}
+      className={`group inline-flex items-center gap-2.5 rounded-lg bg-[#111827] px-4 sm:px-7 py-4 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-black ${className}`}
     >
       {children}
       <ArrowIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -71,7 +71,7 @@ export function SecondaryButton({
   return (
     <Link
       to={to}
-      className={`group inline-flex items-center gap-2.5 rounded-lg border border-[#D1D5DB] bg-white px-7 py-4 text-[11px] font-bold uppercase tracking-[0.1em] text-[#111827] transition-colors hover:border-[#111827] ${className}`}
+      className={`group inline-flex items-center gap-2.5 rounded-lg border border-[#D1D5DB] bg-white px-4 sm:px-7 py-4 text-[11px] font-bold uppercase tracking-[0.1em] text-[#111827] transition-colors hover:border-[#111827] ${className}`}
     >
       {children}
       <ArrowIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
