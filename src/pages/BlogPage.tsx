@@ -5,7 +5,9 @@ import { Section } from "@/components/ui/Section";
 import { Container } from "@/components/ui/Container";
 import { Footer } from "@/components/layout/Footer";
 import { CtaSection } from "@/components/sections/CtaSection";
+import { ParallaxImage } from "@/components/ui/ParallaxImage";
 import { getApiUrl } from "@/utils/api";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 
 type Blog = {
   title: string;
@@ -101,15 +103,15 @@ export function BlogPage() {
                       className="group col-span-1"
                     >
                       <Link to={`/blog/${blog.slug}`} className="block h-full">
-                        {/* Image Container with Zoom effect */}
-                        <div className="overflow-hidden rounded-[20px] bg-zinc-50 relative shadow-sm transition-all duration-500 group-hover:shadow-md aspect-[16/10]">
-                          <img
-                            src={blog.image}
-                            alt={blog.title}
-                            loading="lazy"
-                            className="h-full w-full object-cover transition-transform duration-700 ease-[0.33,1,0.68,1] group-hover:scale-104"
-                          />
-                        </div>
+                        {/* Image Container with Zoom effect & Parallax */}
+                        <ParallaxImage
+                          src={blog.image}
+                          alt={blog.title}
+                          loading="lazy"
+                          containerClassName="rounded-[20px] bg-zinc-50 shadow-sm transition-all duration-500 group-hover:shadow-md aspect-[16/10]"
+                          className="transition-transform duration-700 ease-[0.33,1,0.68,1] group-hover:scale-104"
+                          offset={30}
+                        />
 
                         {/* Date and Title */}
                         <div className="mt-5 px-1">
@@ -137,9 +139,11 @@ export function BlogPage() {
                 {/* Left Side Static Info Column */}
                 <div className="lg:col-span-4">
                   <div className="sticky top-32">
-                    <h2 className="text-[36px] font-semibold tracking-[-0.04em] text-black sm:text-[44px]">
-                      More articles
-                    </h2>
+                    <ScrollRevealText
+                      text="More articles"
+                      as="h2"
+                      className="text-[36px] font-semibold tracking-[-0.04em] text-black sm:text-[44px]"
+                    />
                     <p className="mt-5 text-[15px] leading-relaxed text-[#52525b] font-medium max-w-[28ch]">
                       Explore more insights from our team to deepen your understanding of digital strategy and web development best practices.
                     </p>
@@ -156,14 +160,14 @@ export function BlogPage() {
                         className="group flex flex-col sm:flex-row items-start sm:items-center justify-between py-8 sm:py-10 border-b border-zinc-200/80 transition-colors gap-6"
                       >
                         <div className="flex items-start gap-6 sm:gap-8 flex-1">
-                          {/* Larger Thumbnail with Zoom effect */}
-                          <div className="w-[120px] sm:w-[180px] lg:w-[220px] aspect-[16/10] shrink-0 overflow-hidden rounded-2xl bg-zinc-50 relative shadow-sm border border-neutral-100">
-                            <img
-                              src={blog.image}
-                              alt={blog.title}
-                              className="h-full w-full object-cover transition-transform duration-700 ease-[0.33,1,0.68,1] group-hover:scale-105"
-                            />
-                          </div>
+                          {/* Larger Thumbnail with Zoom effect & Parallax */}
+                          <ParallaxImage
+                            src={blog.image}
+                            alt={blog.title}
+                            containerClassName="w-[120px] sm:w-[180px] lg:w-[220px] aspect-[16/10] shrink-0 rounded-2xl bg-zinc-50 shadow-sm border border-neutral-100"
+                            className="transition-transform duration-700 ease-[0.33,1,0.68,1] group-hover:scale-105"
+                            offset={25}
+                          />
 
                           <div className="flex-1 min-w-0">
                             {/* Meta: Date & Read Time */}

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import visionImage from "@/assets/vision-image.png";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 
 const ACCENT_BLUE = "#0066FF";
 
@@ -139,14 +140,11 @@ export function Vision() {
             </motion.div>
           </div>
           <div className="lg:col-span-6">
-            <motion.h2
-              initial={{ opacity: 0, y: 16 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.4, delay: 0.05 }}
+            <ScrollRevealText
+              text="We’re a digital agency built for the modern internet."
+              as="h2"
               className="text-[28px] font-semibold leading-tight tracking-[-0.8px] sm:tracking-[-2.00px] text-[#1A1A1A] sm:text-[40px] md:text-[48px] lg:text-[56px] text-balance"
-            >
-              We’re a digital agency built for the modern internet.
-            </motion.h2>
+            />
             <motion.p
               initial={{ opacity: 0, y: 12 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}

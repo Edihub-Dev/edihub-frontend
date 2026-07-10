@@ -7,8 +7,10 @@ import { CtaSection } from "@/components/sections/CtaSection";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { getApiUrl } from "@/utils/api";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 import { defaultCareers, whyJoinEdihub } from "@/data/careers";
 import type { Career } from "@/data/careers";
+import { ParallaxImage } from "@/components/ui/ParallaxImage";
 
 import {
   FiBriefcase,
@@ -246,9 +248,11 @@ export function CareerDetailPage() {
                   <span>{career.employmentType}</span>
                 </div>
 
-                <h1 className="text-[36px] sm:text-[48px] md:text-[60px] font-bold tracking-tight text-zinc-950 leading-tight">
-                  {career.title}
-                </h1>
+                <ScrollRevealText
+                  text={career.title}
+                  as="h1"
+                  className="text-[36px] sm:text-[48px] md:text-[60px] font-bold tracking-tight text-zinc-950 leading-tight"
+                />
 
                 <p className="text-[18px] sm:text-[20px] text-zinc-500 leading-relaxed max-w-xl">
                   {career.description}
@@ -288,10 +292,11 @@ export function CareerDetailPage() {
                       <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400 text-[11px] sm:text-[13px]">EDI</div>
                     </div>
 
-                    {/* Image inside back card */}
-                    <div className="my-2 sm:my-3 h-[90px] sm:h-[140px] rounded-2xl overflow-hidden bg-zinc-100 border border-zinc-200/60 relative">
-                      <img src={heroImage} alt="Life at Edihub" className="w-full h-full object-cover" />
-                    </div>
+                    <ParallaxImage 
+                      src={heroImage} 
+                      alt="Life at Edihub" 
+                      containerClassName="my-2 sm:my-3 h-[90px] sm:h-[140px] rounded-2xl bg-zinc-100 border border-zinc-200/60 relative"
+                    />
 
                     <div className="space-y-1">
                       <div className="text-[15px] sm:text-[18px] font-bold text-zinc-955">Join our team.</div>
@@ -316,16 +321,12 @@ export function CareerDetailPage() {
                       <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-600 font-bold text-[11px] sm:text-[13px]">EDI</div>
                     </div>
 
-                    {/* Image inside card */}
-                    <div className="my-2 sm:my-4 h-[90px] sm:h-[140px] rounded-2xl overflow-hidden bg-zinc-100 border border-zinc-200/60 relative">
-                      <motion.img 
-                        src={getCareerImage(career.slug, career.department)} 
-                        alt={career.title} 
-                        className="w-full h-full object-cover"
-                        whileHover={{ scale: 1.08 }}
-                        transition={{ duration: 0.6 }}
-                      />
-                    </div>
+                    <ParallaxImage 
+                      src={getCareerImage(career.slug, career.department)} 
+                      alt={career.title} 
+                      containerClassName="my-2 sm:my-4 h-[90px] sm:h-[140px] rounded-2xl bg-zinc-100 border border-zinc-200/60 relative"
+                      className="transition-transform duration-600 hover:scale-108"
+                    />
 
                     <div className="space-y-2 sm:space-y-3 pt-1">
                       <div className="text-[16px] sm:text-[22px] font-bold text-zinc-955 tracking-tight leading-tight">{career.title}</div>

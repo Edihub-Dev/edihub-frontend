@@ -7,6 +7,8 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CtaSection } from "@/components/sections/CtaSection";
 import { getApiUrl, getYouTubeId } from "@/utils/api";
+import { ParallaxImage } from "@/components/ui/ParallaxImage";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 import pexels1 from "@/assets/projects/pexels-1.webp";
 import pexels2 from "@/assets/projects/pexels-2.webp";
 import pexels3 from "@/assets/projects/pexels-3.webp";
@@ -131,11 +133,13 @@ export function ProjectDetailPage() {
             transition={{ duration: 1, ease: "easeOut" }}
             className="absolute inset-0"
           >
-            <img
+            <ParallaxImage
               src={customImageMap[project.slug] || imageMap[project.image] || project.image}
               alt={project.title}
-              className="w-full h-full object-cover scale-[1.05] opacity-60"
+              containerClassName="absolute inset-0 w-full h-full"
+              className="scale-[1.05] opacity-60"
               style={{ filter: "blur(4px)" }}
+              offset={40}
             />
             {/* Dark gradient overlay — dark at top for navbar, fades to dark at bottom */}
             <div
@@ -144,7 +148,7 @@ export function ProjectDetailPage() {
           </motion.div>
  
           {/* Overlaid content */}
-          <div className="relative z-10 pt-44 pb-48 md:pb-64 lg:pb-80">
+          <div className="relative z-10 pt-32 pb-[38rem] md:pb-[32rem] lg:pb-[36rem]">
             <Container className="px-6 sm:px-8 lg:px-14 xl:px-20">
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
@@ -159,17 +163,18 @@ export function ProjectDetailPage() {
                   </span>
                 </div>
 
-                {/* Title */}
-                <h1 className="text-[48px] font-semibold leading-[0.95] tracking-[-0.06em] text-white sm:text-[64px] md:text-[80px] lg:text-[110px]">
-                  {project.title}
-                </h1>
+                <ScrollRevealText
+                  text={project.title}
+                  as="h1"
+                  className="text-[48px] font-semibold leading-[0.95] tracking-[-0.06em] text-white sm:text-[64px] md:text-[80px] lg:text-[110px]"
+                />
               </motion.div>
             </Container>
           </div>
         </div>
 
         {/* Content Section */}
-        <Section className="relative z-20 -mt-48 md:-mt-64 lg:-mt-80 pb-24 pt-0">
+        <Section className="relative z-20 -mt-[36rem] md:-mt-[30rem] lg:-mt-[34rem] pb-24 pt-0">
           <Container className="max-w-5xl px-4 sm:px-6">
             {/* 80% Width Overlapping Premium Box */}
             <div className="bg-white border border-zinc-200/80 rounded-[32px] p-8 sm:p-12 md:p-16 shadow-2xl relative z-10">
@@ -213,9 +218,11 @@ export function ProjectDetailPage() {
                             {/* Right Side: Description */}
               <div className="lg:col-span-8">
                 <div className="max-w-2xl">
-                  <h3 className="text-[28px] font-semibold leading-[1.2] text-[#111827] sm:text-[36px]">
-                    The Challenge & Solution
-                  </h3>
+                  <ScrollRevealText
+                    text="The Challenge & Solution"
+                    as="h3"
+                    className="text-[28px] font-semibold leading-[1.2] text-[#111827] sm:text-[36px]"
+                  />
                   <p className="mt-8 text-[18px] leading-[1.6] text-[#4B5563] sm:text-[20px]">
                     {project.description}
                   </p>
@@ -249,10 +256,12 @@ export function ProjectDetailPage() {
                         transition={{ duration: 0.6, delay: idx * 0.08 }}
                         className={`group relative overflow-hidden rounded-2xl border border-[#E5E7EB] bg-slate-50 shadow-sm aspect-video cursor-zoom-in ${colSpanClass}`}
                       >
-                        <img
+                        <ParallaxImage
                           src={imageMap[imgUrl] || imgUrl}
                           alt={`${project.title} gallery item ${idx + 1}`}
-                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          containerClassName="absolute inset-0 w-full h-full"
+                          className="transition-transform duration-700 group-hover:scale-105"
+                          offset={25}
                         />
                         {/* Zoom icon hint */}
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
@@ -283,7 +292,7 @@ export function ProjectDetailPage() {
                     const isOddTotal = project.videos!.length % 2 !== 0;
                     const colSpanClass = isLast && isOddTotal ? "sm:col-span-2" : "";
                     const thumbSrc = ytId
-                      ? `https://img.youtube.com/vi/${ytId}/hqdefault.webp`
+                      ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
                       : null;
 
                     return (
@@ -300,10 +309,12 @@ export function ProjectDetailPage() {
                       >
                         {/* Thumbnail */}
                         {thumbSrc ? (
-                          <img
+                          <ParallaxImage
                             src={thumbSrc}
                             alt={`${project.title} video ${idx + 1}`}
-                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 brightness-75 group-hover:brightness-90"
+                            containerClassName="absolute inset-0 w-full h-full"
+                            className="transition-transform duration-700 group-hover:scale-105 brightness-75 group-hover:brightness-90"
+                            offset={25}
                           />
                         ) : (
                           <div className="h-full w-full bg-gradient-to-br from-[#1e293b] to-[#0f172a]" />
@@ -368,10 +379,12 @@ export function ProjectDetailPage() {
                         className="group block text-center"
                       >
                         <div className="relative aspect-[16/10] w-full overflow-hidden rounded-[2rem]">
-                          <img
+                          <ParallaxImage
                             src={customImageMap[nextProject.slug] || imageMap[nextProject.image] || nextProject.image}
                             alt={nextProject.title}
-                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            containerClassName="absolute inset-0 w-full h-full"
+                            className="transition-transform duration-700 group-hover:scale-110"
+                            offset={35}
                           />
                           <div className="absolute inset-0 bg-black/20 transition-colors group-hover:bg-black/10" />
                           <div className="absolute inset-0 flex items-center justify-center">

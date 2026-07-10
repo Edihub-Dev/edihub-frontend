@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { getApiUrl } from "@/utils/api";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 
 import bgCanvasStudio from "@/assets/pexels-canvastudio-3153198.webp";
 import bgMikhailNilov from "@/assets/pexels-mikhail-nilov-6930549.webp";
@@ -125,14 +126,11 @@ export function Testimonials() {
   return (
     <Section id="testimonials" className="bg-white">
       <Container>
-        <motion.h2
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
+        <ScrollRevealText
+          text="Real results, real feedback"
+          as="h2"
           className="text-center text-5xl font-bold tracking-tight text-[#1A1A1A] sm:text-6xl"
-        >
-          Real results, real feedback
-        </motion.h2>
+        />
         <motion.p
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}

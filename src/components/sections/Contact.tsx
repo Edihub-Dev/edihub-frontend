@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 import { getApiUrl } from "@/utils/api";
 import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
 
@@ -70,9 +71,11 @@ export function Contact() {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <h2 className="text-[28px] font-bold tracking-tight text-[#111827]">
-                EDIHUB
-              </h2>
+              <ScrollRevealText
+                text="EDIHUB"
+                as="h2"
+                className="text-[28px] font-bold tracking-tight text-[#111827]"
+              />
 
               <div className="mt-10 sm:mt-16 space-y-5 sm:space-y-6">
                 {/* Email Card */}
@@ -234,9 +237,11 @@ export function Contact() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <h3 className="text-[36px] font-semibold leading-[1.1] tracking-[-0.04em] text-[#111827] sm:text-[44px] md:text-[56px]">
-                Got a project in mind? We'd love to hear about it. Big or small, we're here to help bring your ideas to life.
-              </h3>
+              <ScrollRevealText
+                text="Got a project in mind? We'd love to hear about it. Big or small, we're here to help bring your ideas to life."
+                as="h3"
+                className="text-[36px] font-semibold leading-[1.1] tracking-[-0.04em] text-[#111827] sm:text-[44px] md:text-[56px]"
+              />
 
               <form onSubmit={handleSubmit} className="mt-20 space-y-12">
                 <div className="grid gap-12 sm:grid-cols-2">

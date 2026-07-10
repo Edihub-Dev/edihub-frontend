@@ -2,6 +2,7 @@ import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import teamImage from "@/assets/team.webp";
 import { Container } from "@/components/ui/Container";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 import { Section } from "@/components/ui/Section";
 
 const infinity = "\u221E";
@@ -26,8 +27,6 @@ const item = {
 
 export function TeamImageStats() {
   const mediaRef = useRef<HTMLDivElement | null>(null);
-  const headingRef = useRef(null);
-  const headingInView = useInView(headingRef, { once: true, margin: "-60px" });
   const inView = useInView(mediaRef, { once: true, margin: "-80px" });
   const { scrollYProgress } = useScroll({
     target: mediaRef,
@@ -40,15 +39,11 @@ export function TeamImageStats() {
   return (
     <Section id="team" className="bg-white py-0">
       <Container className="pb-10 pt-4 md:pb-14 lg:pb-16">
-        <motion.h2
-          ref={headingRef}
-          initial={{ opacity: 0, y: 14 }}
-          animate={headingInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
-          transition={{ duration: 0.55, ease: "easeOut" }}
+        <ScrollRevealText
+          text="or get to know us first!"
+          as="h2"
           className="text-center text-[36px] font-semibold leading-[1.02] tracking-[-0.06em] text-[#1A1A1A] sm:text-[44px] md:text-[52px] lg:text-[64px]"
-        >
-          or get to know us first!
-        </motion.h2>
+        />
       </Container>
 
       <div className="relative w-full">

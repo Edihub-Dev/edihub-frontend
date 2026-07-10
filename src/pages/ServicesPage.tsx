@@ -13,6 +13,7 @@ import {
 } from "@/data/services";
 import { getApiUrl } from "@/utils/api";
 import { ServicePageHero } from "@/components/services/ServicePageHero";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 import {
   ServiceLabel,
   ArrowIcon,
@@ -21,6 +22,7 @@ import {
 } from "@/components/services/ServiceUi";
 import { Footer } from "@/components/layout/Footer";
 import { CtaSection } from "@/components/sections/CtaSection";
+import { ParallaxImage } from "@/components/ui/ParallaxImage";
 import arrowsImg from "@/assets/projects/arrows.webp";
 import chantalleImg from "@/assets/projects/chantalle.webp";
 import papyrusImg from "@/assets/projects/papyrus.webp";
@@ -159,9 +161,11 @@ export function ServicesPage() {
             <div className="grid gap-8 border-b border-[#F3F4F6] pb-12 lg:grid-cols-2 lg:items-end">
               <div>
                 <ServiceLabel>Services</ServiceLabel>
-                <h2 className="mt-4 text-[40px] font-semibold tracking-[-0.06em] text-[#111827] sm:text-[48px]">
-                  What we do
-                </h2>
+                <ScrollRevealText
+                  text="What we do"
+                  as="h2"
+                  className="mt-4 text-[40px] font-semibold tracking-[-0.06em] text-[#111827] sm:text-[48px]"
+                />
               </div>
               <p className="max-w-[48ch] text-[18px] sm:text-[20px] leading-[1.7] text-[#4B5563] font-medium">
                 End-to-end digital services — from brand strategy and design to development and launch. Click any service to explore details.
@@ -252,9 +256,11 @@ export function ServicesPage() {
         <section className="border-t border-[#F3F4F6] min-h-screen flex items-center py-0 md:py-0">
           <Container className="px-5 sm:px-6 lg:px-10 xl:px-16 w-full">
             <ServiceLabel>Process</ServiceLabel>
-            <h2 className="mt-5 max-w-[22ch] text-[42px] font-bold leading-[1.05] tracking-[-0.06em] text-[#111827] sm:text-[54px] md:text-[68px]">
-              A simple process built for complex projects.
-            </h2>
+            <ScrollRevealText
+              text="A simple process built for complex projects."
+              as="h2"
+              className="mt-5 max-w-[22ch] text-[42px] font-bold leading-[1.05] tracking-[-0.06em] text-[#111827] sm:text-[54px] md:text-[68px]"
+            />
             <ProcessTimeline steps={servicesProcessSteps} />
           </Container>
         </section>
@@ -282,17 +288,15 @@ export function ServicesPage() {
                     className="group"
                   >
                     <Link to={`/projects/${project.slug}`} className="block">
-                      {/* Image Container with Zoom Effect */}
-                      <div className="aspect-[4/3] w-full overflow-hidden rounded-[24px] md:rounded-[32px] bg-zinc-50 relative shadow-sm transition-all duration-500 hover:shadow-lg">
-                        <img
-                          src={projectImage}
-                          alt={project.title}
-                          loading="lazy"
-                          className="h-full w-full object-cover transition-transform duration-700 ease-[0.33,1,0.68,1] group-hover:scale-105"
-                        />
-                        {/* Soft overlay on hover */}
-                        <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/[0.02]" />
-                      </div>
+                      {/* Image Container with Zoom Effect & Parallax */}
+                      <ParallaxImage
+                        src={projectImage}
+                        alt={project.title}
+                        loading="lazy"
+                        containerClassName="aspect-[4/3] w-full rounded-[24px] md:rounded-[32px] bg-zinc-50 shadow-sm transition-all duration-500 hover:shadow-lg"
+                        className="transition-transform duration-700 ease-[0.33,1,0.68,1] group-hover:scale-105"
+                        offset={30}
+                      />
 
                       {/* Text & Tags Row */}
                       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-1">

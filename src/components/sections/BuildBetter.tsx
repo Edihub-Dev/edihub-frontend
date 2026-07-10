@@ -102,7 +102,7 @@ export function BuildBetter() {
               Our team brings together design, development, and strategic thinking to help you grow.
             </motion.p>
 
-            <motion.div variants={item} className="mt-10 flex justify-end sm:mt-12 sm:justify-start">
+            <motion.div variants={item} className="mt-10 flex justify-start sm:mt-12">
               <ArrowLink to="/contact">Start now</ArrowLink>
             </motion.div>
           </motion.div>

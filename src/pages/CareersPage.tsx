@@ -7,8 +7,10 @@ import { CtaSection } from "@/components/sections/CtaSection";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { getApiUrl } from "@/utils/api";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 import { defaultCareers } from "@/data/careers";
 import type { Career } from "@/data/careers";
+import { ParallaxImage } from "@/components/ui/ParallaxImage";
 
 import {
   FiGlobe,
@@ -184,14 +186,11 @@ export function CareersPage() {
                 Careers at Edihub
               </motion.div>
 
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
+              <ScrollRevealText
+                text="Build the future with us."
+                as="h1"
                 className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-[-0.05em] leading-[0.95] text-zinc-950"
-              >
-                Build the future <br />with us.
-              </motion.h1>
+              />
 
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -254,9 +253,11 @@ export function CareersPage() {
                     <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400 text-[11px] sm:text-[13px]">03</div>
                   </div>
 
-                  <div className="my-2 sm:my-3 h-[110px] sm:h-[150px] md:h-[180px] rounded-2xl overflow-hidden bg-zinc-50 border border-zinc-150 relative">
-                    <img src={pexels3} alt="Design" className="w-full h-full object-cover" />
-                  </div>
+                  <ParallaxImage 
+                    src={pexels3} 
+                    alt="Design" 
+                    containerClassName="my-2 sm:my-3 h-[110px] sm:h-[150px] md:h-[180px] rounded-2xl bg-zinc-50 border border-zinc-150 relative"
+                  />
 
                   <div className="text-[16px] sm:text-[22px] font-bold text-zinc-900 leading-tight">Design & Creative</div>
                 </motion.div>
@@ -275,9 +276,11 @@ export function CareersPage() {
                     <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center font-bold text-zinc-400 text-[11px] sm:text-[13px]">02</div>
                   </div>
 
-                  <div className="my-2 sm:my-3 h-[110px] sm:h-[150px] md:h-[180px] rounded-2xl overflow-hidden bg-zinc-50 border border-zinc-150 relative">
-                    <img src={pexels2} alt="Development" className="w-full h-full object-cover" />
-                  </div>
+                  <ParallaxImage 
+                    src={pexels2} 
+                    alt="Development" 
+                    containerClassName="my-2 sm:my-3 h-[110px] sm:h-[150px] md:h-[180px] rounded-2xl bg-zinc-50 border border-zinc-150 relative"
+                  />
 
                   <div className="text-[16px] sm:text-[22px] font-bold text-zinc-900 leading-tight">Tech & Development</div>
                 </motion.div>
@@ -298,9 +301,11 @@ export function CareersPage() {
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-600/10 flex items-center justify-center font-extrabold text-blue-600 text-[11px] sm:text-[13px]">01</div>
                   </div>
 
-                  <div className="my-2 sm:my-3 h-[110px] sm:h-[150px] md:h-[180px] rounded-2xl overflow-hidden bg-zinc-50 border border-zinc-150 relative">
-                    <img src={heroImage} alt="Hiring" className="w-full h-full object-cover" />
-                  </div>
+                  <ParallaxImage 
+                    src={heroImage} 
+                    alt="Hiring" 
+                    containerClassName="my-2 sm:my-3 h-[110px] sm:h-[150px] md:h-[180px] rounded-2xl bg-zinc-50 border border-zinc-150 relative"
+                  />
 
                   <div className="space-y-2 sm:space-y-3">
                     <p className="text-[16px] sm:text-[22px] font-bold tracking-tight text-zinc-900 leading-tight">
@@ -333,9 +338,11 @@ export function CareersPage() {
                 <span className="h-[2px] w-6 bg-blue-600 rounded-full inline-block" />
                 Open Positions
               </span>
-              <h2 className="text-[40px] sm:text-[52px] md:text-[64px] font-extrabold tracking-[-0.04em] leading-[1.05] text-zinc-950">
-                Find your next<br />opportunity.
-              </h2>
+              <ScrollRevealText
+                text="Find your next opportunity."
+                as="h2"
+                className="text-[40px] sm:text-[52px] md:text-[64px] font-extrabold tracking-[-0.04em] leading-[1.05] text-zinc-950"
+              />
               <p className="mt-5 text-[17px] leading-relaxed text-zinc-500 max-w-[45ch]">
                 Join a remote-first team that values creativity, ownership, and continuous growth.
               </p>
@@ -491,9 +498,9 @@ export function CareersPage() {
                         </div>
                         <div className="flex items-center gap-2 text-[13px] font-semibold">
                           <span className="text-blue-600 uppercase tracking-wider">{job.department}</span>
-                          <span className="text-zinc-300">â€¢</span>
-                          <span className="text-zinc-400">{job.employmentType}</span>
-                          <span className="text-zinc-300">â€¢</span>
+                          <span className="text-zinc-300">&bull;</span>
+                          <span className="text-zinc-400 font-medium">{job.employmentType}</span>
+                          <span className="text-zinc-300">&bull;</span>
                           <span className="text-zinc-400">{job.location}</span>
                         </div>
                       </div>
@@ -649,14 +656,16 @@ export function CareersPage() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: idx * 0.08 }}
-                className={`group relative overflow-hidden aspect-[3/4] rounded-2xl bg-zinc-200 ${card.span} border border-zinc-200`}
+                className={`group relative aspect-[3/4] ${card.span}`}
               >
-                <img
+                <ParallaxImage
                   src={card.img}
                   alt={card.caption}
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  containerClassName={`absolute inset-0 w-full h-full rounded-2xl bg-zinc-200 border border-zinc-200`}
+                  className="transition-transform duration-700 group-hover:scale-105"
+                  offset={20}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex items-end p-5">
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-black/85 via-black/20 to-transparent flex items-end p-5 pointer-events-none">
                   <p className="text-white text-[13px] font-bold">{card.caption}</p>
                 </div>
               </motion.div>

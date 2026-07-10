@@ -1,7 +1,8 @@
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import videoBg from "@/assets/download.mp4";
 import { Link } from "react-router-dom";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 
 const list = {
   hidden: {},
@@ -22,26 +23,42 @@ const item = {
 };
 
 export function CtaSection() {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+
+  const travel = 25 * 3.5;
+  const y = useTransform(scrollYProgress, [0, 1], [-travel, travel]);
 
   return (
     <section
       id="cta"
+      ref={sectionRef}
       className="relative h-[460px] max-h-[460px] overflow-hidden md:h-[520px] md:max-h-[520px] lg:h-[620px] lg:max-h-[620px]"
     >
       {/* Video Background */}
-      <video
+      <motion.video
         autoPlay
         muted
         loop
         playsInline
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute left-0 w-full object-cover"
         src={videoBg}
+        style={{
+          y,
+          top: `-${travel}px`,
+          height: `calc(100% + ${travel * 2}px)`,
+          willChange: "transform",
+        }}
       />
       
-      {/* Gradient Overlay: 100% at bottom, 50% at top */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-black/80" />
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/80 to-black/60" />
 
       {/* Content */}
       <div className="relative z-10 flex h-full items-center justify-center px-5 pt-8 md:pt-12 lg:pt-14">
@@ -52,14 +69,11 @@ export function CtaSection() {
           animate={inView ? "show" : "hidden"}
           className="flex max-w-7xl flex-col items-center text-center"
         >
-          <motion.h2
-            variants={item}
-            className="text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-white sm:text-6xl md:text-6xl lg:text-9xl"
-          >
-            Let's build something
-            <br />
-            great together
-          </motion.h2>
+          <ScrollRevealText
+            text="Let's build something great together"
+            as="h2"
+            className="mx-auto text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-white sm:text-6xl md:text-6xl lg:text-9xl text-center justify-center"
+          />
           
           <motion.p
             variants={item}

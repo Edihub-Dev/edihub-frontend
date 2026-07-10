@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { Section } from "@/components/ui/Section";
@@ -8,7 +8,9 @@ import statsImage from "@/assets/stats.webp";
 
 import { CtaSection } from "@/components/sections/CtaSection";
 import { Footer } from "@/components/layout/Footer";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 import { team } from "@/data/team";
+import { ParallaxImage } from "@/components/ui/ParallaxImage";
 
 const list = {
   hidden: {},
@@ -31,12 +33,6 @@ const item = {
 export function AboutPage() {
   const heroRef = useRef(null);
   const heroImagesRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroImagesRef,
-    offset: ["start end", "end start"],
-    layoutEffect: false,
-  });
-  const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "-10%"]);
 
   const storyRef = useRef(null);
   const teamRef = useRef(null);
@@ -52,14 +48,11 @@ export function AboutPage() {
             initial="hidden"
             animate="show"
           >
-            <motion.h1
-              variants={item}
+            <ScrollRevealText
+              text="Building digital excellence since 2014"
+              as="h1"
               className="max-w-[22ch] text-[40px] font-semibold leading-[0.95] tracking-[-0.09em] text-[#111827] sm:text-[52px] md:text-[64px] lg:text-[80px]"
-            >
-              Building digital
-              <br />
-              excellence since 2014
-            </motion.h1>
+            />
 
             <div
               ref={heroImagesRef}
@@ -67,14 +60,14 @@ export function AboutPage() {
             >
               {/* Left image card */}
               <motion.div variants={item} className="lg:col-span-6">
-                <Link to="/team/markus-chen" className="group block overflow-hidden rounded-[2rem] lg:rounded-[3.5rem] bg-zinc-100">
-                  <motion.div style={{ y: imageY }} className="h-full w-full">
-                    <img
-                      src={teamImage}
-                      alt="Our Team"
-                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  </motion.div>
+                <Link to="/team/markus-chen" className="group block bg-zinc-100 rounded-[2rem] lg:rounded-[3.5rem]">
+                  <ParallaxImage
+                    src={teamImage}
+                    alt="Our Team"
+                    containerClassName="w-full h-full rounded-[2rem] lg:rounded-[3.5rem]"
+                    className="transition-transform duration-700 group-hover:scale-105"
+                    offset={30}
+                  />
                 </Link>
               </motion.div>
 
@@ -89,12 +82,14 @@ export function AboutPage() {
                   developing scalable digital products, we help businesses transform
                   ideas into impactful digital experiences.
                 </p>
-                <div className="mt-12 overflow-hidden rounded-[2rem] lg:rounded-[3.5rem] bg-zinc-100">
+                <div className="mt-12 bg-zinc-100 rounded-[2rem] lg:rounded-[3.5rem]">
                   <Link to="/services" className="group block h-full w-full">
-                    <img
+                    <ParallaxImage
                       src={statsImage}
                       alt="Our Impact"
-                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      containerClassName="w-full h-full rounded-[2rem] lg:rounded-[3.5rem]"
+                      className="transition-transform duration-700 group-hover:scale-105"
+                      offset={30}
                     />
                   </Link>
                 </div>
@@ -116,9 +111,11 @@ export function AboutPage() {
           >
             {/* Top: Title and paragraph on left */}
             <div className="lg:w-[65%]">
-              <motion.h2 variants={item} className="text-[36px] font-semibold leading-[1.05] tracking-[-0.06em] text-[#111827] sm:text-[44px] md:text-[56px] lg:text-[72px]">
-                From humble beginnings to a trusted digital partner
-              </motion.h2>
+              <ScrollRevealText
+                text="From humble beginnings to a trusted digital partner"
+                as="h2"
+                className="text-[36px] font-semibold leading-[1.05] tracking-[-0.06em] text-[#111827] sm:text-[44px] md:text-[56px] lg:text-[72px]"
+              />
               <motion.p variants={item} className="mt-12 text-[18px] leading-relaxed text-[#4B5563] sm:text-[20px] lg:text-[26px]">
                 What started as a small team of three developers working from a tiny office has grown into a dynamic
                 digital agency trusted by businesses across multiple industries. Through dedication to quality,
@@ -177,9 +174,11 @@ export function AboutPage() {
                 <motion.p variants={item} className="text-[14px] font-bold tracking-[0.2em] text-[#0066FF] uppercase">
                   / Our People /
                 </motion.p>
-                <motion.h2 variants={item} className="mt-6 text-[44px] font-semibold leading-[1.05] tracking-[-0.06em] text-[#111827] sm:text-[52px] lg:text-[72px]">
-                  The experts behind the magic.
-                </motion.h2>
+                <ScrollRevealText
+                  text="Our leadership"
+                  as="h2"
+                  className="mt-6 text-[44px] font-semibold leading-[1.05] tracking-[-0.06em] text-[#111827] sm:text-[52px] lg:text-[72px]"
+                />
               </div>
               <motion.p variants={item} className="max-w-[30ch] text-[18px] leading-relaxed text-[#4B5563] lg:text-[22px]">
                 A diverse team of designers, developers, and strategists united by a passion for excellence.
@@ -194,13 +193,13 @@ export function AboutPage() {
                   className="group cursor-pointer"
                   onClick={() => window.location.href = `/team/${person.id}`}
                 >
-                  <div className="aspect-[4/5] overflow-hidden rounded-[2rem] bg-zinc-200 lg:rounded-[3rem] shadow-sm transition-shadow hover:shadow-2xl">
-                    <img
-                      src={person.image}
-                      alt={person.name}
-                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                  </div>
+                  <ParallaxImage
+                    src={person.image}
+                    alt={person.name}
+                    containerClassName="aspect-[4/5] rounded-[2rem] bg-zinc-200 lg:rounded-[3rem] shadow-sm transition-shadow hover:shadow-2xl"
+                    className="transition-transform duration-700 group-hover:scale-110"
+                    offset={25}
+                  />
                   <div className="mt-8">
                     <h3 className="text-[20px] font-bold tracking-tight text-[#111827] lg:text-[28px]">
                       {person.name}

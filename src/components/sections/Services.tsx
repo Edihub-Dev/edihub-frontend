@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { getApiUrl } from "@/utils/api";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 
 const list = {
   hidden: {},
@@ -50,13 +51,11 @@ export function Services() {
           animate="show"
         >
           <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-            <motion.p
-              variants={item}
+            <ScrollRevealText
+              text="This is how we help ambitious companies succeed."
+              as="p"
               className="max-w-3xl text-[25px] font-bold leading-[1.1] tracking-[-0.8px] text-[#1A1A1A] sm:text-[34px] md:text-[40px] text-balance"
-              style={{ textWrap: "balance" }}
-            >
-              This is how we help ambitious companies succeed.
-            </motion.p>
+            />
 
             <motion.div variants={item}>
               <Link
@@ -88,7 +87,7 @@ export function Services() {
                   >
                     <span
                       aria-hidden="true"
-                      className={`absolute inset-y-2 left-0 right-0 rounded-2xl bg-[#0066FF] opacity-0 transition-[opacity,left,right] duration-200 ease-out group-hover:opacity-100 group-hover:left-8 group-hover:right-8 md:group-hover:left-10 md:group-hover:right-10 hidden md:block ${isActive ? "md:opacity-100 md:left-8 md:right-8 md:left-10 md:right-10" : ""
+                      className={`absolute inset-y-0 left-0 right-0 rounded-2xl bg-[#0066FF] opacity-0 transition-[opacity,left,right] duration-200 ease-out group-hover:opacity-100 hidden md:block ${isActive ? "md:opacity-100" : ""
                         }`}
                     />
                     <span

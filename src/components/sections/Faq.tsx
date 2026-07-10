@@ -3,6 +3,7 @@ import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useRef } from "react";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 import { Link } from "react-router-dom";
 import { ServiceLabel } from "@/components/services/ServiceUi";
 
@@ -61,14 +62,11 @@ export function Faq({ items, title = "Common Qs", label }: FaqProps) {
                 <ServiceLabel>{label}</ServiceLabel>
               </div>
             )}
-            <motion.h2
-              initial={{ opacity: 0, y: 12 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.4 }}
+            <ScrollRevealText
+              text={title}
+              as="h2"
               className="text-6xl font-bold tracking-tight text-[#1A1A1A] sm:text-7xl"
-            >
-              {title}
-            </motion.h2>
+            />
             <motion.p
               initial={{ opacity: 0, y: 12 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}

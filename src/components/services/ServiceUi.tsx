@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { ReactNode } from "react";
 import { WavyCtaBg } from "./ServiceVisuals";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 
 
 export function ServicesTopBar() {
@@ -115,9 +116,11 @@ export function ServiceCtaBanner({ heading }: { heading: string }) {
       <WavyCtaBg />
       <div className="relative mx-auto w-full max-w-[140rem] px-5 text-center sm:px-6 lg:px-10 xl:px-16">
         <ServiceLabel>Ready to start?</ServiceLabel>
-        <h2 className="mx-auto mt-6 max-w-[22ch] text-[36px] font-semibold leading-[1.08] tracking-[-0.06em] text-[#111827] sm:text-[44px] md:text-[52px] lg:text-[56px]">
-          {heading}
-        </h2>
+        <ScrollRevealText
+          text={heading}
+          as="h2"
+          className="mx-auto mt-6 max-w-[22ch] text-[36px] font-semibold leading-[1.08] tracking-[-0.06em] text-[#111827] sm:text-[44px] md:text-[52px] lg:text-[56px]"
+        />
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
           <PrimaryButton to="/contact">Book a call</PrimaryButton>
           <SecondaryButton to="/contact">Start your project</SecondaryButton>

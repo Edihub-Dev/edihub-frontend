@@ -5,6 +5,7 @@ import { Container } from "@/components/ui/Container";
 import { resolveServiceDetail, type ApiService } from "@/data/services";
 import { getApiUrl } from "@/utils/api";
 import { ServicePageHero } from "@/components/services/ServicePageHero";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 import {
   FeatureIcon,
   ArrowIcon,
@@ -13,6 +14,7 @@ import {
 } from "@/components/services/ServiceUi";
 import { Footer } from "@/components/layout/Footer";
 import { CtaSection } from "@/components/sections/CtaSection";
+import { ParallaxImage } from "@/components/ui/ParallaxImage";
 
 // ─── helpers ──────────────────────────────────────────────
 function getYouTubeId(url: string): string | null {
@@ -143,7 +145,13 @@ function GalleryGrid({
           onClick={() => onOpen(i)}
           className="relative aspect-[4/3] overflow-hidden rounded-xl border border-[#EBEEF2] bg-[#F9FAFB] cursor-zoom-in group"
         >
-          <img src={img.src} alt={img.alt} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <ParallaxImage
+            src={img.src}
+            alt={img.alt}
+            containerClassName="absolute inset-0 w-full h-full"
+            className="transition-transform duration-500 group-hover:scale-105"
+            offset={25}
+          />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
             <svg className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1116.65 16.65z" />
@@ -180,7 +188,13 @@ function VideoGrid({
             className="relative aspect-video overflow-hidden rounded-xl border border-[#EBEEF2] bg-black cursor-pointer group"
           >
             {thumb ? (
-              <img src={thumb} alt={`Video ${i + 1}`} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+              <ParallaxImage
+                src={thumb}
+                alt={`Video ${i + 1}`}
+                containerClassName="absolute inset-0 w-full h-full"
+                className="opacity-80 group-hover:opacity-100 transition-opacity"
+                offset={25}
+              />
             ) : vid.type === "upload" ? (
               <video src={vid.url} className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity" muted />
             ) : (
@@ -336,10 +350,12 @@ export function ServiceDetailPage() {
                   }
                   className="relative w-full overflow-hidden rounded-2xl border border-[#EBEEF2] bg-[#F9FAFB] shadow-sm cursor-zoom-in group"
                 >
-                  <img
+                  <ParallaxImage
                     src={service.overviewImage as string}
                     alt=""
-                    className="aspect-[4/3] w-full object-cover lg:aspect-auto lg:min-h-[440px] transition-transform duration-500 group-hover:scale-[1.02]"
+                    containerClassName="aspect-[4/3] w-full lg:aspect-auto lg:min-h-[440px]"
+                    className="transition-transform duration-500 group-hover:scale-[1.02]"
+                    offset={30}
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-end justify-end p-4">
                     <div className="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow opacity-0 group-hover:opacity-100 transition-opacity">
@@ -378,9 +394,11 @@ export function ServiceDetailPage() {
               {/* Right: text + checklist */}
               <div className="lg:sticky lg:top-32">
                 <ServiceLabel>Overview</ServiceLabel>
-                <h2 className="mt-4 text-[32px] font-semibold leading-[1.1] tracking-[-0.05em] text-[#111827] sm:text-[40px]">
-                  {service.overviewHeading}
-                </h2>
+                <ScrollRevealText
+                  text={service.overviewHeading}
+                  as="h2"
+                  className="mt-4 text-[32px] font-semibold leading-[1.1] tracking-[-0.05em] text-[#111827] sm:text-[40px]"
+                />
                 <p className="mt-6 text-[15px] leading-[1.7] text-[#6B7280]">{service.overviewBody}</p>
                 <ul className="mt-10 space-y-5">
                   {service.overviewPoints.map((point) => (
@@ -492,10 +510,12 @@ export function ServiceDetailPage() {
                   }
                   className="group w-full overflow-hidden rounded-2xl border border-[#EBEEF2] bg-[#F5F6F8] p-4 shadow-sm hover:shadow-md transition-shadow cursor-zoom-in"
                 >
-                  <img
+                  <ParallaxImage
                     src={service.relatedWork.image as string}
                     alt=""
-                    className="w-full rounded-xl object-cover transition-transform duration-500 group-hover:scale-[1.01]"
+                    containerClassName="w-full rounded-xl"
+                    className="transition-transform duration-500 group-hover:scale-[1.01]"
+                    offset={30}
                   />
                 </motion.button>
 

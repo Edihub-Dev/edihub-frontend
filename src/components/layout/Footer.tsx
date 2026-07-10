@@ -34,19 +34,20 @@ export function Footer() {
           
           {/* Left Column: Brand & Logo */}
           <div className="max-w-md lg:max-w-xl space-y-6">
-            <Link to="/" className="relative inline-block transition-opacity hover:opacity-90 select-none group">
-              {/* Base: Inverted logo to make text white */}
+            <Link to="/" className="relative inline-block transition-opacity hover:opacity-90 select-none group" aria-label="Home">
+              {/* Base: Inverted logo to make everything white */}
               <img 
                 src={logoSrc} 
                 alt="EDIHUB" 
-                className="h-22 sm:h-28 w-auto brightness-0 invert opacity-95" 
+                className="h-20 w-auto md:h-22 brightness-0 invert opacity-95" 
               />
-              {/* Overlay: Clipped to icon area only, un-inverted to keep blue background */}
+              {/* Overlay: Clipped to icon area only, un-inverted to keep the black box and blue E */}
+              {/* Using a drop-shadow here so ONLY the icon box gets the white shadow */}
               <img 
                 src={logoSrc} 
                 alt="" 
-                className="absolute inset-0 h-full w-auto pointer-events-none" 
-                style={{ clipPath: "inset(0% 78% 45% 0%)" }}
+                className="absolute inset-0 h-full w-auto pointer-events-none drop-shadow-[0_0_1px_rgba(255,255,255,0.8)]" 
+                style={{ clipPath: "inset(0% 72% 35% 0%)" }}
               />
             </Link>
             <p className="text-[16px] sm:text-[17px] leading-relaxed text-zinc-400 font-medium">

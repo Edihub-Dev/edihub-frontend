@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { ServiceHeroVisual, ScrollExploreIndicator } from "./ServiceVisuals";
 import { PrimaryButton, SecondaryButton } from "./ServiceUi";
 import { Container } from "@/components/ui/Container";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 
 const list = { hidden: {}, show: { transition: { staggerChildren: 0.1 } } };
 const item = {
@@ -40,12 +41,11 @@ export function ServicePageHero({
             className="flex min-h-0 flex-col lg:min-h-[480px] lg:justify-center lg:py-4"
           >
             <motion.div variants={item}>{label}</motion.div>
-            <motion.h1
-              variants={item}
+            <ScrollRevealText
+              text={title}
+              as="h1"
               className="mt-8 text-[44px] font-semibold leading-[1.02] tracking-[-0.06em] text-[#111827] sm:text-[56px] md:text-[64px] lg:text-[72px]"
-            >
-              {title}
-            </motion.h1>
+            />
             <motion.p
               variants={item}
               className="mt-8 max-w-[46ch] text-[18px] sm:text-[20px] md:text-[22px] leading-[1.7] text-[#4B5563] font-medium"

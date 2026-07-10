@@ -5,7 +5,9 @@ import { Section } from "@/components/ui/Section";
 import { Container } from "@/components/ui/Container";
 import { Footer } from "@/components/layout/Footer";
 import { CtaSection } from "@/components/sections/CtaSection";
+import { ParallaxImage } from "@/components/ui/ParallaxImage";
 import { getApiUrl } from "@/utils/api";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 
 import pexels1 from "@/assets/projects/pexels-1.webp";
 import pexels2 from "@/assets/projects/pexels-2.webp";
@@ -111,16 +113,11 @@ export function ProjectsPage() {
             <div className="grid gap-8 lg:grid-cols-12 lg:gap-14 lg:items-end">
               {/* Left Column: Heading */}
               <div className="lg:col-span-8">
-                <motion.h1 
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, ease: "easeOut" }}
+                <ScrollRevealText
+                  text="Discover our recent projects"
+                  as="h1"
                   className="text-[44px] font-semibold leading-[0.98] tracking-[-0.07em] text-black sm:text-[58px] md:text-[72px] lg:text-[84px]"
-                >
-                  Discover our
-                  <br />
-                  recent projects
-                </motion.h1>
+                />
               </div>
               
               {/* Right Column: Paragraph */}
@@ -157,17 +154,15 @@ export function ProjectsPage() {
                     className="group"
                   >
                     <Link to={`/projects/${project.slug}`} className="block">
-                      {/* Image Container with Zoom Effect */}
-                      <div className="aspect-[4/3] w-full overflow-hidden rounded-[24px] md:rounded-[32px] bg-zinc-50 relative shadow-sm transition-all duration-500 hover:shadow-lg">
-                        <img
-                          src={projectImage}
-                          alt={project.title}
-                          loading="lazy"
-                          className="h-full w-full object-cover transition-transform duration-700 ease-[0.33,1,0.68,1] group-hover:scale-105"
-                        />
-                        {/* Soft overlay on hover */}
-                        <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/[0.02]" />
-                      </div>
+                      {/* Image Container with Zoom Effect & Parallax */}
+                      <ParallaxImage
+                        src={projectImage}
+                        alt={project.title}
+                        loading="lazy"
+                        containerClassName="aspect-[4/3] w-full rounded-[24px] md:rounded-[32px] bg-zinc-50 shadow-sm transition-all duration-500 hover:shadow-lg"
+                        className="transition-transform duration-700 ease-[0.33,1,0.68,1] group-hover:scale-105"
+                        offset={30}
+                      />
 
                       {/* Text & Tags Row */}
                       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-1">

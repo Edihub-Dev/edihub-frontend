@@ -6,6 +6,8 @@ import { Container } from "@/components/ui/Container";
 import { Footer } from "@/components/layout/Footer";
 import { CtaSection } from "@/components/sections/CtaSection";
 import { useEffect } from "react";
+import { ParallaxImage } from "@/components/ui/ParallaxImage";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 
 export function TeamDetailPage() {
   const { id } = useParams();
@@ -55,13 +57,12 @@ export function TeamDetailPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
             >
-              <div className="aspect-[4/5] overflow-hidden rounded-[2rem] bg-zinc-100 lg:rounded-[3rem] shadow-xl">
-                <img
-                  src={person.image}
-                  alt={person.name}
-                  className="h-full w-full object-cover"
-                />
-              </div>
+              <ParallaxImage
+                src={person.image}
+                alt={person.name}
+                containerClassName="aspect-[4/5] rounded-[2rem] bg-zinc-100 lg:rounded-[3rem] shadow-xl"
+                offset={25}
+              />
             </motion.div>
 
             {/* Right: Info */}
@@ -72,9 +73,11 @@ export function TeamDetailPage() {
               className="flex flex-col"
             >
               <div className="border-b border-zinc-100 pb-10">
-                <h1 className="text-[42px] font-bold tracking-tight text-[#111827] sm:text-[52px] lg:text-[64px]">
-                  {person.name}
-                </h1>
+                <ScrollRevealText
+                  text={person.name}
+                  as="h1"
+                  className="text-[42px] font-bold tracking-tight text-[#111827] sm:text-[52px] lg:text-[64px]"
+                />
                 <p className="mt-4 text-[20px] font-semibold text-[#0066FF] sm:text-[24px]">
                   {person.role}
                 </p>
@@ -153,13 +156,13 @@ export function TeamDetailPage() {
                   className="group flex flex-col"
                   onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 >
-                  <div className="aspect-[4/5] overflow-hidden rounded-2xl bg-white lg:rounded-3xl shadow-sm transition-shadow hover:shadow-xl">
-                    <img
-                      src={otherPerson.image}
-                      alt={otherPerson.name}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                  </div>
+                  <ParallaxImage
+                    src={otherPerson.image}
+                    alt={otherPerson.name}
+                    containerClassName="aspect-[4/5] rounded-2xl bg-white lg:rounded-3xl shadow-sm transition-shadow hover:shadow-xl"
+                    className="transition-transform duration-500 group-hover:scale-110"
+                    offset={25}
+                  />
                   <div className="mt-6">
                     <h4 className="text-[18px] font-bold text-[#111827] lg:text-[22px]">
                       {otherPerson.name}

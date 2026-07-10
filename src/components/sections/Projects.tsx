@@ -15,6 +15,8 @@ import interferenceImg from "@/assets/projects/interference.webp";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { getApiUrl } from "@/utils/api";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
+import { ParallaxImage } from "@/components/ui/ParallaxImage";
 
 type Project = {
   title: string;
@@ -83,13 +85,13 @@ function ProjectCard({
         <div
           className={`relative w-full overflow-hidden rounded-[28px] bg-zinc-200 ${media}`}
         >
-          <motion.img
+          <ParallaxImage
             src={customImageMap[project.slug] || imageMap[project.image] || project.image}
             alt={project.title}
             loading="lazy"
-            className="h-full w-full object-cover object-center"
-            whileHover={{ scale: 1.08 }}
-            transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
+            containerClassName={`absolute inset-0 w-full h-full`}
+            className="transition-transform duration-600 ease-[0.33,1,0.68,1] group-hover:scale-105"
+            offset={25}
           />
 
           <div className="pointer-events-none absolute bottom-4 right-4 opacity-0 transition-all duration-200 group-hover:opacity-100">
@@ -204,13 +206,11 @@ export function Projects() {
               >
                 / Our projects
               </motion.span>
-              <motion.h2
-                variants={headerItem}
+              <ScrollRevealText
+                text="Our recent projects"
+                as="h2"
                 className="mt-6 text-[36px] font-semibold leading-[1.05] tracking-[-1.5px] sm:tracking-[-3.8px] text-black sm:text-[64px] lg:text-[76px] text-balance"
-                style={{ textWrap: "balance" }}
-              >
-                Our recent projects
-              </motion.h2>
+              />
               <motion.p
                 variants={headerItem}
                 className="mt-5 max-w-[56ch] text-[16px] leading-[1.6] text-black/55 sm:text-[17px] lg:text-[18px]"

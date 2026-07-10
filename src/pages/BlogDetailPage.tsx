@@ -8,6 +8,8 @@ import { Footer } from "@/components/layout/Footer";
 import { CtaSection } from "@/components/sections/CtaSection";
 import { getApiUrl, getYouTubeId } from "@/utils/api";
 import { FiArrowLeft, FiShare2 } from "react-icons/fi";
+import { ParallaxImage } from "@/components/ui/ParallaxImage";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 
 type Blog = {
   title: string;
@@ -97,7 +99,7 @@ export function BlogDetailPage() {
 
   // Custom renderer for simple markdown-like content in the json
   const renderContent = (text: string) => {
-    return text.split('\n\n').map((paragraph, index) => {
+    return text.split('\n').filter(p => p.trim() !== '').map((paragraph, index) => {
       if (paragraph.startsWith('### ')) {
         return (
           <h3 key={index} className="mt-8 text-[22px] font-bold text-black sm:text-[26px]">
@@ -142,11 +144,13 @@ export function BlogDetailPage() {
           transition={{ duration: 0.8 }}
           className="relative w-full h-screen flex items-end overflow-hidden bg-zinc-950"
         >
-          {/* Cover image with group hover zoom */}
-          <img
+          {/* Cover image with group hover zoom & Parallax */}
+          <ParallaxImage
             src={blog.image}
             alt={blog.title}
-            className="absolute inset-0 w-full h-full object-cover opacity-60 blur-md scale-[1.05]"
+            containerClassName="absolute inset-0 w-full h-full"
+            className="opacity-60 blur-md scale-[1.05]"
+            offset={40}
           />
 
           {/* Dark Overlay Gradient to guarantee white text visibility */}
@@ -171,10 +175,11 @@ export function BlogDetailPage() {
                 </span>
               </div>
 
-              {/* Title */}
-              <h1 className="text-white text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.08] max-w-4xl">
-                {blog.title}
-              </h1>
+              <ScrollRevealText
+                text={blog.title}
+                as="h1"
+                className="text-white text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.08] max-w-4xl"
+              />
 
               {/* Author & Share Row */}
               <div className="mt-8 flex flex-wrap items-center justify-between gap-6 pt-6 border-t border-white/10">
@@ -272,10 +277,12 @@ export function BlogDetailPage() {
                               transition={{ duration: 0.6, delay: idx * 0.08 }}
                               className={`group relative overflow-hidden rounded-[20px] border border-zinc-150 bg-zinc-50 shadow-sm aspect-video cursor-zoom-in ${isFullWidth ? 'sm:col-span-2' : ''}`}
                             >
-                              <img
+                              <ParallaxImage
                                 src={imgUrl}
                                 alt={`${blog.title} gallery image ${idx + 1}`}
-                                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                containerClassName="absolute inset-0 w-full h-full"
+                                className="transition-transform duration-700 group-hover:scale-105"
+                                offset={25}
                               />
                               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
                                 <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-2.5 shadow-lg">
@@ -408,13 +415,13 @@ export function BlogDetailPage() {
                   to={`/blog/${related.slug}`}
                   className="group block"
                 >
-                  <div className="aspect-[16/9] w-full overflow-hidden rounded-[24px] bg-zinc-100 shadow-sm transition-all duration-500 hover:shadow-md">
-                    <img
-                      src={related.image}
-                      alt={related.title}
-                      className="h-full w-full object-cover transition-transform duration-700 ease-[0.33,1,0.68,1] group-hover:scale-104"
-                    />
-                  </div>
+                  <ParallaxImage
+                    src={related.image}
+                    alt={related.title}
+                    containerClassName="aspect-[16/9] w-full rounded-[24px] bg-zinc-100 shadow-sm transition-all duration-500 hover:shadow-md"
+                    className="transition-transform duration-700 ease-[0.33,1,0.68,1] group-hover:scale-104"
+                    offset={30}
+                  />
                   
                   <div className="mt-6 flex flex-col gap-3 px-1">
                     <div className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-wider text-black/55">

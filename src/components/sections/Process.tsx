@@ -3,6 +3,7 @@ import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useRef } from "react";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
+import { ScrollRevealText } from "@/components/ui/ScrollRevealText";
 
 const header = {
   hidden: {},
@@ -81,12 +82,11 @@ export function Process() {
               </motion.span>
             </div>
             <div className="lg:col-span-6">
-              <motion.h2
-                variants={headerItem}
+              <ScrollRevealText
+                text="Our mission is to help businesses grow through strategic design, creating work that performs as good as it looks."
+                as="h2"
                 className="text-[28px] font-semibold leading-[1.05] tracking-[-2.6px] text-white sm:text-[34px] md:text-[44px] lg:text-[45px]"
-              >
-                Our mission is to help businesses grow through strategic design, creating work that performs as good as it looks.
-              </motion.h2>
+              />
             </div>
           </motion.div>
 
